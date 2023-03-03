@@ -23,7 +23,7 @@ if [ x$CLEAN = x1 ]; then
 fi
 
 if [ ! -d ${VENV_DIR} ]; then
-    python -m venv ${VENV_DIR}
+    python3 -m venv ${VENV_DIR}
 fi
 
 if [ x$UPDATE = x1 ]; then
