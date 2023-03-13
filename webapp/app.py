@@ -82,8 +82,8 @@ app = Flask(__name__, static_url_path="/static", template_folder="templates")
 app_api = Api(app)
 # NOTE: this might be unsafe
 CORS(app)
-# with open('secret_key.txt') as f:
-#     app.config['SECRET_KEY'] = f.read()
+with open('secret_key.txt') as f:
+    app.config['SECRET_KEY'] = f.read()
 ##############################
 
 
