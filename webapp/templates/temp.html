@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <div class="columns tab-area">
+    <div class="column">
+      TEMP PAGE
+      <div class="column" id="plotCont">
+        <div id="plotDiv"></div>
+      </div>
+      <button id="tempButton">BUTTON</button>
+    </div>
+    
+    <!-- {% if available_species != [species] %}
+      <p style="margin-top:100px">not in [species]</p>
+      <p style="margin-top:100px">{{ species }}</p>
+      <p style="margin-top:100px">{{ feature_types }}</p>
+      <p style="margin-top:100px">{{ tissues }}</p>
+    {% endif %} -->
+  </div>
+
+  <script type="module" src="/js/temp.js"></script>
+  
+{% endblock %}

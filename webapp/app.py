@@ -109,6 +109,7 @@ def measurement_by_celltype():
     species = request.args.get('species')
     if species is None:
         species = config['defaults']['species']
+    print('SPECIES: ', species)
     tissue = request.args.get('tissue')
     if tissue is None:
         tissue = config['defaults']['tissue']
@@ -438,7 +439,12 @@ def measurement_species_comparison_1celltype():
         celltype=celltype,
     ) 
 
-
+@app.route("/temp", methods=["GET"])
+def tempPage():
+    '''Temporary page to play around and test with'''
+    return render_template(
+        'temp.html',
+    )
 
 # Static assets (JS/CSS)
 @app.route("/js/<path:path>")

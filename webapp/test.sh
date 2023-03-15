@@ -13,9 +13,9 @@ VENV_DIR=.venv
 VERBOSE=0
 MAIN_FLASK_FILE=app.py
 CERT=0
-FLASK=${VENV_DIR}/bin/flask
-PIP=${VENV_DIR}/bin/pip
-PYTEST=${VENV_DIR}/bin/pytest
+FLASK=${VENV_DIR}/Scripts/flask
+PIP=${VENV_DIR}/Scripts/pip
+PYTEST=${VENV_DIR}/Scripts/pytest
 export FLASK_DEBUG=1
 
 if [ x$CLEAN = x1 ]; then
@@ -27,7 +27,7 @@ if [ ! -d ${VENV_DIR} ]; then
 fi
 
 if [ x$UPDATE = x1 ]; then
- ${VENV_DIR}/bin/pip install -r requirements.txt
+ ${VENV_DIR}/Scripts/pip install -r requirements.txt
 fi
 
 if [ x$CERT = x1 ]; then

@@ -193,9 +193,9 @@ function plotMeasurementByCelltype(
                     zs[k][i].push(measurement);
                 }
             }
-           traces[k]['z'] = zs[k];
-           traces[k]['x'] = x_axis;
-           traces[k]['y'] = y_axiss[k];
+            traces[k]['z'] = zs[k];
+            traces[k]['x'] = x_axis;
+            traces[k]['y'] = y_axiss[k];
         }
 
         if (refresh == true) {
