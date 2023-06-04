@@ -1,5 +1,5 @@
 # Web imports
-from flask import request, jsonify, abort
+from flask import request, jsonify, abort, json
 from flask_restful import Resource
 
 # Data import
@@ -13,6 +13,7 @@ from scipy.spatial.distance import pdist
 from config import configuration as config
 from models import (
         get_speciess,
+        get_tissues,
         get_celltypes,
         get_counts,
         get_data_overtime_1feature,
@@ -58,6 +59,7 @@ class MeasurementByCelltype(Resource):
 
     def get(self, args=None):
         '''Get data to plot a table of measurements (e.g. GE) by cell type'''
+        print('measuremnt by cell type args = : ', request.args)
         if args is None:
             args = request.args
         species = args.get("species")
@@ -74,6 +76,7 @@ class MeasurementByCelltype(Resource):
         feature_stringd = validate_correct_feature_mix(
             featurestring, species=species,
         )
+        # print(f'feature_stringd: {feature_stringd}')
         if len(feature_stringd) == 0:
             print('no feature found!')
             return None
@@ -92,7 +95,6 @@ class MeasurementByCelltype(Resource):
 
         # Store data to comupte hierarchical clustering of cell types
         dfl_for_ct_hierarchy = []
-
         for feature_type, featurestring in feature_stringd.items():
             # NOTE: this is where it gets tricky with canonical intervals
             feature_names = featurestring.split(',')
@@ -106,6 +108,12 @@ class MeasurementByCelltype(Resource):
                 missing_genes = 'skip'
             else:
                 missing_genes = 'throw'
+
+            # print(f'feature types: {feature_type}')
+            # print(f'feature names: {feature_names}')
+            # print(f'speces: {species}')
+            # print(f'tissue: {tissue}')
+            # print(f'missing_genes: {missing_genes}')
 
             try:
                 df = get_counts(
@@ -130,6 +138,8 @@ class MeasurementByCelltype(Resource):
             except KeyError:
                 print("Could not get counts from h5 file")
                 return None
+
+            print(f'df: {df}')
 
             # Just in case we skipped some
             feature_names = df.index.tolist()
@@ -832,3 +842,90 @@ class CelltypeAbundance(Resource):
             'celltypeabundance': get_celltype_abundances(timepoint, kind=kind),
             }
 
+class CelltypesMany(Resource):
+    def get(self, args=None):
+        print('\t\there')
+        args = request.args
+        print(f'args: {args}')
+        species = args.get("species")
+        tissues = json.loads(args.get('tissue'))
+        fNames = args.get('feature_names')
+        print(f'species: {species}\t\t tissues: {tissues}\t\t featureNames = {fNames}\n\n')
+
+        reqData = {'species': species,
+                    'tissue': tissues[0],
+                    'feature_names': fNames}
+        print(f'reqData: {reqData}')
+
+
+        # test = MeasurementByCelltype().get(params={reqData})
+
+        # requests.get('by_celltype', params={reqData})
+        MeasurementByCelltype().get()
+
+        # speciesList = request.args.getlist("species[]")
+        # print(f'species = {speciesList}')
+        
+
+        # ret = {}
+
+        # for species in speciesList:
+        #     tissue = 'Lung'
+        #     print(f'species = {species} \ttissues = {tissue}')
+            
+        #     if species == "mouse":
+        #         feature_names = ['Actc1','Actn2']
+        #     else:
+        #         feature_names = ['ACTC1','ACTN2']
+        #     feature_type = 'gene_expression'
+        #     missing_genes = 'throw'
+
+        #     df = get_counts(
+        #                 "celltype",
+        #                 feature_type=feature_type,
+        #                 features=feature_names,
+        #                 species=species,
+        #                 tissue=tissue,
+        #                 missing=missing_genes,
+        #                 )
+        #     print(f'df: {df}')
+        #     print(f'df columns (cell types): {df.columns.tolist()}')
+        #     print(f'df rows (genes): {df.index.tolist()}')
+        #     print(f'df data values: {df.values.tolist()}\n')
+
+        # tissues = get_tissues('gene_expression', species)
+        # ['Bone Marrow' 'Colon' 'Heart' 'Kidney' 'Lung' 'Pancreas' 'Tongue']
+        # tissue = tissues[4]
+        # print(f'tissues = {tissues}')
+        
+        # feature_names = ['Actc1','Actn2']
+        # feature_type = 'gene_expression'
+        # missing_genes = 'throw'
+
+        # print(f'feature types: {feature_type}')
+        # print(f'feature names: {feature_names}')
+        # print(f'speces: {species}')
+        # print(f'tissue: {tissue}')
+        # print(f'missing_genes: {missing_genes}')
+
+        # df = get_counts(
+        #                 "celltype",
+        #                 feature_type=feature_type,
+        #                 features=feature_names,
+        #                 species=species,
+        #                 tissue=tissue,
+        #                 missing=missing_genes,
+        #                 )
+                    
+        # print(f'df: {df}')
+        # print(f'df columns (cell types): {df.columns}')
+        # print(f'df rows (genes): {df.index}')
+        # print(f'df data values: {df.values}')
+
+        ret = None
+        # testFunc()
+    
+        return ret
+
+def testFunc():
+    print('in test function')

@@ -18,6 +18,13 @@ PIP=${VENV_DIR}/Scripts/pip
 PYTEST=${VENV_DIR}/Scripts/pytest
 export FLASK_DEBUG=1
 
+OS=$(uname -s)
+if [ "$OS" = "Linux" ]; then
+  FLASK=${VENV_DIR}/bin/flask
+  PIP=${VENV_DIR}/bin/pip
+  PYTEST=${VENV_DIR}/bin/pytest
+fi
+
 if [ x$CLEAN = x1 ]; then
     rm -rf ${VENV_DIR}
 fi
@@ -27,7 +34,11 @@ if [ ! -d ${VENV_DIR} ]; then
 fi
 
 if [ x$UPDATE = x1 ]; then
- ${VENV_DIR}/Scripts/pip install -r requirements.txt
+  if [ "$OS" = "Linux" ]; then
+    ${VENV_DIR}/bin/pip install -r requirements.txt
+  else
+    ${VENV_DIR}/Scripts/pip install -r requirements.txt
+  fi
 fi
 
 if [ x$CERT = x1 ]; then

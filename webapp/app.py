@@ -33,6 +33,7 @@ from api import (
     CheckGenenames,
     MarkerGenes,
     CelltypeAbundance,
+    CelltypesMany,
 )
 from models import (
         get_speciess,
@@ -486,6 +487,7 @@ app_api.add_resource(MarkerGenes, "/data/marker_genes")
 app_api.add_resource(CelltypeAbundance, "/data/celltype_abundance")
 # FIXME: this should not be a separate API endpoint
 app_api.add_resource(PlotsForSeachGenes, "/data/by_celltype_2_genes")
+app_api.add_resource(CelltypesMany, "/data/celltype_many")
 
 
 # Main loop

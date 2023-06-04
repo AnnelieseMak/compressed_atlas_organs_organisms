@@ -1,14 +1,54 @@
 {% extends 'base.html' %}
 {% block content %}
 
-  <div class="columns tab-area">
-    <div class="column">
-      TEMP PAGE
-      <div class="column" id="plotCont">
-        <div id="plotDiv"></div>
+  <div class="columns tab-area" style="border: 1px solid black">
+    <div class="column is-one-quarter" style="border: 1px solid red">
+      <!-- FILTERS
+      <div style="border: 1px solid black">F1</div>
+      <div style="border: 1px solid black">F2</div>
+      <div style="border: 1px solid black">F3</div> -->
+      <aside class="menu">
+        <p class="menu-label">FILTERS</p>
+        <ul class="menu-list">
+          <li><a>FILTER 1</a></li>
+          <li><a>FILTER 2</a>
+            <ul>
+              <li><input type="checkbox">OP1</li>
+              <li><input type="checkbox">OP2</li>
+              <li><input type="checkbox">OP3</li>
+            </ul>
+          </li>
+          <li><a>FILTER 3</a>
+            <ul>
+              <li><input type="checkbox">OP1</li>
+              <li><input type="checkbox">OP2</li>
+              <li><input type="checkbox">OP3</li>
+            </ul>
+          </li>       
+        </ul>
+        <button class="button" id="plotBtn">BUTTON</button>
+        <button class="button" id="getDataBtn">Get Data</button>
+      </aside>
+    </div>
+    <div class="column" style="border: 1px solid blue">
+      PLOT CONTAINER
+      <div id="plotDiv" style="border: 1px solid green; height: 100%">
+        PLOT DIV
+      </div>
+    </div>
+      <!-- TEMP PAGE -->
+      <!-- <div class="column" id="plotCont">
+        <div id="plotDiv" style="border: 1px solid black">PLOT</div>
+      </div>
+      <div>
+        <input type="checkbox" id="mouseCB" name="mouse" class="speciesCB">
+        <label for="mouseCB">Mouse</label>
+        <input type="checkbox" id="humanCB" name="human" class="speciesCB">
+        <label for="humanCB">Human</label>
       </div>
       <button id="tempButton">BUTTON</button>
-    </div>
+      <button id="goBtn">Go</button>
+    </div> -->
     
     <!-- {% if available_species != [species] %}
       <p style="margin-top:100px">not in [species]</p>

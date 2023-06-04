@@ -501,6 +501,8 @@ function AssembleAjaxRequest( featurestring = "" ) {
                 'result': result,
             };
 
+            console.log('results: ', plotData)
+
             // Update search box: corrected feature names, excluding missing features
             setSearchBox(result['features']);
 
@@ -556,6 +558,7 @@ function onClickTissueSuggestions() {
     var newTissue = $(this).text().trim();
     tissue = newTissue;
     $("#tissueSuggestionActive").text(tissue);
+    console.log('tissue: ', tissue)
     AssembleAjaxRequest();
 }
 
