@@ -1,12 +1,54 @@
 {% extends 'base.html' %}
 {% block content %}
 
-  <div class="columns tab-area" style="border: 1px solid black">
+  <!-- <div class="columns tab-area" style="border: 1px solid black"> -->
+  <div class="columns tab-area" style="border: 1px solid red">
+    <div class="column">
+      [ PLOT ]
+      <div id="plotDiv"></div>
+    </div>
+  </div>
+  <div class="columns is-vcentered has-text-centered" style="border: 1px solid orange">
+    <div class="column" style="border: 1px solid blue; padding: 20px;">
+        <div>FILTERS</div>
+        <div>
+          <label>Tissue</label>
+          <br />
+          <label>
+            <input class="tisOpt" type="checkbox" value="Lung">
+            Lung
+          </label>
+          <label>
+            <input class="tisOpt" type="checkbox" value="Heart">
+            Heart
+          </label>
+          <br />
+          <label>Species</label>
+          <br />
+          <label>
+            <input class="specOpt" type="checkbox" value="mouse">
+            Mouse
+          </label>
+          <label>
+            <input class="specOpt" type="checkbox" value="human">
+            Human
+          </label>
+        </div>
+    </div>
+    <div class="column" style="border: 1px solid purple">
+      <button class="button" id="pBtn">TEST</button>
+      <br />
+      <br />
+      <button class="button" id="plotBtn">template</button>
+    </div>
+  </div>
+
+  <!-- <div class="columns tab-area" style="border: 1px solid black">
     <div class="column is-one-quarter" style="border: 1px solid red">
-      <!-- FILTERS
+      FILTERS
       <div style="border: 1px solid black">F1</div>
       <div style="border: 1px solid black">F2</div>
-      <div style="border: 1px solid black">F3</div> -->
+      <div style="border: 1px solid black">F3</div>
       <aside class="menu">
         <p class="menu-label">FILTERS</p>
         <ul class="menu-list">
@@ -26,7 +68,7 @@
             </ul>
           </li>       
         </ul>
-        <button class="button" id="plotBtn">BUTTON</button>
+        <button class="button" id="plotBtn">Plot Template</button>
         <button class="button" id="getDataBtn">Get Data</button>
       </aside>
     </div>
@@ -36,27 +78,7 @@
         PLOT DIV
       </div>
     </div>
-      <!-- TEMP PAGE -->
-      <!-- <div class="column" id="plotCont">
-        <div id="plotDiv" style="border: 1px solid black">PLOT</div>
-      </div>
-      <div>
-        <input type="checkbox" id="mouseCB" name="mouse" class="speciesCB">
-        <label for="mouseCB">Mouse</label>
-        <input type="checkbox" id="humanCB" name="human" class="speciesCB">
-        <label for="humanCB">Human</label>
-      </div>
-      <button id="tempButton">BUTTON</button>
-      <button id="goBtn">Go</button>
-    </div> -->
-    
-    <!-- {% if available_species != [species] %}
-      <p style="margin-top:100px">not in [species]</p>
-      <p style="margin-top:100px">{{ species }}</p>
-      <p style="margin-top:100px">{{ feature_types }}</p>
-      <p style="margin-top:100px">{{ tissues }}</p>
-    {% endif %} -->
-  </div>
+  </div> -->
 
   <script type="module" src="/js/temp.js"></script>
   
