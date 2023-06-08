@@ -58,8 +58,9 @@ const generatePlot = async () => {
     // console.log(`data:\n${JSON.stringify(data)}`)
     // console.log(`data:\n${data}`)
 
-    const lungD = data.Lung
-    const feats = lungD.features[0]
+    // const lungD = data.Lung
+    const tempTis = data[tissues[0]]
+    const feats = tempTis.features[0]
     // const heartD = data.Heart
     // const colonD = data.Colon
 
