@@ -26,6 +26,7 @@ const plotTemplate = () => {
       
       var data = [trace1, trace2];
       console.log(data)
+
       var layout = {
         showlegend: false,
         xaxis: {
@@ -46,50 +47,53 @@ const plotTemplate = () => {
 const generatePlot = async () => {
     console.log('generate plot')
     
-    const tissues = getCheckedbox('.tisOpt:checked')
-    // const species = getCheckedbox('.specOpt:checked')
     const species = "mouse"
+    // const species = getCheckedbox('.specOpt:checked')
+    const tissues = getCheckedbox('.tisOpt:checked')
     console.log(`tissue: ${tissues}\nspecies: ${species}`)
+
+    // tissues.push('Colon')      // , 'Bone Marrow', 'Kidney','Pancreas', 'Tongue'
 
     const data = await getData(tissues, species)
     // console.log(`data:\n${JSON.stringify(data)}`)
+    // console.log(`data:\n${data}`)
 
-    const t1d = data[tissues[0]]
-    const t1dFeat = t1d.features
-    const t1dCt = t1d.celltypes
-    const t1dVal = t1d.data[0]
-    console.log(t1dFeat)
-    console.log(t1dCt)
-    console.log(t1dVal)
+    const lungD = data.Lung
+    const feats = lungD.features[0]
+    // const heartD = data.Heart
+    // const colonD = data.Colon
+
+    const allCellTypes = getAllCellTypes(data)
+    // console.log(allCellTypes)
 
     let traceData = []
+    let maxVal = 0
+    for (const cellType of allCellTypes) {
+        const [CTvals, mv] = getCellType_Tissue(data, cellType, tissues.length)
+        maxVal = Math.max(maxVal, mv)
+        const trace = {
+            x: [
+                Array(tissues.length).fill(cellType),
+                tissues
+            ],
+            y: feats,
+            z: CTvals,
+            zmin: 0,
+            colorscale: 'Reds',
+            type: 'heatmap',
+            name: ''
+        }
 
-    for (const [idx, celltype] of t1dCt.entries()) {
-        // console.log(idx, celltype)
-        // const testVal = Array(2).fill(celltype)
-        // console.log(testVal)
-        // console.log(t1dVal[])
-        console.log(celltype)
-        const colVal = getColumn(t1dVal, idx)
-        // console.log(colVal)
-        // const trace = {
-        //     x: [
-        //         Array(1).fill(celltype),
-        //         [tissues[0]]
-        //     ],
-        //     y: t1dFeat,
-        //     z: t1dVal,
-        //     type: 'heatmap',
-        //     // name: ''
-        // }
-
-        // traceData.push(trace)
+        traceData.push(trace)
     }
 
-    console.log(traceData)
+    for (const trace of traceData) {
+        trace.zmax = maxVal
+    }
 
     var layout = {
         showlegend: false,
+        autosize: true,
         xaxis: {
             tickson: "boundaries",
             ticklen: 15,
@@ -102,8 +106,9 @@ const generatePlot = async () => {
         }
     };
       
-      Plotly.newPlot('plotDiv', traceData, layout);
+    Plotly.newPlot('plotDiv', traceData, layout);
 
+    // EACH TRACE IS FOR 1 CELL TYPE
     // trace
     //  x:
     //      x1: cell type   -->     [ct1, ct1]
@@ -122,9 +127,44 @@ const generatePlot = async () => {
 
 }
 
-const getColumn = (data, col) => {
-    console.log(`data; ${data}`)
-    console.log(`col: ${col}`)
+// return unique celltypes
+const getAllCellTypes = (data) => {
+    let allCellTypes = []
+
+    for (const [key, value] of Object.entries(data)) {
+        allCellTypes.push(...value.celltypes)
+    }
+
+    allCellTypes = [...new Set(allCellTypes)]
+
+    return allCellTypes
+}
+
+const getCellType_Tissue = (data, cellType, tissueCount) => {
+    console.log('\t\t\t\t\t\t\t\tFUNCTION: getCellType_Tissue')
+    // console.log(`cellType: ${cellType}`)
+    const featuresCount = 16
+    const CTcols = [...Array(featuresCount)].map(e => Array(tissueCount).fill(null));
+    
+    for (const [idx, [key, value]] of Object.entries(data).entries()) {
+        // console.log(idx, key, value)
+        const tissueCT = value.celltypes
+        const CTval = tissueCT.indexOf(cellType)
+
+        if (CTval != -1) {
+            const tissueData = value.data[0]
+            // console.log(`tissueData: ${JSON.stringify(tissueData)}`)
+            // console.log(`${key} data at ${CTval}: ${tissueData[0][CTval]}`)
+            for (let i = 0; i < featuresCount; i++) {
+                // console.log(`[${i}][${CTval}]: ${tissueData[i][CTval]}`)
+                CTcols[i][idx] = tissueData[i][CTval]
+            }
+        }
+    }
+
+    // console.log(CTcols.flat())
+
+    return [CTcols, Math.max(...CTcols.flat())]
 }
 
 const getData = async (tissues, species) => {
@@ -155,54 +195,6 @@ const getCheckedbox = (loc) => {
     return checked
 }
 
-// const getData = async () => {
-//     console.log('getting data')
-
-//     const reqData = {
-//         feature_names: "Actc1,Actn2,Myl2,Myh7,Col1a1,Col2a1,Pdgfrb,Pecam1,Gja5,Vwf,Ptprc,Ms4a1,Gzma,Cd3d,Cd68,Epcam",
-//         species: 'mouse',
-//         tissue: 'Lung'
-//     }
-
-//     apiCall(reqData)
-
-    // const tissues = ["Lung", "Heart"]
-    // let tissueData = {}
-
-    // for (let t = 0; t < tissues.length; t++) {
-
-    //     let res = await dCall(tissues[t])
-    //     console.log('ret res: ', res)
-    //     tissueData[tissues[t]] = res
-    //     console.log(`added: ${JSON.stringify(tissueData)}`)
-        
-    // }
-
-    // console.log(`all data: ${JSON.stringify(tissueData)}`)
-    // console.log(`lung data: ${tissueData.Lung}`)
-    // console.log(`heart data: ${tissueData.Heart}`)
-// }
-
-// const dCall = (tissue) => {
-//     let requestData = {
-//             feature_names: "Actc1,Actn2,Myl2,Myh7,Col1a1,Col2a1,Pdgfrb,Pecam1,Gja5,Vwf,Ptprc,Ms4a1,Gzma,Cd3d,Cd68,Epcam",
-//             species: species,
-//             // tissue: JSON.stringify(tissues)
-//             tissue: tissue
-//         }
-    
-//     return new Promise(function(resolve, reject) {
-//         $.ajax({
-//         type:'GET',
-//         url:'/data/by_celltype',
-//         data: $.param(requestData),
-//         success: function(result) {
-//             console.log(result)
-//             resolve(result)
-//         },
-//     })})
-// }
-
 /*****************************************************************************
  *                                API CALLS
  *****************************************************************************/
@@ -226,34 +218,6 @@ const apiCall = (requestData) => {
         })
     })
 }
-
-// const apiCall = (body) => {
-//     return new Promise((resolve, reject) => {
-//         const init = {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify(body)
-//         }
-
-//         fetch('../fetchCalls.php', init)
-//             .then(response => response.json())
-//             .then(data => {
-//                 resolve(data);
-//             })
-//             // .catch((error) => {
-//             //     console.log('something went wrong :(\n' ,error);
-//             // })
-//     })
-// }
-
-// // login
-// const practitionerLogin = (username, password) => {
-//     return apiCall({
-//         action: 'login',
-//         username,
-//         password
-//     })
-// }
 
 /*****************************************************************************
  *                                INTERACTIONS
