@@ -54,6 +54,9 @@ const generatePlot = async () => {
 
     // tissues.push('Colon')      // , 'Bone Marrow', 'Kidney','Pancreas', 'Tongue'
 
+    const matchOpt = document.getElementById('matchOpt').checked
+    console.log(matchOpt)
+
     const data = await getData(tissues, species)
     // console.log(`data:\n${JSON.stringify(data)}`)
     // console.log(`data:\n${data}`)
@@ -70,31 +73,49 @@ const generatePlot = async () => {
     let traceData = []
     let maxVal = 0
     for (const cellType of allCellTypes) {
-        const [CTvals, mv] = getCellType_Tissue(data, cellType, tissues.length)
+        const [CTvals, mv, tissueList, matchCols] = getCellType_Tissue(data, cellType)
+        // console.log(CTvals, mv, tissueList, matchCols)
+
         maxVal = Math.max(maxVal, mv)
         const trace = {
             x: [
-                Array(tissues.length).fill(cellType),
-                tissues
+                Array(tissueList.length).fill(cellType),
+                tissueList
             ],
             y: feats,
             z: CTvals,
             zmin: 0,
             colorscale: 'Reds',
             type: 'heatmap',
-            name: ''
+            name: '',
+            xgap: 3,
+            ygap: 3,
+        }
+
+        if (cellType == 'macrophage' || cellType == 'basophil' || cellType == 'monocyte') {
+            console.log(`${cellType}`)
+            console.log(trace)
+        }
+        // console.log(trace)
+        
+        if (matchOpt && !matchCols) {
+            continue
         }
 
         traceData.push(trace)
     }
 
+    // sets zmax to overall max for shared scale
     for (const trace of traceData) {
         trace.zmax = maxVal
     }
 
+    // console.log(traceData[4])
+
     var layout = {
         showlegend: false,
         autosize: true,
+        automargin: true,
         xaxis: {
             tickson: "boundaries",
             ticklen: 15,
@@ -106,8 +127,12 @@ const generatePlot = async () => {
             autorange: "reversed",
         }
     };
-      
+
+    // const testData = [traceData[3], traceData[4]]
+    // Plotly.newPlot('plotDiv', testData, layout);
+
     Plotly.newPlot('plotDiv', traceData, layout);
+
 
     // EACH TRACE IS FOR 1 CELL TYPE
     // trace
@@ -141,13 +166,19 @@ const getAllCellTypes = (data) => {
     return allCellTypes
 }
 
-const getCellType_Tissue = (data, cellType, tissueCount) => {
+/*********************
+        GET CELL TYPE DATA OF EACH TISSUE, INCLUDES NULL COLUMNS 
+*********************/
+const getCellType_Tissue = (data, cellType) => {
     console.log('\t\t\t\t\t\t\t\tFUNCTION: getCellType_Tissue')
     // console.log(`cellType: ${cellType}`)
     const featuresCount = 16
-    const CTcols = [...Array(featuresCount)].map(e => Array(tissueCount).fill(null));
+    const CTcols = [...Array(featuresCount)].map(e => Array(1));
+    let tissueList = []
+    let colNo = 0
     
-    for (const [idx, [key, value]] of Object.entries(data).entries()) {
+    for (const [key, value] of Object.entries(data)) {
+        // console.log(colNo, key)
         // console.log(idx, key, value)
         const tissueCT = value.celltypes
         const CTval = tissueCT.indexOf(cellType)
@@ -158,14 +189,26 @@ const getCellType_Tissue = (data, cellType, tissueCount) => {
             // console.log(`${key} data at ${CTval}: ${tissueData[0][CTval]}`)
             for (let i = 0; i < featuresCount; i++) {
                 // console.log(`[${i}][${CTval}]: ${tissueData[i][CTval]}`)
-                CTcols[i][idx] = tissueData[i][CTval]
+                CTcols[i][colNo] = tissueData[i][CTval]
             }
+            tissueList.push(key)
+            colNo++
         }
+    }
+
+    let matched = true
+    // if (colNo != Object.keys(data).length) {
+    if (colNo < 2) {
+        matched = false
+    }
+
+    if (cellType == 'macrophage') {
+        console.log(CTcols)
     }
 
     // console.log(CTcols.flat())
 
-    return [CTcols, Math.max(...CTcols.flat())]
+    return [CTcols, Math.max(...CTcols.flat()), tissueList, matched]
 }
 
 const getData = async (tissues, species) => {
