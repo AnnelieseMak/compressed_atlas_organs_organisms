@@ -34,7 +34,8 @@ const plotTemplate = () => {
           ticklen: 15,
           showdividers: true,
           dividercolor: 'grey',
-          dividerwidth: 2
+          dividerwidth: 2,
+          layer: 'above traces'
         },
         yaxis: {
             autorange: "reversed",
@@ -132,7 +133,18 @@ const generatePlot = async () => {
     // Plotly.newPlot('plotDiv', testData, layout);
 
     Plotly.newPlot('plotDiv', traceData, layout);
+    
+    const xTicks = document.getElementsByClassName('xtick2')
+    console.log(xTicks)
 
+    for(let i = 0; i < xTicks.length; i++) {
+        console.log(xTicks[i])
+        xTicks[i].style.color = 'red'
+        xTicks[i].onclick = function() {
+            // console.log(`xTick: ${xTicks[i].textContent}`)
+            console.log('clicked')
+        }
+    }
 
     // EACH TRACE IS FOR 1 CELL TYPE
     // trace
@@ -152,6 +164,20 @@ const generatePlot = async () => {
     // }
 
 }
+
+// const tt = document.getElementsByClassName('apples')
+// console.log(tt)
+// for (let i = 0; i < tt.length; i++) {
+//     console.log(tt[i])
+//     tt[i].onclick = function() {
+//         console.log('tt')
+//     }
+// }
+
+window.onclick = e => {
+    console.log(e.target);  // to get the element
+    console.log(e.target.tagName);  // to get the element tag name alone
+} 
 
 // return unique celltypes
 const getAllCellTypes = (data) => {

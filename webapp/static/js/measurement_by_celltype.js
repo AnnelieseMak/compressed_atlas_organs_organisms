@@ -354,9 +354,10 @@ function connectTooltip(feature_types, goTerms, feature_coords) {
     } else {
         ytickName = 'y' + (iGeneExpression + 1) + 'tick';
     }
-
+    console.log(`ytickName = ${ytickName}`)
     // Add tooltips to gene names
     $("." + ytickName + " > text > tspan").click(function(evt) {
+        console.log(`here: ${this}`)
         // If already active, it's a second click
         let wasActive = this.classList.contains("is-active");
 
