@@ -132,3 +132,11 @@ body.loading .overlay{
     display: block;
 }
 
+/* 
+
+*/
+
+.xtick2 {
+    cursor: pointer;
+    pointer-events: all;
+  }
