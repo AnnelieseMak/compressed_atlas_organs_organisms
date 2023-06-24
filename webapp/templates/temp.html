@@ -16,10 +16,16 @@
     <div class="column" style="border: 1px solid blue; padding: 20px;">
         <div>FILTERS</div>
         <div>
-          <label>
+          <!-- <label>
             <input id="matchOpt" type="checkbox">
             Show matches
-          </label>
+          </label> -->
+          <div class="dropdown">
+            <div id="drop-select" style="border: 1px solid black">number of matches</div>
+            <div id="drop-options">
+              <div id="dropOp-template" style="display: none; border: 1px solid red"></div>
+            </div>
+          </div>
           <br />
           <br />
           <label>Tissue</label>
@@ -72,6 +78,18 @@
       <button class="button" id="plotBtn">template</button>
     </div>
   </div>
+
+  <input id="top1" class="testOpt" type="checkbox" value="1">
+  <input id="top2" class="testOpt" type="checkbox" value="2">
+  
+
+  <!-- <div class="dropdown">
+    <div id="drop-select" style="border: 1px solid black">select</div>
+    <div id="drop-options">
+      <div id="opt1">op1</div>
+      <div id="opt2">op2</div>
+    </div>
+  </div> -->
 
   <!-- <div class="columns tab-area" style="border: 1px solid black">
     <div class="column is-one-quarter" style="border: 1px solid red">

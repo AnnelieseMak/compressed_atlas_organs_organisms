@@ -262,6 +262,9 @@ const generatePlot = async () => {
     const matchOpt = document.getElementById('matchOpt').checked
     console.log(matchOpt)
 
+    // const matchOp = document.getElementById('drop-select').innerHTML
+    // console.log(matchOp)
+
     const data = await getData(tissues, species)
     // console.log(`data:\n${JSON.stringify(data)}`)
     // console.log(`data:\n${data}`)
@@ -279,6 +282,7 @@ const generatePlot = async () => {
     let maxVal = 0
     for (const cellType of allCellTypes) {
         const [CTvals, mv, tissueList, matchCols] = getCellType_Tissue(data, cellType)
+        console.log(cellType, tissueList, matchCols)
         // console.log(CTvals, mv, tissueList, matchCols)
 
         maxVal = Math.max(maxVal, mv)
@@ -297,12 +301,13 @@ const generatePlot = async () => {
             ygap: 3,
         }
 
-        if (cellType == 'macrophage' || cellType == 'basophil' || cellType == 'monocyte') {
-            console.log(`${cellType}`)
-            console.log(trace)
-        }
+        // if (cellType == 'macrophage' || cellType == 'basophil' || cellType == 'monocyte') {
+        //     console.log(`${cellType}`)
+        //     console.log(trace)
+        // }
         // console.log(trace)
         
+        // if (matchOpt > tissueList.length)
         if (matchOpt && !matchCols) {
             continue
         }
@@ -472,6 +477,17 @@ const getCheckedbox = (loc) => {
 }
 
 /*****************************************************************************
+ *                              GENERAL HELPER
+ *****************************************************************************/
+
+const removeClones = (loc, length) => {
+    const location = document.getElementById(loc);
+    while(location.children.length > length) {
+        location.removeChild(location.lastChild);
+    }
+}
+
+/*****************************************************************************
  *                                API CALLS
  *****************************************************************************/
 
@@ -511,3 +527,52 @@ $("#pBtn").click(generatePlot)
 $(document).ready(function() {
     console.log('page load');
 });
+
+const toggleMenu = (element) => {
+    // console.log('toggle')
+    // console.log(element)
+    element.classList.toggle('active')
+}
+
+$(".dropdown").click(function () {toggleMenu(this)})
+
+const addOption = () => {
+    // console.log('add option')
+    const checked = $('.testOpt:checked').length;
+    // console.log(`checked boxes: ${checked}`)
+
+    const optionParent = document.getElementById('drop-options')
+    // console.log(`child count: ${optionParent.childElementCount}`)
+
+    removeClones('drop-options', 1)
+
+    const optionTemplate = document.getElementById('dropOp-template')
+    for (let i = 0; i < checked; i++) {
+        const newOption = optionTemplate.cloneNode(true)
+        newOption.removeAttribute("id")
+        newOption.style.display = "block"
+        newOption.innerHTML = `${i+1}+`
+        newOption.onclick = function() {changeDropSelect(`${i+1}+`)}
+
+        optionParent.appendChild(newOption)
+    }
+}
+
+const changeDropSelect = (value) => {
+    console.log('change value')
+    document.getElementById('drop-select').innerHTML = value
+}
+
+const closeDropdown = (e) => {
+    // console.log('close')
+    const dropdown = document.getElementsByClassName('dropdown')[0]
+    // console.log(e.target)
+    if (dropdown != (e.target).parentElement && dropdown.classList.contains('active')) {
+        dropdown.classList.toggle('active')
+    }
+    // console.log(dropdown)
+}
+
+$(".testOpt").click(addOption)
+
+// $(document).click(function(e) {closeDropdown(e)})

@@ -139,4 +139,17 @@ body.loading .overlay{
 .xtick2 {
     cursor: pointer;
     pointer-events: all;
-  }
+}
+
+.dropdown {
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown #drop-options {
+    display: none
+}
+
+.dropdown.active #drop-options {
+    display: block
+}
