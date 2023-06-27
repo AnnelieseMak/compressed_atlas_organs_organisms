@@ -141,6 +141,10 @@ body.loading .overlay{
     pointer-events: all;
 }
 
+#dropOp-template {
+    display: none;
+}
+
 .dropdown {
     display: flex;
     flex-direction: column;
@@ -152,4 +156,12 @@ body.loading .overlay{
 
 .dropdown.active #drop-options {
     display: block
+}
+
+#celltypeList {
+    display: none
+}
+
+#celltypeList.active {
+    display: block;
 }

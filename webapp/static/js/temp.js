@@ -1,6 +1,7 @@
 let plotData = {}
 
-let testList = []
+let testList = {}
+let traceDict = {}
 
 const plotTemplate = () => {
     console.log('plot template')
@@ -11,6 +12,7 @@ const plotTemplate = () => {
         ],
         y: ['y1', 'y2', 'y3'],
         z: [[10,11,112], [13,14,15], [16,17,18]],
+        visible: true,
         name: '',
         type: 'heatmap'
       };
@@ -22,6 +24,7 @@ const plotTemplate = () => {
         ],
         y: ['y1', 'y2', 'y3'],
         z: [[0,1,2], [3,null,5], [6,7,8]],
+        visible: true,
         name: '',
         type: 'heatmap'
       };
@@ -33,6 +36,7 @@ const plotTemplate = () => {
         ],
         y: ['y1', 'y2', 'y3'],
         z: [[0,1,2], [3,7,5], [6,null,8]],
+        visible: true,
         name: '',
         type: 'heatmap'
       };
@@ -53,29 +57,30 @@ const plotTemplate = () => {
             autorange: "reversed",
         }
       };
-      testList = ['SF Zoo', 'LA Zoo', 'AU Zoo']
+      testList = {'SF Zoo':0, 'LA Zoo':1, 'AU Zoo':2}
       
       Plotly.newPlot('plotDiv', data, layout);
-
-    const xTicks = document.getElementsByClassName('xtick2')
-    for (let i = 0; i < xTicks.length; i++) {
-        console.log(xTicks[i])
-        const tickLabel = xTicks[i].children[0].innerHTML
-        xTicks[i].onclick = function(){myFunction(tickLabel)}
-    }
-
+      clickable()
 }
 
-const myFunction = (tickLabel) => {
-    if (testList.length == 1) {
-        return
+const myFunc = (elPos, tickLabel) => {
+    console.log(elPos, tickLabel)
+    const tv = document.getElementById('plotDiv')
+    console.log(tv.data)
+    let visibleCount = 0
+
+    for (let i = 0; i < tv.data.length; i++) {
+        const traceData = tv.data[i]
+        console.log(traceData)
+        console.log(traceData.visible)
+        if (traceData.visible) {
+            visibleCount++
+        }
     }
 
-    console.log(`clicked: ${tickLabel}`)
-    const labelIdx = testList.indexOf(tickLabel)
-    console.log(testList, labelIdx)
-    testList.splice(labelIdx, 1)
-    console.log(testList)
+    if (visibleCount == 1) {
+        return
+    }
 
     const ctListEl = document.getElementById('celltypeList')
 
@@ -89,161 +94,40 @@ const myFunction = (tickLabel) => {
     newCT.removeAttribute('id')
     newCT.style.display = "block"
     newCT.innerHTML = tickLabel
-    newCT.onclick = function(){myFunction2(newCT)}
+    newCT.onclick = function(){addBack(newCT, elPos)}
 
     ctListEl.appendChild(newCT)
 
-
-    var trace1 = {
-        x: [
-          ['SF Zoo','SF Zoo','SF Zoo'],
-          ['giraffes', 'orangutans', 'monkeys']
-        ],
-        y: ['y1', 'y2', 'y3'],
-        z: [[10,11,112], [13,14,15], [16,17,18]],
-        name: '',
-        type: 'heatmap'
-      };
-      
-      var trace2 = {
-        x: [
-          ['LA Zoo','LA Zoo','LA Zoo'],
-          ['g', 'o', 'm']
-        ],
-        y: ['y1', 'y2', 'y3'],
-        z: [[0,1,2], [3,null,5], [6,7,8]],
-        name: '',
-        type: 'heatmap'
-      };
-
-      var trace3 = {
-        x: [
-          ['AU Zoo','AU Zoo','AU Zoo'],
-          ['a', 'b', 'c']
-        ],
-        y: ['y1', 'y2', 'y3'],
-        z: [[0,1,2], [3,7,5], [6,null,8]],
-        name: '',
-        type: 'heatmap'
-      };
-      
-    //   var data = [trace1, trace2];
-    const data = []
-    if (testList.includes('SF Zoo')) {
-        data.push(trace1)
-    }
-    if (testList.includes('LA Zoo')) {
-        data.push(trace2)
-    }
-    if (testList.includes('AU Zoo')) {
-        data.push(trace3)
-    }
-
-    var layout = {
-        showlegend: false,
-        xaxis: {
-          tickson: "boundaries",
-          ticklen: 15,
-          showdividers: true,
-          dividercolor: 'grey',
-          dividerwidth: 2,
-        },
-        yaxis: {
-            autorange: "reversed",
-        }
-      };
-
-    Plotly.newPlot('plotDiv', data, layout);
-
-    const xTicks = document.getElementsByClassName('xtick2')
-    for (let i = 0; i < xTicks.length; i++) {
-        console.log(xTicks[i])
-        const tickLabel = xTicks[i].children[0].innerHTML
-        xTicks[i].onclick = function(){myFunction(tickLabel)}
-    }
-
+    Plotly.restyle('plotDiv', {visible: false}, elPos)
+    clickable()
 }
 
-const myFunction2 = (labelElement) => {
-    console.log('add to plot')
-    // console.log(labelElement)
-    
+const addBack = (el, elPos) => {
+    el.remove()
     const ctListParent = document.getElementById('celltypeList')
-    testList.push(labelElement.innerHTML)
-    labelElement.remove()
-
     if (ctListParent.childElementCount == 1) {
         ctListParent.style.display = "none"
     }
 
-    var trace1 = {
-        x: [
-          ['SF Zoo','SF Zoo','SF Zoo'],
-          ['giraffes', 'orangutans', 'monkeys']
-        ],
-        y: ['y1', 'y2', 'y3'],
-        z: [[10,11,112], [13,14,15], [16,17,18]],
-        name: '',
-        type: 'heatmap'
-      };
-      
-      var trace2 = {
-        x: [
-          ['LA Zoo','LA Zoo','LA Zoo'],
-          ['g', 'o', 'm']
-        ],
-        y: ['y1', 'y2', 'y3'],
-        z: [[0,1,2], [3,null,5], [6,7,8]],
-        name: '',
-        type: 'heatmap'
-      };
-
-      var trace3 = {
-        x: [
-          ['AU Zoo','AU Zoo','AU Zoo'],
-          ['a', 'b', 'c']
-        ],
-        y: ['y1', 'y2', 'y3'],
-        z: [[0,1,2], [3,7,5], [6,null,8]],
-        name: '',
-        type: 'heatmap'
-      };
-      
-    //   var data = [trace1, trace2];
-    const data = []
-    if (testList.includes('SF Zoo')) {
-        data.push(trace1)
-    }
-    if (testList.includes('LA Zoo')) {
-        data.push(trace2)
-    }
-    if (testList.includes('AU Zoo')) {
-        data.push(trace3)
-    }
-
-    var layout = {
-        showlegend: false,
-        xaxis: {
-          tickson: "boundaries",
-          ticklen: 15,
-          showdividers: true,
-          dividercolor: 'grey',
-          dividerwidth: 2,
-        },
-        yaxis: {
-            autorange: "reversed",
-        }
-      };
-
-    Plotly.newPlot('plotDiv', data, layout);
-
-    const xTicks = document.getElementsByClassName('xtick2')
-    for (let i = 0; i < xTicks.length; i++) {
-        console.log(xTicks[i])
-        const tickLabel = xTicks[i].children[0].innerHTML
-        xTicks[i].onclick = function(){myFunction(tickLabel)}
-    }
+    Plotly.restyle('plotDiv', {visible: true}, elPos)
+    clickable()
 }
+
+const clickable = () => {
+    const xTicks = document.getElementsByClassName('xtick2')
+    console.log(testList)
+
+    console.log(`xticks`)
+    console.log(xTicks)
+
+    for (let i = 0; i < xTicks.length; i++) {
+        const tickLabel = xTicks[i].children[0].innerHTML
+        console.log(testList[tickLabel])
+        xTicks[i].onclick = function(){myFunc(testList[tickLabel], tickLabel)}
+    }
+
+}
+
 
 /*****************************************************************************
  *                              USED METHODS
@@ -251,6 +135,9 @@ const myFunction2 = (labelElement) => {
 
 const generatePlot = async () => {
     console.log('generate plot')
+    traceDict = {}
+    removeClones('celltypeList', 1)
+    toggleCTList('close')
     
     const species = "mouse"
     // const species = getCheckedbox('.specOpt:checked')
@@ -259,33 +146,27 @@ const generatePlot = async () => {
 
     // tissues.push('Colon')      // , 'Bone Marrow', 'Kidney','Pancreas', 'Tongue'
 
-    const matchOpt = document.getElementById('matchOpt').checked
+    const matchOpt = document.getElementById('drop-select').innerHTML
     console.log(matchOpt)
-
-    // const matchOp = document.getElementById('drop-select').innerHTML
-    // console.log(matchOp)
 
     const data = await getData(tissues, species)
     // console.log(`data:\n${JSON.stringify(data)}`)
     // console.log(`data:\n${data}`)
 
-    // const lungD = data.Lung
     const tempTis = data[tissues[0]]
     const feats = tempTis.features[0]
-    // const heartD = data.Heart
-    // const colonD = data.Colon
 
     const allCellTypes = getAllCellTypes(data)
     // console.log(allCellTypes)
+    // const traceData = new Array(allCellTypes.length)
 
     let traceData = []
     let maxVal = 0
-    for (const cellType of allCellTypes) {
-        const [CTvals, mv, tissueList, matchCols] = getCellType_Tissue(data, cellType)
-        console.log(cellType, tissueList, matchCols)
-        // console.log(CTvals, mv, tissueList, matchCols)
+    for (const [idx, cellType] of allCellTypes.entries()) {
+        const [CTvals, maxV, tissueList] = getCellType_Tissue(data, cellType)
+        // console.log(maxV)
 
-        maxVal = Math.max(maxVal, mv)
+        maxVal = Math.max(maxVal, maxV)
         const trace = {
             x: [
                 Array(tissueList.length).fill(cellType),
@@ -299,28 +180,21 @@ const generatePlot = async () => {
             name: '',
             xgap: 3,
             ygap: 3,
+            visible: true
         }
-
-        // if (cellType == 'macrophage' || cellType == 'basophil' || cellType == 'monocyte') {
-        //     console.log(`${cellType}`)
-        //     console.log(trace)
-        // }
-        // console.log(trace)
         
-        // if (matchOpt > tissueList.length)
-        if (matchOpt && !matchCols) {
+        if (matchOpt > tissueList.length) {
             continue
         }
 
         traceData.push(trace)
+        traceDict[cellType] = idx
     }
 
     // sets zmax to overall max for shared scale
     for (const trace of traceData) {
         trace.zmax = maxVal
     }
-
-    // console.log(traceData[4])
 
     var layout = {
         showlegend: false,
@@ -338,59 +212,12 @@ const generatePlot = async () => {
         }
     };
 
-    // const testData = [traceData[3], traceData[4]]
-    // Plotly.newPlot('plotDiv', testData, layout);
-
     Plotly.newPlot('plotDiv', traceData, layout);
-
-
-    const xTicks = document.getElementsByClassName('xtick2')
-
-    console.log(`xTicks`)
-    console.log(xTicks)
-    for (let i = 0; i < xTicks.length; i++) {
-        const tickLabel = xTicks[i].children[0].innerHTML
-        xTicks[i].onclick = function(){collapsePlot(tickLabel)}
-    }
-
-
-    
-    // const xTicks = document.getElementsByClassName('xtick2')
-    // console.log(xTicks)
-
-    // for(let i = 0; i < xTicks.length; i++) {
-    //     console.log(xTicks[i])
-    //     xTicks[i].style.color = 'red'
-    //     xTicks[i].onclick = function() {
-    //         // console.log(`xTick: ${xTicks[i].textContent}`)
-    //         console.log('clicked')
-    //     }
-    // }
-
-    // EACH TRACE IS FOR 1 CELL TYPE
-    // trace
-    //  x:
-    //      x1: cell type   -->     [ct1, ct1]
-    //      x2: tissue      -->     [lung, heart]
-    //  y:  genes           -->     [g1, g2, g3]
-    //  z:  values
-
-    // var trace = {
-    //     x: [
-    //         []
-    //     ],
-    //     // y: ,
-    //     // z: ,
-    //     type: 'heatmap'
-    // }
+    makeXClickable()
 
 }
 
-const collapsePlot = (tickLabel) => {
-    console.log(`collapse plot: ${tickLabel}`)
-}
-
-// return unique celltypes
+// return list of unique celltype names
 const getAllCellTypes = (data) => {
     let allCellTypes = []
 
@@ -404,11 +231,10 @@ const getAllCellTypes = (data) => {
 }
 
 /*********************
-        GET CELL TYPE DATA OF EACH TISSUE, INCLUDES NULL COLUMNS 
+        GET CELL TYPE DATA OF EACH TISSUE
 *********************/
 const getCellType_Tissue = (data, cellType) => {
-    console.log('\t\t\t\t\t\t\t\tFUNCTION: getCellType_Tissue')
-    // console.log(`cellType: ${cellType}`)
+    // console.log('\t\t\t\t\t\t\t\tFUNCTION: getCellType_Tissue')
     const featuresCount = 16
     const CTcols = [...Array(featuresCount)].map(e => Array(1));
     let tissueList = []
@@ -433,38 +259,9 @@ const getCellType_Tissue = (data, cellType) => {
         }
     }
 
-    let matched = true
-    // if (colNo != Object.keys(data).length) {
-    if (colNo < 2) {
-        matched = false
-    }
-
-    if (cellType == 'macrophage') {
-        console.log(CTcols)
-    }
-
     // console.log(CTcols.flat())
 
-    return [CTcols, Math.max(...CTcols.flat()), tissueList, matched]
-}
-
-const getData = async (tissues, species) => {
-    console.log(`tissue: ${tissues}\nspecies: ${species}`)
-    let data = {}
-
-    for (const tissue of tissues) {
-        const reqData = {
-            feature_names: "Actc1,Actn2,Myl2,Myh7,Col1a1,Col2a1,Pdgfrb,Pecam1,Gja5,Vwf,Ptprc,Ms4a1,Gzma,Cd3d,Cd68,Epcam",
-            species: species,
-            tissue
-        }
-        console.log(reqData)
-        const retVal = await apiCall(reqData)
-        data[tissue] = retVal
-        console.log(data)
-    }
-
-    return data
+    return [CTcols, Math.max(...CTcols.flat()), tissueList]
 }
 
 const getCheckedbox = (loc) => {
@@ -476,6 +273,78 @@ const getCheckedbox = (loc) => {
     return checked
 }
 
+const toggleMenu = (ele) => {
+    console.log('toggle menu')
+    ele.classList.toggle('active')
+
+    if (!ele.classList.contains('active')) {
+        return
+    }
+    
+    const tissueCount = getCheckedbox('.tisOpt:checked').length
+    const optionParent = document.getElementById('drop-options')
+    const currCount = optionParent.childElementCount - 1
+
+    if (tissueCount == currCount) {
+        return
+    }
+
+    removeClones('drop-options', 1)
+
+    // add options
+    const optionTemplate = document.getElementById('dropOp-template')
+    for (let i = 0; i < tissueCount; i++) {
+        const newOption = optionTemplate.cloneNode(true)
+        newOption.removeAttribute("id")
+        newOption.innerHTML = `${i+1}`
+        newOption.onclick = function() {
+            document.getElementById('drop-select').innerHTML = `${i+1}`
+        }
+
+        optionParent.appendChild(newOption)
+    }
+}
+
+const collapsePlot = (tracePos, tickLabel) => {
+    console.log(`collapse plot: ${tracePos}, ${tickLabel}`)
+    const traces = document.getElementById('plotDiv').data
+    console.log(traces)
+    let visibleCount = 0
+
+    for (const trace of traces) {
+        if (trace.visible) {
+            visibleCount++
+        }
+    }
+
+    if (visibleCount == 1) {
+        return
+    }
+
+    toggleCTList('open')
+
+    const CTList = document.getElementById('celltypeList')
+    const template = document.getElementById('celltypeName-template')
+    const newItem = template.cloneNode(true)
+    newItem.removeAttribute('id')
+    newItem.style.display = 'block'
+    newItem.innerHTML = tickLabel
+    newItem.onclick = function() {addToPlot(newItem, tracePos)}
+    CTList.append(newItem)
+
+    Plotly.restyle('plotDiv', {visible: false}, tracePos)
+    makeXClickable()
+
+}
+
+const addToPlot = (el, tracePos) =>{
+    el.remove()
+    toggleCTList('close')
+    Plotly.restyle('plotDiv', {visible: true}, tracePos)
+    makeXClickable()
+}
+
+
 /*****************************************************************************
  *                              GENERAL HELPER
  *****************************************************************************/
@@ -486,6 +355,25 @@ const removeClones = (loc, length) => {
         location.removeChild(location.lastChild);
     }
 }
+
+const makeXClickable = () => {
+    const xTicks = document.getElementsByClassName('xtick2')
+
+    for (const tick of xTicks) {
+        const tickLabel = tick.children[0].innerHTML
+        tick.onclick = function(){collapsePlot(traceDict[tickLabel], tickLabel)}
+    }
+}
+
+const toggleCTList = (action) => {
+    const CTList = document.getElementById('celltypeList')
+    if (action == 'close' && CTList.childElementCount == 1) {
+        CTList.classList.remove('active')
+    } else if (action == 'open' && !CTList.classList.contains('active')) {
+        CTList.classList.add('active')
+    }
+}
+
 
 /*****************************************************************************
  *                                API CALLS
@@ -511,6 +399,25 @@ const apiCall = (requestData) => {
     })
 }
 
+const getData = async (tissues, species) => {
+    console.log(`tissue: ${tissues}\nspecies: ${species}`)
+    let data = {}
+
+    for (const tissue of tissues) {
+        const reqData = {
+            feature_names: "Actc1,Actn2,Myl2,Myh7,Col1a1,Col2a1,Pdgfrb,Pecam1,Gja5,Vwf,Ptprc,Ms4a1,Gzma,Cd3d,Cd68,Epcam",
+            species: species,
+            tissue
+        }
+        // console.log(reqData)
+        const retVal = await apiCall(reqData)
+        data[tissue] = retVal
+        // console.log(data)
+    }
+
+    return data
+}
+
 /*****************************************************************************
  *                                INTERACTIONS
  *****************************************************************************/
@@ -523,56 +430,63 @@ $("#plotBtn").click(plotTemplate)
 
 $("#pBtn").click(generatePlot)
 
+$(".dropdown").click(function () {toggleMenu(this)})
+
 // on page load
 $(document).ready(function() {
     console.log('page load');
+    plotTemplate()
 });
 
-const toggleMenu = (element) => {
-    // console.log('toggle')
-    // console.log(element)
-    element.classList.toggle('active')
+
+/*****************************************************************************
+ *                             TEST INTERACTIONS
+ *****************************************************************************/
+
+const testFunc = () => {
+    const testVal = 10
+    const testArr = new Array(testVal)
+    console.log(testArr)
+    const a = [['abc'],['def']]
+    testArr[0] = a[1]
+    console.log(testArr)
 }
 
-$(".dropdown").click(function () {toggleMenu(this)})
+$("#testBtn").click(testFunc)
 
-const addOption = () => {
-    // console.log('add option')
-    const checked = $('.testOpt:checked').length;
-    // console.log(`checked boxes: ${checked}`)
-
-    const optionParent = document.getElementById('drop-options')
-    // console.log(`child count: ${optionParent.childElementCount}`)
-
-    removeClones('drop-options', 1)
-
-    const optionTemplate = document.getElementById('dropOp-template')
-    for (let i = 0; i < checked; i++) {
-        const newOption = optionTemplate.cloneNode(true)
-        newOption.removeAttribute("id")
-        newOption.style.display = "block"
-        newOption.innerHTML = `${i+1}+`
-        newOption.onclick = function() {changeDropSelect(`${i+1}+`)}
-
-        optionParent.appendChild(newOption)
-    }
-}
-
-const changeDropSelect = (value) => {
-    console.log('change value')
-    document.getElementById('drop-select').innerHTML = value
-}
-
-const closeDropdown = (e) => {
-    // console.log('close')
-    const dropdown = document.getElementsByClassName('dropdown')[0]
-    // console.log(e.target)
-    if (dropdown != (e.target).parentElement && dropdown.classList.contains('active')) {
-        dropdown.classList.toggle('active')
-    }
-    // console.log(dropdown)
-}
-
-$(".testOpt").click(addOption)
+// const closeDropdown = (e) => {
+//     // console.log('close')
+//     const dropdown = document.getElementsByClassName('dropdown')[0]
+//     // console.log(e.target)
+//     if (dropdown != (e.target).parentElement && dropdown.classList.contains('active')) {
+//         dropdown.classList.toggle('active')
+//     }
+//     // console.log(dropdown)
+// }
 
 // $(document).click(function(e) {closeDropdown(e)})
+
+
+
+
+
+/*****************************************************************************
+ *                             RANDOM NOTES
+ *****************************************************************************/
+
+// EACH TRACE IS FOR 1 CELL TYPE
+// trace
+//  x:
+//      x1: cell type   -->     [ct1, ct1]
+//      x2: tissue      -->     [lung, heart]
+//  y:  genes           -->     [g1, g2, g3]
+//  z:  values
+
+// var trace = {
+//     x: [
+//         []
+//     ],
+//     // y: ,
+//     // z: ,
+//     type: 'heatmap'
+// }

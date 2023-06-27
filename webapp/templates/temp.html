@@ -7,7 +7,7 @@
       [ PLOT ]
       <div id="plotDiv"></div>
     </div>
-    <div id="celltypeList" class="column is-1" style="display: none; border: 1px solid purple">
+    <div id="celltypeList" class="column is-1" style="border: 1px solid purple">
       Celltypes
       <div id="celltypeName-template" style="display: none; border: 1px solid black"></div>
     </div>
@@ -16,14 +16,10 @@
     <div class="column" style="border: 1px solid blue; padding: 20px;">
         <div>FILTERS</div>
         <div>
-          <!-- <label>
-            <input id="matchOpt" type="checkbox">
-            Show matches
-          </label> -->
           <div class="dropdown">
             <div id="drop-select" style="border: 1px solid black">number of matches</div>
             <div id="drop-options">
-              <div id="dropOp-template" style="display: none; border: 1px solid red"></div>
+              <div id="dropOp-template" style="border: 1px solid red"></div>
             </div>
           </div>
           <br />
@@ -72,62 +68,14 @@
         </div>
     </div>
     <div class="column" style="border: 1px solid purple">
-      <button class="button" id="pBtn">TEST</button>
+      <button class="button" id="pBtn">plot</button>
       <br />
       <br />
       <button class="button" id="plotBtn">template</button>
+      <br />
+      <button id="testBtn">test</button>
     </div>
   </div>
-
-  <input id="top1" class="testOpt" type="checkbox" value="1">
-  <input id="top2" class="testOpt" type="checkbox" value="2">
-  
-
-  <!-- <div class="dropdown">
-    <div id="drop-select" style="border: 1px solid black">select</div>
-    <div id="drop-options">
-      <div id="opt1">op1</div>
-      <div id="opt2">op2</div>
-    </div>
-  </div> -->
-
-  <!-- <div class="columns tab-area" style="border: 1px solid black">
-    <div class="column is-one-quarter" style="border: 1px solid red">
-      FILTERS
-      <div style="border: 1px solid black">F1</div>
-      <div style="border: 1px solid black">F2</div>
-      <div style="border: 1px solid black">F3</div>
-      <aside class="menu">
-        <p class="menu-label">FILTERS</p>
-        <ul class="menu-list">
-          <li><a>FILTER 1</a></li>
-          <li><a>FILTER 2</a>
-            <ul>
-              <li><input type="checkbox">OP1</li>
-              <li><input type="checkbox">OP2</li>
-              <li><input type="checkbox">OP3</li>
-            </ul>
-          </li>
-          <li><a>FILTER 3</a>
-            <ul>
-              <li><input type="checkbox">OP1</li>
-              <li><input type="checkbox">OP2</li>
-              <li><input type="checkbox">OP3</li>
-            </ul>
-          </li>       
-        </ul>
-        <button class="button" id="plotBtn">Plot Template</button>
-        <button class="button" id="getDataBtn">Get Data</button>
-      </aside>
-    </div>
-    <div class="column" style="border: 1px solid blue">
-      PLOT CONTAINER
-      <div id="plotDiv" style="border: 1px solid green; height: 100%">
-        PLOT DIV
-      </div>
-    </div>
-  </div> -->
-
   <script type="module" src="/js/temp.js"></script>
   
 {% endblock %}
