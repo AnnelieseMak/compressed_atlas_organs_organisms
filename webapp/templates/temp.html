@@ -16,18 +16,26 @@
     <div class="column" style="border: 1px solid blue; padding: 20px;">
         <div>FILTERS</div>
         <div>
+          <div>
+            <input id="searchOpt" placeholder="genes">
+          </div>
+          <br />
           <div class="dropdown">
             <div id="drop-select" style="border: 1px solid black">number of matches</div>
             <div id="drop-options">
               <div id="dropOp-template" style="border: 1px solid red"></div>
             </div>
           </div>
-          <br />
-          <br />
-          <label>Tissue</label>
+          <label></label>
           <br />
           <label>
-            <input class="tisOpt" type="checkbox" value="Lung">
+            <input class="clusterOpt" type="checkbox">
+            Cluster
+          </label>
+          <br />
+          <br />
+          <label>
+            <input id="tisOpt-Lung" class="tisOpt" type="checkbox" value="Lung">
             Lung
           </label>
           <label>

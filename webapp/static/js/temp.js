@@ -2,13 +2,17 @@ let plotData = {}
 
 let testList = {}
 let traceDict = {}
+// {
+//  neutrophil: {normal: 0, cluster: 1},
+//  basophil: {normal: 1, cluster: 4}
+// }
 
 const plotTemplate = () => {
     console.log('plot template')
     var trace1 = {
         x: [
           ['SF Zoo','SF Zoo','SF Zoo'],
-          ['giraffes', 'orangutans', 'monkeys']
+          ['giraffes', 'orangutans', 'monaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaakeys']
         ],
         y: ['y1', 'y2', 'y3'],
         z: [[10,11,112], [13,14,15], [16,17,18]],
@@ -20,7 +24,7 @@ const plotTemplate = () => {
       var trace2 = {
         x: [
           ['LA Zoo','LA Zoo','LA Zoo'],
-          ['g', 'o', 'm']
+          ['g', 'o', 'm'],
         ],
         y: ['y1', 'y2', 'y3'],
         z: [[0,1,2], [3,null,5], [6,7,8]],
@@ -32,7 +36,7 @@ const plotTemplate = () => {
       var trace3 = {
         x: [
           ['AU Zoo','AU Zoo','AU Zoo'],
-          ['a', 'b', 'c']
+          ['a', 'b', 'c'],
         ],
         y: ['y1', 'y2', 'y3'],
         z: [[0,1,2], [3,7,5], [6,null,8]],
@@ -52,6 +56,10 @@ const plotTemplate = () => {
           showdividers: true,
           dividercolor: 'grey',
           dividerwidth: 2,
+          title: 'zoos',
+          tickangle: 0,
+        //   color: 'red'
+        //   ticklabeloverflow: 'hide past domain'
         },
         yaxis: {
             autorange: "reversed",
@@ -60,7 +68,7 @@ const plotTemplate = () => {
       testList = {'SF Zoo':0, 'LA Zoo':1, 'AU Zoo':2}
       
       Plotly.newPlot('plotDiv', data, layout);
-      clickable()
+    //   clickable()
 }
 
 const myFunc = (elPos, tickLabel) => {
@@ -115,14 +123,14 @@ const addBack = (el, elPos) => {
 
 const clickable = () => {
     const xTicks = document.getElementsByClassName('xtick2')
-    console.log(testList)
+    // console.log(testList)
 
-    console.log(`xticks`)
-    console.log(xTicks)
+    // console.log(`xticks`)
+    // console.log(xTicks)
 
     for (let i = 0; i < xTicks.length; i++) {
         const tickLabel = xTicks[i].children[0].innerHTML
-        console.log(testList[tickLabel])
+        // console.log(testList[tickLabel])
         xTicks[i].onclick = function(){myFunc(testList[tickLabel], tickLabel)}
     }
 
@@ -134,27 +142,29 @@ const clickable = () => {
  *****************************************************************************/
 
 const generatePlot = async () => {
-    console.log('generate plot')
-    traceDict = {}
+    // console.log('generate plot')
+    // traceDict = {}
     removeClones('celltypeList', 1)
     toggleCTList('close')
     
     const species = "mouse"
-    // const species = getCheckedbox('.specOpt:checked')
-    const tissues = getCheckedbox('.tisOpt:checked')
-    console.log(`tissue: ${tissues}\nspecies: ${species}`)
+    // const species = getCheckedboxNames('.specOpt:checked')
+    const tissues = getCheckedboxNames('.tisOpt:checked')
+    // console.log(`tissue: ${tissues}\nspecies: ${species}`)
 
     // tissues.push('Colon')      // , 'Bone Marrow', 'Kidney','Pancreas', 'Tongue'
 
     const matchOpt = document.getElementById('drop-select').innerHTML
-    console.log(matchOpt)
+    // console.log(matchOpt)
 
-    const data = await getData(tissues, species)
+    const searchInput = $("#searchOpt").val()
+
+    const data = await getData(tissues, species, searchInput)
     // console.log(`data:\n${JSON.stringify(data)}`)
     // console.log(`data:\n${data}`)
 
-    const tempTis = data[tissues[0]]
-    const feats = tempTis.features[0]
+    const firstTissue = data[Object.keys(data)[0]]
+    const featNames = firstTissue.features[0]
 
     const allCellTypes = getAllCellTypes(data)
     // console.log(allCellTypes)
@@ -162,8 +172,9 @@ const generatePlot = async () => {
 
     let traceData = []
     let maxVal = 0
+
     for (const [idx, cellType] of allCellTypes.entries()) {
-        const [CTvals, maxV, tissueList] = getCellType_Tissue(data, cellType)
+        const [CTvals, maxV, tissueList] = getCellType_Tissue(data, cellType, featNames.length)
         // console.log(maxV)
 
         maxVal = Math.max(maxVal, maxV)
@@ -172,7 +183,7 @@ const generatePlot = async () => {
                 Array(tissueList.length).fill(cellType),
                 tissueList
             ],
-            y: feats,
+            y: featNames,
             z: CTvals,
             zmin: 0,
             colorscale: 'Reds',
@@ -205,7 +216,8 @@ const generatePlot = async () => {
             ticklen: 15,
             showdividers: true,
             dividercolor: 'grey',
-            dividerwidth: 2
+            dividerwidth: 2,
+            // tickangle: 0,
         },
         yaxis: {
             autorange: "reversed",
@@ -214,7 +226,7 @@ const generatePlot = async () => {
 
     Plotly.newPlot('plotDiv', traceData, layout);
     makeXClickable()
-
+    updateFilters(featNames, matchOpt)
 }
 
 // return list of unique celltype names
@@ -233,9 +245,8 @@ const getAllCellTypes = (data) => {
 /*********************
         GET CELL TYPE DATA OF EACH TISSUE
 *********************/
-const getCellType_Tissue = (data, cellType) => {
+const getCellType_Tissue = (data, cellType, featuresCount) => {
     // console.log('\t\t\t\t\t\t\t\tFUNCTION: getCellType_Tissue')
-    const featuresCount = 16
     const CTcols = [...Array(featuresCount)].map(e => Array(1));
     let tissueList = []
     let colNo = 0
@@ -264,7 +275,18 @@ const getCellType_Tissue = (data, cellType) => {
     return [CTcols, Math.max(...CTcols.flat()), tissueList]
 }
 
-const getCheckedbox = (loc) => {
+/*****************************************************************************
+ *                              GENERAL HELPER
+ *****************************************************************************/
+
+const removeClones = (loc, length) => {
+    const location = document.getElementById(loc);
+    while(location.children.length > length) {
+        location.removeChild(location.lastChild);
+    }
+}
+
+const getCheckedboxNames = (loc) => {
     const checked = Array.from(document.querySelectorAll(loc))
 
     for (const [idx, el] of checked.entries()) {
@@ -273,38 +295,9 @@ const getCheckedbox = (loc) => {
     return checked
 }
 
-const toggleMenu = (ele) => {
-    console.log('toggle menu')
-    ele.classList.toggle('active')
-
-    if (!ele.classList.contains('active')) {
-        return
-    }
-    
-    const tissueCount = getCheckedbox('.tisOpt:checked').length
-    const optionParent = document.getElementById('drop-options')
-    const currCount = optionParent.childElementCount - 1
-
-    if (tissueCount == currCount) {
-        return
-    }
-
-    removeClones('drop-options', 1)
-
-    // add options
-    const optionTemplate = document.getElementById('dropOp-template')
-    for (let i = 0; i < tissueCount; i++) {
-        const newOption = optionTemplate.cloneNode(true)
-        newOption.removeAttribute("id")
-        newOption.innerHTML = `${i+1}`
-        newOption.onclick = function() {
-            document.getElementById('drop-select').innerHTML = `${i+1}`
-        }
-
-        optionParent.appendChild(newOption)
-    }
-}
-
+/*****************************************************************************
+ *                            INTERFACE METHODS
+ *****************************************************************************/
 const collapsePlot = (tracePos, tickLabel) => {
     console.log(`collapse plot: ${tracePos}, ${tickLabel}`)
     const traces = document.getElementById('plotDiv').data
@@ -337,23 +330,11 @@ const collapsePlot = (tracePos, tickLabel) => {
 
 }
 
-const addToPlot = (el, tracePos) =>{
-    el.remove()
+const addToPlot = (ele, tracePos) =>{
+    ele.remove()
     toggleCTList('close')
     Plotly.restyle('plotDiv', {visible: true}, tracePos)
     makeXClickable()
-}
-
-
-/*****************************************************************************
- *                              GENERAL HELPER
- *****************************************************************************/
-
-const removeClones = (loc, length) => {
-    const location = document.getElementById(loc);
-    while(location.children.length > length) {
-        location.removeChild(location.lastChild);
-    }
 }
 
 const makeXClickable = () => {
@@ -372,6 +353,62 @@ const toggleCTList = (action) => {
     } else if (action == 'open' && !CTList.classList.contains('active')) {
         CTList.classList.add('active')
     }
+}
+
+const toggleNumMatchedDrop = (ele) => {
+    console.log('toggle menu')
+    ele.classList.toggle('active')
+}
+
+const updateNumMatchedOptions = (ele) => {
+    if (!ele.checked) {
+        removeNumMatchedOption()
+    } else {
+        addNumMatchedOption()
+    }
+}
+
+const removeNumMatchedOption = () => {
+    const optionParent = document.getElementById('drop-options')
+    optionParent.removeChild(optionParent.lastChild)
+    const dropSelect = document.getElementById('drop-select')
+    if (!isNaN(dropSelect.innerHTML) && dropSelect.innerHTML > optionParent.lastChild.innerHTML) {
+        dropSelect.innerHTML = optionParent.lastChild.innerHTML
+    }
+}
+
+const addNumMatchedOption = () => {
+    console.log('add child')
+    const optionParent = document.getElementById('drop-options')
+    const childCount = optionParent.childElementCount
+    const optionTemplate = document.getElementById('dropOp-template')
+    const newOption = optionTemplate.cloneNode(true)
+    newOption.removeAttribute("id")
+    newOption.innerHTML = `${childCount}`
+    newOption.onclick = function() {
+        document.getElementById('drop-select').innerHTML = `${childCount}`
+    }
+
+    optionParent.appendChild(newOption)
+}
+
+const updateFilters = (featNames, matchOpt) => {
+    // search bar
+    const searchBar = document.getElementById('searchOpt')
+    searchBar.value = featNames
+
+    //number of matches
+    const dropSelect = document.getElementById('drop-select')
+    if (isNaN(matchOpt)) {
+        addNumMatchedOption()
+        dropSelect.innerHTML = 1
+    }
+
+    // tissue
+    const lungCB = document.getElementById('tisOpt-Lung')
+    lungCB.checked = true
+
+    // species
 }
 
 
@@ -399,14 +436,22 @@ const apiCall = (requestData) => {
     })
 }
 
-const getData = async (tissues, species) => {
-    console.log(`tissue: ${tissues}\nspecies: ${species}`)
+const getData = async (tissues, species, feature_names) => {
+    // console.log(`tissue: ${tissues}\nspecies: ${species}\nfeature_names: ${feature_names}`)
+
+    if (tissues.length == 0) {
+        tissues = ["Lung"]
+    }
+
+    if (!feature_names) {
+        feature_names = "Actc1,Actn2,Myl2,Myh7,Col1a1,Col2a1,Pdgfrb,Pecam1,Gja5,Vwf,Ptprc,Ms4a1,Gzma,Cd3d,Cd68,Epcam"
+    }
     let data = {}
 
     for (const tissue of tissues) {
         const reqData = {
-            feature_names: "Actc1,Actn2,Myl2,Myh7,Col1a1,Col2a1,Pdgfrb,Pecam1,Gja5,Vwf,Ptprc,Ms4a1,Gzma,Cd3d,Cd68,Epcam",
-            species: species,
+            feature_names,
+            species,
             tissue
         }
         // console.log(reqData)
@@ -425,12 +470,13 @@ const getData = async (tissues, species) => {
 //temp plot button
 $("#plotBtn").click(plotTemplate)
 
-// get data button
-// $("#getDataBtn").click()
-
 $("#pBtn").click(generatePlot)
 
-$(".dropdown").click(function () {toggleMenu(this)})
+// update number matched dropdown options
+$(".tisOpt").click(function() {updateNumMatchedOptions(this)})
+
+// toggle dropdown menu
+$(".dropdown").click(function () {toggleNumMatchedDrop(this)})
 
 // on page load
 $(document).ready(function() {
@@ -444,12 +490,8 @@ $(document).ready(function() {
  *****************************************************************************/
 
 const testFunc = () => {
-    const testVal = 10
-    const testArr = new Array(testVal)
-    console.log(testArr)
-    const a = [['abc'],['def']]
-    testArr[0] = a[1]
-    console.log(testArr)
+    const searchInput = $('#searchOpt').val()
+    console.log(searchInput)
 }
 
 $("#testBtn").click(testFunc)
