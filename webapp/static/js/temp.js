@@ -2,6 +2,7 @@ let plotData = {}
 
 let testList = {}
 let traceDict = {}
+let t
 // {
 //  neutrophil: {normal: 0, cluster: 1},
 //  basophil: {normal: 1, cluster: 4}
@@ -154,7 +155,8 @@ const generatePlot = async () => {
 
     // tissues.push('Colon')      // , 'Bone Marrow', 'Kidney','Pancreas', 'Tongue'
 
-    const matchOpt = document.getElementById('drop-select').innerHTML
+    // const matchOpt = document.getElementById('drop-select').innerHTML
+    const matchOpt = 2
     // console.log(matchOpt)
 
     const searchInput = $("#searchOpt").val()
@@ -201,6 +203,8 @@ const generatePlot = async () => {
         traceData.push(trace)
         traceDict[cellType] = idx
     }
+
+    t = traceData
 
     // sets zmax to overall max for shared scale
     for (const trace of traceData) {
@@ -440,7 +444,7 @@ const getData = async (tissues, species, feature_names) => {
     // console.log(`tissue: ${tissues}\nspecies: ${species}\nfeature_names: ${feature_names}`)
 
     if (tissues.length == 0) {
-        tissues = ["Lung"]
+        tissues = ["Lung", "Heart"]
     }
 
     if (!feature_names) {
@@ -481,7 +485,8 @@ $(".dropdown").click(function () {toggleNumMatchedDrop(this)})
 // on page load
 $(document).ready(function() {
     console.log('page load');
-    plotTemplate()
+    // plotTemplate()
+    generatePlot()
 });
 
 
@@ -489,9 +494,64 @@ $(document).ready(function() {
  *                             TEST INTERACTIONS
  *****************************************************************************/
 
-const testFunc = () => {
-    const searchInput = $('#searchOpt').val()
-    console.log(searchInput)
+const apiCall2 = (requestData) => {
+    console.log(requestData)
+    // console.log(JSON.stringify(requestData))
+    // const reqData = {
+    //     tissue: ['lung', 'heart']
+    // }
+    // return new Promise((resolve, reject) => {
+    //     $.ajax({
+    //         type: 'GET',
+    //         url: '/data/celltype_many',
+    //         // data: $.param(requestData),
+    //         data: requestData,
+    //         success: function(result) {
+    //             resolve(result)
+    //         }
+    //     })
+    // })
+
+    var array = {array: [[2,1],[2,2],[2,3]]}
+    // var data = {
+    //     'M': 5,
+    //     'N': 5,
+    //     'liveCells' : array
+    // };
+
+    $.ajax({
+        type: 'GET',
+        url: '/data/celltype_many',
+        // jsonp: 'callback',
+        // dataType: 'jsonp',
+        // contentType: 'application/json',
+        data: JSON.stringify(array),
+        // data: array,
+        success: function(response) {
+            console.log(response)
+        }
+    });
+}
+
+
+const testFunc = async () => {
+    // console.log(t)
+    // const newArr = []
+
+    // for(const tt of t) {
+    //     newArr.push(tt.z)
+    // }
+
+    // console.log(newArr)
+    
+    // const reqData = {
+    //     data: newArr
+    // }
+    // // console.log(reqData)
+    // const retVal = await apiCall2(reqData)
+    // console.log(retVal)
+
+    apiCall2()
 }
 
 $("#testBtn").click(testFunc)

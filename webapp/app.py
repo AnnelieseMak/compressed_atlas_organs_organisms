@@ -110,7 +110,6 @@ def measurement_by_celltype():
     species = request.args.get('species')
     if species is None:
         species = config['defaults']['species']
-    print('SPECIES: ', species)
     tissue = request.args.get('tissue')
     if tissue is None:
         tissue = config['defaults']['tissue']

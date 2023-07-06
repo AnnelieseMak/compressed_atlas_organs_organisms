@@ -354,7 +354,6 @@ function connectTooltip(feature_types, goTerms, feature_coords) {
     } else {
         ytickName = 'y' + (iGeneExpression + 1) + 'tick';
     }
-    console.log(`ytickName = ${ytickName}`)
     // Add tooltips to gene names
     $("." + ytickName + " > text > tspan").click(function(evt) {
         console.log(`here: ${this}`)
@@ -502,7 +501,7 @@ function AssembleAjaxRequest( featurestring = "" ) {
                 'result': result,
             };
 
-            console.log('results: ', plotData)
+            console.log(result)
 
             // Update search box: corrected feature names, excluding missing features
             setSearchBox(result['features']);

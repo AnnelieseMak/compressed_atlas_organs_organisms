@@ -76,9 +76,9 @@ class MeasurementByCelltype(Resource):
         feature_stringd = validate_correct_feature_mix(
             featurestring, species=species,
         )
-        # print(f'feature_stringd: {feature_stringd}')
+        print(f'feature_stringd: {feature_stringd}')
+        print(f'feature_stringd length: {len(feature_stringd)}')
         if len(feature_stringd) == 0:
-            print('no feature found!')
             return None
 
         result = {
@@ -95,8 +95,10 @@ class MeasurementByCelltype(Resource):
 
         # Store data to comupte hierarchical clustering of cell types
         dfl_for_ct_hierarchy = []
+        # print(f'feature_stringd.items(): {feature_stringd.items()}')
         for feature_type, featurestring in feature_stringd.items():
             # NOTE: this is where it gets tricky with canonical intervals
+            # print(f'feature_type: {feature_type}\t featurestring: {featurestring}')
             feature_names = featurestring.split(',')
 
             # If we are switching species, get orthologs
@@ -108,12 +110,6 @@ class MeasurementByCelltype(Resource):
                 missing_genes = 'skip'
             else:
                 missing_genes = 'throw'
-
-            # print(f'feature types: {feature_type}')
-            # print(f'feature names: {feature_names}')
-            # print(f'speces: {species}')
-            # print(f'tissue: {tissue}')
-            # print(f'missing_genes: {missing_genes}')
 
             try:
                 df = get_counts(
@@ -139,7 +135,7 @@ class MeasurementByCelltype(Resource):
                 print("Could not get counts from h5 file")
                 return None
 
-            print(f'df: {df}')
+            # print(f'df: {df}')
 
             # Just in case we skipped some
             feature_names = df.index.tolist()
@@ -168,15 +164,30 @@ class MeasurementByCelltype(Resource):
             else:
                 pseudocount = 0.01
             dfl = np.log10(df + pseudocount)
+            # print(f'df1: \n {dfl}')
+            # print(f'df: \n{df}')
+            # print(f'df.values: \n{df.values}')
 
             if len(feature_names) <= 2:
                 idx_features_hierarchical = list(range(len(feature_names)))
             else:
+                # print('features hiearchical\n')
+                pplist = pdist(dfl.values)
+                linkVal = linkage(
+                    pplist,
+                    optimal_ordering=True)
+                idLeavesList = leaves_list(linkVal)
+                # print(f'dfl.values: \n {dfl.values}')
+                # print(f'length dfl.values: \n {len(dfl.values)}')
+                # print(f'pplist: \n {pplist}\n')
+                # print(f'linkVal:\n {linkVal}\n')
+                # print(f'idLeavesList:\n {idLeavesList}\n')
                 idx_features_hierarchical = leaves_list(linkage(
                     pdist(dfl.values),
                     optimal_ordering=True),
                 )
                 idx_features_hierarchical = [int(x) for x in idx_features_hierarchical]
+                # print('idx_features_hierarchical\t', idx_features_hierarchical, '\n')
 
             result['data'].append(df.values.tolist())
             result['feature_type'].append(feature_type)
@@ -201,11 +212,15 @@ class MeasurementByCelltype(Resource):
         else:
             dfl_for_ct_hierarchy = np.vstack(dfl_for_ct_hierarchy)
 
+        # print(f'dfl_for_ct_hierarchy: {dfl_for_ct_hierarchy}')
+        # print(f'dfl_for_ct_hierarchy.T: {dfl_for_ct_hierarchy.T}')
+
         idx_ct_hierarchical = leaves_list(linkage(
             pdist(dfl_for_ct_hierarchy.T),
             optimal_ordering=True),
         )
         idx_ct_hierarchical = [int(x) for x in idx_ct_hierarchical]
+        # print(f'idx_ct_hierarchical: {idx_ct_hierarchical}')
 
         result['celltypes'] = df.columns.tolist()
         result['celltypes_hierarchical'] = idx_ct_hierarchical
@@ -214,6 +229,19 @@ class MeasurementByCelltype(Resource):
 
         return result
 
+# def getMeasurementByCellType():
+#     result = {
+#         'data': [],
+#         'features': [],
+#         'feature_type': [],
+#         'features_hierarchical': [],
+#         'n_feature_types': len(feature_stringd),
+#         'data_fractions': [],
+#         'gene_ids': [],
+#         'feature_coords': [],
+#         'GO_terms': [],
+#     }
+#     return result
 
 class MeasurementOvertime1Feature(Resource):
     '''Measurements (e.g. GE) for a single feature, across time'''
@@ -844,83 +872,87 @@ class CelltypeAbundance(Resource):
 
 class CelltypesMany(Resource):
     def get(self, args=None):
-        print('\t\there')
+        print('\n\t\t\tCELL TYPE MANY')
+
         args = request.args
-        print(f'args: {args}')
-        species = args.get("species")
-        tissues = json.loads(args.get('tissue'))
-        fNames = args.get('feature_names')
-        print(f'species: {species}\t\t tissues: {tissues}\t\t featureNames = {fNames}\n\n')
+        print(f'\nargs: \n{args}\n')
+        # print(f'list: \n{args.getlist("array[0][]")}\n')
+        # print(f'request.get_data(): \n{request.get_data()}\n')
+        # print(f'args dict: \n{args.to_dict()}\n')
+        # print(f'args.data: {request.get_json()}')
+        # print(f'args[0]: {args[0]}')
+        # print(f'd: {args.getlist("liveCells")}')
+        # b = request.args.getlist('liveCells[0]')
+        # b = request.get_json()
+        # b = request.args.get('M')
+        # array = request.form.getlist('array')
+        # print(f'\arr: \n{array}\n')
 
-        reqData = {'species': species,
-                    'tissue': tissues[0],
-                    'feature_names': fNames}
-        print(f'reqData: {reqData}')
 
 
-        # test = MeasurementByCelltype().get(params={reqData})
 
-        # requests.get('by_celltype', params={reqData})
-        MeasurementByCelltype().get()
 
-        # speciesList = request.args.getlist("species[]")
-        # print(f'species = {speciesList}')
+
+
+
+        # args = request.args
+        # print(f'\nargs: \n{args}\n')
+
+        # # d = json.loads(args.get["data"], encoding="utf-8") 
+        # # d = args.to_dict(flat=False)
+        # d = (args.getlist('data'))
+        # print(f'data: \n{d}\n')
+
         
-
-        # ret = {}
-
-        # for species in speciesList:
-        #     tissue = 'Lung'
-        #     print(f'species = {species} \ttissues = {tissue}')
-            
-        #     if species == "mouse":
-        #         feature_names = ['Actc1','Actn2']
-        #     else:
-        #         feature_names = ['ACTC1','ACTN2']
-        #     feature_type = 'gene_expression'
-        #     missing_genes = 'throw'
-
-        #     df = get_counts(
-        #                 "celltype",
-        #                 feature_type=feature_type,
-        #                 features=feature_names,
-        #                 species=species,
-        #                 tissue=tissue,
-        #                 missing=missing_genes,
-        #                 )
-        #     print(f'df: {df}')
-        #     print(f'df columns (cell types): {df.columns.tolist()}')
-        #     print(f'df rows (genes): {df.index.tolist()}')
-        #     print(f'df data values: {df.values.tolist()}\n')
-
-        # tissues = get_tissues('gene_expression', species)
-        # ['Bone Marrow' 'Colon' 'Heart' 'Kidney' 'Lung' 'Pancreas' 'Tongue']
-        # tissue = tissues[4]
-        # print(f'tissues = {tissues}')
         
-        # feature_names = ['Actc1','Actn2']
-        # feature_type = 'gene_expression'
-        # missing_genes = 'throw'
+        
+        
+        
+        # args = request.args
+        # print(f'args: \n{args}')
+        # retV = args.get("data")
+        # print(f'args.data: \n{json.loads(retV)}')
 
-        # print(f'feature types: {feature_type}')
-        # print(f'feature names: {feature_names}')
-        # print(f'speces: {species}')
-        # print(f'tissue: {tissue}')
-        # print(f'missing_genes: {missing_genes}')
+        # testVar = [[0,1,2],[2,3,4],[9,8,7],[0,0,0],[9,9,9]]
 
-        # df = get_counts(
-        #                 "celltype",
-        #                 feature_type=feature_type,
-        #                 features=feature_names,
-        #                 species=species,
-        #                 tissue=tissue,
-        #                 missing=missing_genes,
-        #                 )
-                    
-        # print(f'df: {df}')
-        # print(f'df columns (cell types): {df.columns}')
-        # print(f'df rows (genes): {df.index}')
-        # print(f'df data values: {df.values}')
+        # hiearchical clustering for multiple tissue
+        # 
+        # testVarT = [[0,2,9],[1,3,8],[2,4,7]]
+        # testVarT = np.array(testVar).T
+        # print(f'testVar: \n{testVar}')
+        # print(f'testVarT: \n{testVarT}')
+
+        # t1 = pdist(testVar)
+        # # print(f't1: {t1}')
+        # t2 = linkage(t1, optimal_ordering=True)
+        # # print(f't2: {t2}')
+        # t3 = leaves_list(t2)
+        # # print(f't3: {t3}')
+        # idx = [int(x) for x in t3]
+        # print(f'idx: {idx}')
+
+
+        # t11 = pdist(testVarT)
+        # # print(f't1: {t11}')
+        # t22 = linkage(t11, optimal_ordering=True)
+        # # print(f't2: {t22}')
+        # t33 = leaves_list(t22)
+        # # print(f't3: {t33}')
+        # idxx = [int(x) for x in t33]
+        # print(f'idxx: {idxx}')    
+
+        # idx_features_hierarchical = leaves_list(linkage(
+        #             pdist(dfl.values),
+        #             optimal_ordering=True),
+        #         )
+        #         idx_features_hierarchical = [int(x) for x in idx_features_hierarchical]
+        
+        # idx_ct_hierarchical = leaves_list(linkage(
+        # pdist(dfl_for_ct_hierarchy.T),
+        # optimal_ordering=True),
+        # )
+        # idx_ct_hierarchical = [int(x) for x in idx_ct_hierarchical]
+
 
         ret = None
         # testFunc()
