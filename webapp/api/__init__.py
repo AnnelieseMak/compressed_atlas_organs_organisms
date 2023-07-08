@@ -164,8 +164,8 @@ class MeasurementByCelltype(Resource):
             else:
                 pseudocount = 0.01
             dfl = np.log10(df + pseudocount)
-            # print(f'df1: \n {dfl}')
-            # print(f'df: \n{df}')
+            print(f'df1: \n {dfl}')
+            print(f'df: \n{df}')
             # print(f'df.values: \n{df.values}')
 
             if len(feature_names) <= 2:
@@ -177,7 +177,7 @@ class MeasurementByCelltype(Resource):
                     pplist,
                     optimal_ordering=True)
                 idLeavesList = leaves_list(linkVal)
-                # print(f'dfl.values: \n {dfl.values}')
+                print(f'dfl.values: \n {dfl.values}')
                 # print(f'length dfl.values: \n {len(dfl.values)}')
                 # print(f'pplist: \n {pplist}\n')
                 # print(f'linkVal:\n {linkVal}\n')
@@ -889,35 +889,91 @@ class CelltypesMany(Resource):
         # print(f'\arr: \n{array}\n')
 
 
+        # celltype avg, gene
 
 
+        # macrophage: 
+        # [
+        #   [0.2, 0.3]              # ACTC1
+        #   [0.004, 0.02]           # ACTC2
+        #   [0.007, 0.14]           # MYL2
+        # ]
 
+        # [[0.2, 0.3],[0.004, 0.02], [0.007, 0.14]]
 
+        # fibroblast: 
+        # [
+        #   [0.016, 0.28]           # ACTC1
+        #   [0, 0.025]              # ACTC2
+        #   [0.017, 0.06]           # MYL2
+        # ]
 
+        # [[0.016, 0.28], [0, 0.025], [0.017, 0.06]]
 
-        # args = request.args
-        # print(f'\nargs: \n{args}\n')
+        # smooth muscle: 
+        # [
+        #   [0.15, 0.31]             # ACTC1
+        #   [0.004, 0.008]           # ACTC2
+        #   [0.0011, 0.344]          # MYL2
+        # ]
 
-        # # d = json.loads(args.get["data"], encoding="utf-8") 
-        # # d = args.to_dict(flat=False)
-        # d = (args.getlist('data'))
-        # print(f'data: \n{d}\n')
+        # [[0.15, 0.31], [0.004, 0.008], [0.0011, 0.344]]
 
-        
-        
-        
-        
+        # incomingDummyData = [
+        #     [[0.2, 0.3],[0.004, 0.02], [0.007, 0.14]],            # macrophage
+        #     [[0.016, 0.28], [0, 0.025], [0.017, 0.06]],           # fibroblast
+        #     [[0.15, 0.31], [0.004, 0.008], [0.0011, 0.344]]       # smooth muscle
+        # ]
+
+        incomingDummyData = [
+            [[1,3],[2,4], [3,5]],                                   # macrophage
+            [[0.016, 0.28], [0, 0.025], [0.017, 0.06]],             # fibroblast
+        ]
+
+        for i, x in enumerate(incomingDummyData):
+            print(f'i: {i}\tx: {x}')
+            colAvg = np.average(np.array(x), axis=1)
+            print(f'averages: \n{colAvg}')
+            print(f'avg[0]: {colAvg[0]}\n')
+            incomingDummyData[i] = colAvg
+
+        print(f'after: \n{incomingDummyData[0]}')
+        print(f'after: \n{incomingDummyData[1]}\n')
+
+        transformed = np.array(incomingDummyData).T
+
+        print(f'transformed: \n{transformed}')
+        print(f'incoming: \n{incomingDummyData}\n')
+
+        # features order
+        t1 = pdist(transformed)
+        t2 = linkage(t1, optimal_ordering=True)
+        t3 = leaves_list(t2)
+        idx = [int(x) for x in t3]
+        print(f'idx: {idx}')
+
+        # CT order
+        t11 = pdist(incomingDummyData)
+        t22 = linkage(t11, optimal_ordering=True)
+        t33 = leaves_list(t22)
+        idxx = [int(x) for x in t33]
+        print(f'idxx: {idxx}')
+
         
         # args = request.args
         # print(f'args: \n{args}')
         # retV = args.get("data")
         # print(f'args.data: \n{json.loads(retV)}')
 
-        # testVar = [[0,1,2],[2,3,4],[9,8,7],[0,0,0],[9,9,9]]
+        # testVar = [
+        #     [avg actc1 across tissues for celltype1, avg actc1 for celltype2, avg actc1 for celltype3]
+        #     [avg gene2 across tissues for celltype1, avg gene2 for celltype2, avg gene2 for celltype3]
+        # ]
 
         # hiearchical clustering for multiple tissue
         # 
         # testVarT = [[0,2,9],[1,3,8],[2,4,7]]
+        # testVar = [[0,1,2],[2,3,4],[9,8,7],[0,0,0],[9,9,9]]
         # testVarT = np.array(testVar).T
         # print(f'testVar: \n{testVar}')
         # print(f'testVarT: \n{testVarT}')

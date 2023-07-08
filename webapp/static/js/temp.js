@@ -17,6 +17,7 @@ const plotTemplate = () => {
         ],
         y: ['y1', 'y2', 'y3'],
         z: [[10,11,112], [13,14,15], [16,17,18]],
+        // xaxis: 'x',
         visible: true,
         name: '',
         type: 'heatmap'
@@ -29,6 +30,7 @@ const plotTemplate = () => {
         ],
         y: ['y1', 'y2', 'y3'],
         z: [[0,1,2], [3,null,5], [6,7,8]],
+        // xaxis: 'x2',
         visible: true,
         name: '',
         type: 'heatmap'
@@ -41,6 +43,7 @@ const plotTemplate = () => {
         ],
         y: ['y1', 'y2', 'y3'],
         z: [[0,1,2], [3,7,5], [6,null,8]],
+        // xaxis: 'x3',
         visible: true,
         name: '',
         type: 'heatmap'
@@ -64,12 +67,70 @@ const plotTemplate = () => {
         },
         yaxis: {
             autorange: "reversed",
+        },
+        annotations: [
+        {
+            x: 0.14,
+            y: -0.25,
+            xref: 'paper',
+            yref: 'paper',
+            text: 'x1',
+            showarrow: false,
+        },
+        {
+            x: 0.43,
+            y: -0.25,
+            xref: 'paper',
+            yref: 'paper',
+            text: 'x2',
+            showarrow: false, 
+        },
+        {
+            x: 0.71,
+            y: -0.25,
+            xref: 'paper',
+            yref: 'paper',
+            text: 'x3s',
+            showarrow: false,
+        },
+        {
+            x: 1,
+            y: -0.25,
+            xref: 'paper',
+            yref: 'paper',
+            text: 'x: 1',
+            showarrow: false,
         }
+        ]
       };
       testList = {'SF Zoo':0, 'LA Zoo':1, 'AU Zoo':2}
+
+    //   annotations: class="annotations"
+
+    //   for (let i = 0; i < quarter_names.length; i++) {
+    //     text_annotations.push(
+    //       {
+    //         x: quarter_positions[i],
+    //         y: -0.15,
+    //         xref: 'paper',
+    //         yref: 'paper',
+    //         text: quarter_names[i],
+    //         showarrow: false,
+    //       }
+    //     )
+    //   }
+
+    //   https://stackoverflow.com/questions/69874927/multiple-x-axis-in-plotly-timeseries
       
       Plotly.newPlot('plotDiv', data, layout);
     //   clickable()
+
+    const t = document.getElementsByClassName('annotation')
+    console.log(t)
+    for (let i = 0;i < t.length; i++) {
+        console.log(t[i])
+        t[i].onclick = function(){console.log('here')}
+    }
 }
 
 const myFunc = (elPos, tickLabel) => {
@@ -485,8 +546,8 @@ $(".dropdown").click(function () {toggleNumMatchedDrop(this)})
 // on page load
 $(document).ready(function() {
     console.log('page load');
-    // plotTemplate()
-    generatePlot()
+    plotTemplate()
+    // generatePlot()
 });
 
 
@@ -525,8 +586,8 @@ const apiCall2 = (requestData) => {
         // jsonp: 'callback',
         // dataType: 'jsonp',
         // contentType: 'application/json',
-        data: JSON.stringify(array),
-        // data: array,
+        // data: JSON.stringify(array),
+        data: array,
         success: function(response) {
             console.log(response)
         }
@@ -536,13 +597,13 @@ const apiCall2 = (requestData) => {
 
 const testFunc = async () => {
     // console.log(t)
-    // const newArr = []
+    const newArr = []
 
-    // for(const tt of t) {
-    //     newArr.push(tt.z)
-    // }
+    for(const tt of t) {
+        newArr.push(tt.z)
+    }
 
-    // console.log(newArr)
+    console.log(newArr)
     
     // const reqData = {
     //     data: newArr

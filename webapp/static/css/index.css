@@ -136,7 +136,7 @@ body.loading .overlay{
 
 */
 
-.xtick2 {
+.xtick2, .annotation {
     cursor: pointer;
     pointer-events: all;
 }
