@@ -29,7 +29,7 @@ const plotTemplate = () => {
           ['g', 'o', 'm'],
         ],
         y: ['y1', 'y2', 'y3'],
-        z: [[0,1,2], [3,null,5], [6,7,8]],
+        z: [[0,1,2], [3,1,5], [6,7,8]],
         // xaxis: 'x2',
         visible: true,
         name: '',
@@ -42,7 +42,7 @@ const plotTemplate = () => {
           ['a', 'b', 'c'],
         ],
         y: ['y1', 'y2', 'y3'],
-        z: [[0,1,2], [3,7,5], [6,null,8]],
+        z: [[0,1,2], [3,7,5], [6,0,8]],
         // xaxis: 'x3',
         visible: true,
         name: '',
@@ -70,35 +70,43 @@ const plotTemplate = () => {
         },
         annotations: [
         {
-            x: 0.14,
+            x: 0,
             y: -0.25,
-            xref: 'paper',
+            // xref: 'x',
             yref: 'paper',
-            text: 'x1',
-            showarrow: false,
-        },
-        {
-            x: 0.43,
-            y: -0.25,
-            xref: 'paper',
-            yref: 'paper',
-            text: 'x2',
-            showarrow: false, 
-        },
-        {
-            x: 0.71,
-            y: -0.25,
-            xref: 'paper',
-            yref: 'paper',
-            text: 'x3s',
+            text: 'x0',
             showarrow: false,
         },
         {
             x: 1,
             y: -0.25,
-            xref: 'paper',
+            // xref: 'x',
             yref: 'paper',
-            text: 'x: 1',
+            text: 'x1',
+            showarrow: false,
+        },
+        {
+            x: 2,
+            y: -0.25,
+            // xref: 'x',
+            yref: 'paper',
+            text: 'x2',
+            showarrow: false, 
+        },
+        {
+            x: 3,
+            y: -0.25,
+            // xref: 'x',
+            yref: 'paper',
+            text: 'x3s',
+            showarrow: false,
+        },
+        {
+            x: 4,
+            y: -0.25,
+            // xref: 'x',
+            yref: 'paper',
+            text: 'x: 4',
             showarrow: false,
         }
         ]
@@ -126,9 +134,9 @@ const plotTemplate = () => {
     //   clickable()
 
     const t = document.getElementsByClassName('annotation')
-    console.log(t)
+    // console.log(t)
     for (let i = 0;i < t.length; i++) {
-        console.log(t[i])
+        // console.log(t[i])
         t[i].onclick = function(){console.log('here')}
     }
 }
@@ -288,6 +296,9 @@ const generatePlot = async () => {
             autorange: "reversed",
         }
     };
+
+    console.log('trace data:')
+    console.log(traceData)
 
     Plotly.newPlot('plotDiv', traceData, layout);
     makeXClickable()
@@ -546,8 +557,8 @@ $(".dropdown").click(function () {toggleNumMatchedDrop(this)})
 // on page load
 $(document).ready(function() {
     console.log('page load');
-    plotTemplate()
-    // generatePlot()
+    // plotTemplate()
+    generatePlot()
 });
 
 
@@ -556,63 +567,102 @@ $(document).ready(function() {
  *****************************************************************************/
 
 const apiCall2 = (requestData) => {
-    console.log(requestData)
-    // console.log(JSON.stringify(requestData))
+    // console.log(`apiCall2: ${requestData}`)
+    // console.log(requestData)
     // const reqData = {
-    //     tissue: ['lung', 'heart']
+    //     tissue: ['Lung', 'Heart'],
+    //     species: 'mouse',
+    //     feature_names: "Actc1,Actn2,Myl2,Myh7,Col1a1,Col2a1,Pdgfrb,Pecam1,Gja5,Vwf,Ptprc,Ms4a1,Gzma,Cd3d,Cd68,Epcam"
     // }
-    // return new Promise((resolve, reject) => {
-    //     $.ajax({
-    //         type: 'GET',
-    //         url: '/data/celltype_many',
-    //         // data: $.param(requestData),
-    //         data: requestData,
-    //         success: function(result) {
-    //             resolve(result)
-    //         }
-    //     })
-    // })
 
-    var array = {array: [[2,1],[2,2],[2,3]]}
-    // var data = {
-    //     'M': 5,
-    //     'N': 5,
-    //     'liveCells' : array
-    // };
+    // var array2 = {array: [[2,1],[2,2],[2,3]]}
+    // var array2 = {array: [[[0,1],[1,2]],[[2,3],[5,7]],[[0,1],[9,9]]]}
+    // var array2 = {array: JSON.stringify([[[0,1],[1,2]],[[2,3],[5,7]],[[0,1],[9,9]]])}   
 
-    $.ajax({
-        type: 'GET',
-        url: '/data/celltype_many',
-        // jsonp: 'callback',
-        // dataType: 'jsonp',
-        // contentType: 'application/json',
-        // data: JSON.stringify(array),
-        data: array,
-        success: function(response) {
-            console.log(response)
-        }
-    });
+    // var array = [[2,1],[2,2],[2,3]]
+    var array = {data: requestData}
+
+    // console.log(array2)
+    // console.log(array)
+
+    // console.log(JSON.stringify(requestData))
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            type: 'GET',
+            url: '/data/celltype_many',
+            // data: JSON.stringify(array2),
+            data: JSON.stringify(array),
+            // data: requestData,
+            success: function(response) {
+                resolve(response)
+            }
+        });
+    })
 }
 
-
 const testFunc = async () => {
-    // console.log(t)
-    const newArr = []
-
+    console.log(t)
+    const zValues = []
+    console.log(t.length)
     for(const tt of t) {
-        newArr.push(tt.z)
+        zValues.push(tt.z)
+    }
+    const currY = t[0].y
+    console.log(`yVals: ${currY}`)
+    console.log(`yVals: ${currY.length}`)
+    console.log(`yVals: ${currY[0]}`)
+
+    const retVal = await apiCall2(zValues)
+    console.log(`zValues:`)
+    console.log(retVal)
+    console.log(zValues)
+
+    const yValues = []
+
+    
+
+    for (const [idx, z] of zValues.entries()) {
+        console.log(z)
+        const hOrdered = []
+        const yAxis = []
+        for (const yV of retVal.yOrder) {
+            hOrdered.push(z[yV])
+            yAxis.push(currY[yV])
+        }
+        zValues[idx] = hOrdered
+        yValues.push(yAxis)
     }
 
-    console.log(newArr)
-    
-    // const reqData = {
-    //     data: newArr
-    // }
-    // // console.log(reqData)
-    // const retVal = await apiCall2(reqData)
-    // console.log(retVal)
+    console.log(zValues)
+    console.log(yValues)
 
-    apiCall2()
+    const update = {y: yValues, z: zValues}
+    Plotly.restyle('plotDiv', update, [0, 1, 2])
+    Plotly.moveTraces('plotDiv',[0,1,2], retVal.xOrder)
+
+    //////////////////////////////////////////////////////////////////////////////
+    // const testV = [[[0,1],[3,4],[9,8]], [[11,7],[5,1],[5,5]], [[8,4],[6,8],[9,8]]]
+    // console.log(testV)
+
+    // // new order: 1,2,0
+    // const newOrder = [1,2,0]
+
+    // for (let i = 0; i < testV.length; i++) {
+    //     let currZ = testV[i]
+    //     // console.log(currZ)
+    //     const newV = []
+    //     for (let i = 0; i < newOrder.length; i++) {
+    //         // console.log(newOrder[i])
+    //         newV.push(currZ[newOrder[i]])
+    //     }
+    //     // console.log(newV)
+    //     testV[i] = newV
+    // }
+
+    // console.log(testV)
+
+    // https://plotly.com/javascript/plotlyjs-function-reference/?_ga=2.3300214.73196253.1688987035-2104928824.1688987035#plotlymovetraces
+
 }
 
 $("#testBtn").click(testFunc)

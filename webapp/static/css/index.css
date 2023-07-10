@@ -141,6 +141,10 @@ body.loading .overlay{
     pointer-events: all;
 }
 
+/* .xtick2 > text {
+    color: red
+} */
+
 #dropOp-template {
     display: none;
 }

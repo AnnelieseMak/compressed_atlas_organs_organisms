@@ -98,8 +98,9 @@ class MeasurementByCelltype(Resource):
         # print(f'feature_stringd.items(): {feature_stringd.items()}')
         for feature_type, featurestring in feature_stringd.items():
             # NOTE: this is where it gets tricky with canonical intervals
-            # print(f'feature_type: {feature_type}\t featurestring: {featurestring}')
+            print(f'feature_type: {feature_type}\t featurestring: {featurestring}')
             feature_names = featurestring.split(',')
+            print(f'feature_names: {feature_names}')
 
             # If we are switching species, get orthologs
             if new_species is not None:
@@ -110,6 +111,8 @@ class MeasurementByCelltype(Resource):
                 missing_genes = 'skip'
             else:
                 missing_genes = 'throw'
+
+            # getMeasurementByCellType(feature_type, feature_names, species, tissue, missing_genes)
 
             try:
                 df = get_counts(
@@ -229,7 +232,7 @@ class MeasurementByCelltype(Resource):
 
         return result
 
-# def getMeasurementByCellType():
+# def getMeasurementByCellType(feature_type, feature_names, species, tissue, missing_genes):
 #     result = {
 #         'data': [],
 #         'features': [],
@@ -241,7 +244,62 @@ class MeasurementByCelltype(Resource):
 #         'feature_coords': [],
 #         'GO_terms': [],
 #     }
+
+#     try:
+#         df = get_counts(
+#                 "celltype",
+#                 feature_type=feature_type,
+#                 features=feature_names,
+#                 species=species,
+#                 tissue=tissue,
+#                 missing=missing_genes,
+#                 )
+#         if feature_type == 'gene_expression':
+#             df_fractions = get_counts(
+#                     "celltype",
+#                     feature_type=feature_type,
+#                     features=feature_names,
+#                     key='fraction',
+#                     species=species,
+#                     tissue=tissue,
+#                     missing=missing_genes,
+#                     )
+#     except KeyError:
+#         print("Could not get counts from h5 file")
+#         return None
+    
+#     result['data'].append(df.values.tolist())
+#     result['feature_type'].append(feature_type)
+#     result['features'].append(df.index.tolist())
+#     # result['features_hierarchical'].append(idx_features_hierarchical)
+#     result['feature_coords'].append(addFeatureCoordinates(feature_type, species, feature_names))
+    
+#     result['celltypes'] = df.columns.tolist()
+#     # result['celltypes_hierarchical'] = idx_ct_hierarchical
+#     result['species'] = species
+#     result['tissue'] = tissue
+
 #     return result
+
+# def getHierarchicalOrder():
+
+#     return
+
+# def addFeatureCoordinates(feature_type, species, feature_names):
+#     feature_coords = get_feature_annotationd(
+#             feature_type, species=species).loc[feature_names]
+#     feature_coordsstring = {}
+#     for feature_name in feature_names:
+#         chrom = feature_coords.at[feature_name, 'chrom']
+#         # FIXME: chr hack
+#         if not chrom.startswith('chr'):
+#             chrom = 'chr' + chrom
+#         start = feature_coords.at[feature_name, 'start']
+#         end = feature_coords.at[feature_name, 'end']
+#         fea_string = '-'.join([chrom, str(start), str(end)])
+#         feature_coordsstring[feature_name] = fea_string
+
+#     return feature_coordsstring
 
 class MeasurementOvertime1Feature(Resource):
     '''Measurements (e.g. GE) for a single feature, across time'''
@@ -876,6 +934,91 @@ class CelltypesMany(Resource):
 
         args = request.args
         print(f'\nargs: \n{args}\n')
+        keyList = list(args.keys())
+        keysDict = json.loads(keyList[0])
+        dataArray = keysDict["data"]
+        print(f'dataArray: \n{dataArray}\n')
+
+        print(f'length: \n{len(dataArray)}')
+
+        for i, x in enumerate(dataArray):
+            print(f'i: {i}\tx: {x}')
+            colAvg = np.average(np.array(x), axis=1)
+            print(f'averages: \n{colAvg}')
+            print(f'avg[0]: {colAvg[0]}\n')
+            dataArray[i] = colAvg
+        
+        print(f'dataArray:\n{dataArray}\n\n')
+
+        transformed = np.array(dataArray).T
+        
+        # features order
+        t1 = pdist(transformed)
+        t2 = linkage(t1, optimal_ordering=True)
+        t3 = leaves_list(t2)
+        idx = [int(x) for x in t3]
+        print(f'idx: {idx}')
+
+        # CT order
+        t11 = pdist(dataArray)
+        t22 = linkage(t11, optimal_ordering=True)
+        t33 = leaves_list(t22)
+        idxx = [int(x) for x in t33]
+        print(f'idxx: {idxx}')
+
+        return {'yOrder': idx, 'xOrder': idxx}
+
+        ##################################################################
+        # species = args.get("species")
+        # tissues = args.getlist("tissue[]")
+        # featurestring = args.get("feature_names")
+        # feature_names = featurestring.split(',')
+
+        # print(f"species: {species}")
+        # print(f"tissues: {tissues}")
+        # print(f"featurestring: {featurestring}")
+
+        # result = {}
+
+        # for tissue in tissues:
+        #     print(f'tissue: {tissue}')
+        #     result[tissue] =self.helper1('gene_expression', feature_names, species, tissue, 'throw')
+
+        # return result
+
+    # def helper1(self, feature_type, feature_names, species, tissue, missing_genes):
+    #     print('helper1')
+    #     print(f'feature_type: {feature_type}')
+    #     print(f'feature_names: {feature_names}')
+    #     print(f'species: {species}')
+    #     print(f'tissue: {tissue}')
+    #     print(f'missing_genes: {missing_genes}')
+
+    #     result = {}
+
+    #     try:
+    #         df = get_counts(
+    #                 "celltype",
+    #                 feature_type=feature_type,
+    #                 features=feature_names,
+    #                 species=species,
+    #                 tissue=tissue,
+    #                 missing=missing_genes,
+    #                 )
+    #     except KeyError:
+    #         print("Could not get counts from h5 file")
+    #         return None
+        
+    #     print(f'df: \n{df}')
+
+    #     result['data'] = (df.values.tolist())
+    #     result['feature_type'] = (feature_type)
+    #     result['features'] = (df.index.tolist())
+    #     result['celltypes'] = df.columns.tolist()
+
+
+    #     return result
+
         # print(f'list: \n{args.getlist("array[0][]")}\n')
         # print(f'request.get_data(): \n{request.get_data()}\n')
         # print(f'args dict: \n{args.to_dict()}\n')
@@ -889,77 +1032,6 @@ class CelltypesMany(Resource):
         # print(f'\arr: \n{array}\n')
 
 
-        # celltype avg, gene
-
-
-        # macrophage: 
-        # [
-        #   [0.2, 0.3]              # ACTC1
-        #   [0.004, 0.02]           # ACTC2
-        #   [0.007, 0.14]           # MYL2
-        # ]
-
-        # [[0.2, 0.3],[0.004, 0.02], [0.007, 0.14]]
-
-        # fibroblast: 
-        # [
-        #   [0.016, 0.28]           # ACTC1
-        #   [0, 0.025]              # ACTC2
-        #   [0.017, 0.06]           # MYL2
-        # ]
-
-        # [[0.016, 0.28], [0, 0.025], [0.017, 0.06]]
-
-        # smooth muscle: 
-        # [
-        #   [0.15, 0.31]             # ACTC1
-        #   [0.004, 0.008]           # ACTC2
-        #   [0.0011, 0.344]          # MYL2
-        # ]
-
-        # [[0.15, 0.31], [0.004, 0.008], [0.0011, 0.344]]
-
-        # incomingDummyData = [
-        #     [[0.2, 0.3],[0.004, 0.02], [0.007, 0.14]],            # macrophage
-        #     [[0.016, 0.28], [0, 0.025], [0.017, 0.06]],           # fibroblast
-        #     [[0.15, 0.31], [0.004, 0.008], [0.0011, 0.344]]       # smooth muscle
-        # ]
-
-        incomingDummyData = [
-            [[1,3],[2,4], [3,5]],                                   # macrophage
-            [[0.016, 0.28], [0, 0.025], [0.017, 0.06]],             # fibroblast
-        ]
-
-        for i, x in enumerate(incomingDummyData):
-            print(f'i: {i}\tx: {x}')
-            colAvg = np.average(np.array(x), axis=1)
-            print(f'averages: \n{colAvg}')
-            print(f'avg[0]: {colAvg[0]}\n')
-            incomingDummyData[i] = colAvg
-
-        print(f'after: \n{incomingDummyData[0]}')
-        print(f'after: \n{incomingDummyData[1]}\n')
-
-        transformed = np.array(incomingDummyData).T
-
-        print(f'transformed: \n{transformed}')
-        print(f'incoming: \n{incomingDummyData}\n')
-
-        # features order
-        t1 = pdist(transformed)
-        t2 = linkage(t1, optimal_ordering=True)
-        t3 = leaves_list(t2)
-        idx = [int(x) for x in t3]
-        print(f'idx: {idx}')
-
-        # CT order
-        t11 = pdist(incomingDummyData)
-        t22 = linkage(t11, optimal_ordering=True)
-        t33 = leaves_list(t22)
-        idxx = [int(x) for x in t33]
-        print(f'idxx: {idxx}')
-
-        
         # args = request.args
         # print(f'args: \n{args}')
         # retV = args.get("data")
@@ -1010,10 +1082,78 @@ class CelltypesMany(Resource):
         # idx_ct_hierarchical = [int(x) for x in idx_ct_hierarchical]
 
 
-        ret = None
-        # testFunc()
+        # ret = None
+        # # testFunc()
     
-        return ret
+        # return ret
 
+# testing hieiarchy
 def testFunc():
-    print('in test function')
+    incomingDummyData = [
+        [[10,11,112], [13,14,15], [16,17,18]],                  # SF Zoo
+        [[0,1,2], [3,1,5], [6,7,8]],                            # LA Zoo
+        [[0,1,2], [3,7,5], [6,0,8]]                             # AU Zoo
+    ]
+
+    for i, x in enumerate(incomingDummyData):
+        print(f'i: {i}\tx: {x}')
+        colAvg = np.average(np.array(x), axis=1)
+        print(f'averages: \n{colAvg}')
+        print(f'avg[0]: {colAvg[0]}\n')
+        incomingDummyData[i] = colAvg
+
+    print(f'after: \n{incomingDummyData}')
+
+    transformed = np.array(incomingDummyData).T
+
+    print(f'transformed: \n{transformed}')
+    print(f'incoming: \n{incomingDummyData}\n')
+
+    # features order
+    t1 = pdist(transformed)
+    t2 = linkage(t1, optimal_ordering=True)
+    t3 = leaves_list(t2)
+    idx = [int(x) for x in t3]
+    print(f'idx: {idx}')
+
+    # CT order
+    t11 = pdist(incomingDummyData)
+    t22 = linkage(t11, optimal_ordering=True)
+    t33 = leaves_list(t22)
+    idxx = [int(x) for x in t33]
+    print(f'idxx: {idxx}')
+
+    return {'yOrder': idx, 'xOrder': idxx}
+
+# macrophage: 
+# [
+#   [0.2, 0.3]              # ACTC1
+#   [0.004, 0.02]           # ACTC2
+#   [0.007, 0.14]           # MYL2
+# ]
+
+# [[0.2, 0.3],[0.004, 0.02], [0.007, 0.14]]
+
+# fibroblast: 
+# [
+#   [0.016, 0.28]           # ACTC1
+#   [0, 0.025]              # ACTC2
+#   [0.017, 0.06]           # MYL2
+# ]
+
+# [[0.016, 0.28], [0, 0.025], [0.017, 0.06]]
+
+# smooth muscle: 
+# [
+#   [0.15, 0.31]             # ACTC1
+#   [0.004, 0.008]           # ACTC2
+#   [0.0011, 0.344]          # MYL2
+# ]
+
+# [[0.15, 0.31], [0.004, 0.008], [0.0011, 0.344]]
+
+# incomingDummyData = [
+#     [[0.2, 0.3],[0.004, 0.02], [0.007, 0.14]],            # macrophage
+#     [[0.016, 0.28], [0, 0.025], [0.017, 0.06]],           # fibroblast
+#     [[0.15, 0.31], [0.004, 0.008], [0.0011, 0.344]]       # smooth muscle
+# ]
