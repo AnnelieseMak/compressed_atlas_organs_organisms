@@ -498,11 +498,11 @@ const updateFilters = (featNames, matchOpt) => {
 //      species
 //      tissue
 
-const apiCall = (requestData) => {
+const apiCall = (requestData, path) => {
     return new Promise((resolve, reject) => {
         $.ajax({
             type: 'GET',
-            url: '/data/by_celltype',
+            url: path,
             data: $.param(requestData),
             success: function(result) {
                 // console.log(result)
@@ -531,12 +531,16 @@ const getData = async (tissues, species, feature_names) => {
             tissue
         }
         // console.log(reqData)
-        const retVal = await apiCall(reqData)
+        const retVal = await apiCall(reqData, '/data/by_celltype')
         data[tissue] = retVal
         // console.log(data)
     }
 
     return data
+}
+
+const getHierarchyOrder = async () => {
+    const retVal = await apiCall(reqData, '/data/getHierarchy')
 }
 
 /*****************************************************************************
@@ -589,7 +593,7 @@ const apiCall2 = (requestData) => {
     return new Promise((resolve, reject) => {
         $.ajax({
             type: 'GET',
-            url: '/data/celltype_many',
+            url: '/data/getHierarchy',
             // data: JSON.stringify(array2),
             data: JSON.stringify(array),
             // data: requestData,
@@ -665,7 +669,11 @@ const testFunc = async () => {
 
 }
 
-$("#testBtn").click(testFunc)
+const testA = () => {
+    console.log(traceDict)
+}
+
+$("#testBtn").click(testA)
 
 // const closeDropdown = (e) => {
 //     // console.log('close')

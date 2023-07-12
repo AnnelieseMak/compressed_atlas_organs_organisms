@@ -928,7 +928,7 @@ class CelltypeAbundance(Resource):
             'celltypeabundance': get_celltype_abundances(timepoint, kind=kind),
             }
 
-class CelltypesMany(Resource):
+class GetHierarchy(Resource):
     def get(self, args=None):
         print('\n\t\t\tCELL TYPE MANY')
 
@@ -941,6 +941,8 @@ class CelltypesMany(Resource):
 
         print(f'length: \n{len(dataArray)}')
 
+        dataArray = (np.log10(np.array(dataArray) + 0.5)).tolist()
+
         for i, x in enumerate(dataArray):
             print(f'i: {i}\tx: {x}')
             colAvg = np.average(np.array(x), axis=1)
@@ -948,7 +950,6 @@ class CelltypesMany(Resource):
             print(f'avg[0]: {colAvg[0]}\n')
             dataArray[i] = colAvg
         
-        print(f'dataArray:\n{dataArray}\n\n')
 
         transformed = np.array(dataArray).T
         
