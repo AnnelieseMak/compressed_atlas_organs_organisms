@@ -1,8 +1,21 @@
-let plotData = {}
-
+let plotData = {
+    traces: [],
+    order: {
+        x: {hierarchical: [], normal: []},
+        y: {hierarchical: [], normal: []}
+    }
+}
+/* 
+{
+    traces: []
+    order: {
+        x: {hierarchical: [], normal: []},
+        y: {hierarchical: [], normal: []}
+    }
+}
+*/
 let testList = {}
 let traceDict = {}
-let t
 // {
 //  neutrophil: {normal: 0, cluster: 1},
 //  basophil: {normal: 1, cluster: 4}
@@ -50,7 +63,9 @@ const plotTemplate = () => {
       };
       
       var data = [trace1, trace2, trace3];
-    //   console.log(data)
+        var data2 = [trace1, trace3, trace2]
+      console.log(data)
+      console.log(data2)
 
       var layout = {
         showlegend: false,
@@ -133,11 +148,12 @@ const plotTemplate = () => {
       Plotly.newPlot('plotDiv', data, layout);
     //   clickable()
 
-    const t = document.getElementsByClassName('annotation')
-    // console.log(t)
+    // const t = document.getElementsByClassName('annotation')
+    const t = document.getElementsByClassName('xtick2')
+    console.log(t)
     for (let i = 0;i < t.length; i++) {
         // console.log(t[i])
-        t[i].onclick = function(){console.log('here')}
+        t[i].onclick = function(){myFunc(i, t)}
     }
 }
 
@@ -213,20 +229,17 @@ const clickable = () => {
 
 const generatePlot = async () => {
     // console.log('generate plot')
-    // traceDict = {}
+    traceDict = {}
     removeClones('celltypeList', 1)
     toggleCTList('close')
     
     const species = "mouse"
     // const species = getCheckedboxNames('.specOpt:checked')
     const tissues = getCheckedboxNames('.tisOpt:checked')
-    // console.log(`tissue: ${tissues}\nspecies: ${species}`)
+    console.log(`tissue: ${tissues}\nspecies: ${species}`)
 
-    // tissues.push('Colon')      // , 'Bone Marrow', 'Kidney','Pancreas', 'Tongue'
-
-    // const matchOpt = document.getElementById('drop-select').innerHTML
-    const matchOpt = 2
-    // console.log(matchOpt)
+    const matchOpt = document.getElementById('drop-select').innerHTML
+    // const matchOpt = 2
 
     const searchInput = $("#searchOpt").val()
 
@@ -248,6 +261,10 @@ const generatePlot = async () => {
         const [CTvals, maxV, tissueList] = getCellType_Tissue(data, cellType, featNames.length)
         // console.log(maxV)
 
+        if (matchOpt > tissueList.length) {
+            continue
+        }
+
         maxVal = Math.max(maxVal, maxV)
         const trace = {
             x: [
@@ -265,20 +282,19 @@ const generatePlot = async () => {
             visible: true
         }
         
-        if (matchOpt > tissueList.length) {
-            continue
-        }
-
         traceData.push(trace)
-        traceDict[cellType] = idx
+        traceDict[cellType] = Object.keys(traceDict).length
     }
-
-    t = traceData
 
     // sets zmax to overall max for shared scale
     for (const trace of traceData) {
         trace.zmax = maxVal
     }
+
+    plotData.traces = traceData
+    const ret = getHierarchyOrder()
+    // plotData["xOrder"] = 
+    // plotData["yOrder"] = 
 
     var layout = {
         showlegend: false,
@@ -297,8 +313,8 @@ const generatePlot = async () => {
         }
     };
 
-    console.log('trace data:')
-    console.log(traceData)
+    // console.log('trace data:')
+    // console.log(traceData)
 
     Plotly.newPlot('plotDiv', traceData, layout);
     makeXClickable()
@@ -318,35 +334,34 @@ const getAllCellTypes = (data) => {
     return allCellTypes
 }
 
-/*********************
-        GET CELL TYPE DATA OF EACH TISSUE
-*********************/
+// GET CELL TYPE DATA OF EACH TISSUE
 const getCellType_Tissue = (data, cellType, featuresCount) => {
     // console.log('\t\t\t\t\t\t\t\tFUNCTION: getCellType_Tissue')
+    // console.log(data)
     const CTcols = [...Array(featuresCount)].map(e => Array(1));
     let tissueList = []
     let colNo = 0
     
     for (const [key, value] of Object.entries(data)) {
         // console.log(colNo, key)
-        // console.log(idx, key, value)
+        // console.log(key, value)
         const tissueCT = value.celltypes
-        const CTval = tissueCT.indexOf(cellType)
+        const CTidx = tissueCT.indexOf(cellType)
 
-        if (CTval != -1) {
+        if (CTidx != -1) {
             const tissueData = value.data[0]
             // console.log(`tissueData: ${JSON.stringify(tissueData)}`)
-            // console.log(`${key} data at ${CTval}: ${tissueData[0][CTval]}`)
+            // console.log(`${key} data at ${CTidx}: ${tissueData[0][CTidx]}`)
             for (let i = 0; i < featuresCount; i++) {
-                // console.log(`[${i}][${CTval}]: ${tissueData[i][CTval]}`)
-                CTcols[i][colNo] = tissueData[i][CTval]
+                // console.log(`[${i}][${CTidx}]: ${tissueData[i][CTidx]}`)
+                CTcols[i][colNo] = tissueData[i][CTidx]
             }
             tissueList.push(key)
             colNo++
         }
     }
 
-    // console.log(CTcols.flat())
+    // console.log(CTcols.flat())s
 
     return [CTcols, Math.max(...CTcols.flat()), tissueList]
 }
@@ -415,6 +430,7 @@ const addToPlot = (ele, tracePos) =>{
 
 const makeXClickable = () => {
     const xTicks = document.getElementsByClassName('xtick2')
+    // console.log(xTicks)
 
     for (const tick of xTicks) {
         const tickLabel = tick.children[0].innerHTML
@@ -454,7 +470,7 @@ const removeNumMatchedOption = () => {
 }
 
 const addNumMatchedOption = () => {
-    console.log('add child')
+    // console.log('add child')
     const optionParent = document.getElementById('drop-options')
     const childCount = optionParent.childElementCount
     const optionTemplate = document.getElementById('dropOp-template')
@@ -503,7 +519,8 @@ const apiCall = (requestData, path) => {
         $.ajax({
             type: 'GET',
             url: path,
-            data: $.param(requestData),
+            // data: $.param(requestData),
+            data: requestData,
             success: function(result) {
                 // console.log(result)
                 resolve(result)
@@ -513,10 +530,9 @@ const apiCall = (requestData, path) => {
 }
 
 const getData = async (tissues, species, feature_names) => {
-    // console.log(`tissue: ${tissues}\nspecies: ${species}\nfeature_names: ${feature_names}`)
 
     if (tissues.length == 0) {
-        tissues = ["Lung", "Heart"]
+        tissues = ["Lung"]
     }
 
     if (!feature_names) {
@@ -539,8 +555,58 @@ const getData = async (tissues, species, feature_names) => {
     return data
 }
 
+const plotHier = () => {
+    console.log(traceDict)
+    // const tt = [...Array((test.xOrder).length).keys()]
+    // console.log(tt)
+    // console.log(test.xOrder)
+    // Plotly.moveTraces('plotDiv', test.xOrder)
+    // Plotly.moveTraces('plotDiv', [0])
+}
+
 const getHierarchyOrder = async () => {
-    const retVal = await apiCall(reqData, '/data/getHierarchy')
+    console.log(plotData.traces)
+
+    const zValues = []
+    for (const zVal of plotData.traces) {
+        zValues.push(zVal.z)
+    }
+
+    const reqData = {
+        data: zValues,
+    }
+    console.log(`reqData`)
+    console.log(reqData)
+    const hierOrders = await apiCall(JSON.stringify(reqData), '/data/getHierarchy')
+    console.log(hierOrders)
+    plotData.order.x.hierarchical = hierOrders.xOrder
+    plotData.order.y.hierarchical = hierOrders.yOrder
+
+    // plotData["orders"]["hierarchical"] = hierOrders
+
+    // for (const [idx, z] of zValues.entries()) {
+    //     console.log(`idx: ${idx}\t z: ${z}`)
+    // }
+
+    // for (const [idx, z] of zValues.entries()) {
+    //     console.log(z)
+    //     const hOrdered = []
+    //     const yAxis = []
+    //     for (const yV of retVal.yOrder) {
+    //         hOrdered.push(z[yV])
+    //         yAxis.push(currY[yV])
+    //     }
+    //     zValues[idx] = hOrdered
+    //     yValues.push(yAxis)
+    // }
+
+    // console.log(zValues)
+    // console.log(yValues)
+
+    // const update = {y: yValues, z: zValues}
+    // Plotly.restyle('plotDiv', update, [0, 1, 2])
+    // Plotly.moveTraces('plotDiv',[0,1,2], retVal.xOrder)
+
 }
 
 /*****************************************************************************
@@ -562,7 +628,7 @@ $(".dropdown").click(function () {toggleNumMatchedDrop(this)})
 $(document).ready(function() {
     console.log('page load');
     // plotTemplate()
-    generatePlot()
+    // generatePlot()
 });
 
 
@@ -571,25 +637,8 @@ $(document).ready(function() {
  *****************************************************************************/
 
 const apiCall2 = (requestData) => {
-    // console.log(`apiCall2: ${requestData}`)
-    // console.log(requestData)
-    // const reqData = {
-    //     tissue: ['Lung', 'Heart'],
-    //     species: 'mouse',
-    //     feature_names: "Actc1,Actn2,Myl2,Myh7,Col1a1,Col2a1,Pdgfrb,Pecam1,Gja5,Vwf,Ptprc,Ms4a1,Gzma,Cd3d,Cd68,Epcam"
-    // }
-
-    // var array2 = {array: [[2,1],[2,2],[2,3]]}
-    // var array2 = {array: [[[0,1],[1,2]],[[2,3],[5,7]],[[0,1],[9,9]]]}
-    // var array2 = {array: JSON.stringify([[[0,1],[1,2]],[[2,3],[5,7]],[[0,1],[9,9]]])}   
-
-    // var array = [[2,1],[2,2],[2,3]]
     var array = {data: requestData}
 
-    // console.log(array2)
-    // console.log(array)
-
-    // console.log(JSON.stringify(requestData))
     return new Promise((resolve, reject) => {
         $.ajax({
             type: 'GET',
@@ -605,6 +654,7 @@ const apiCall2 = (requestData) => {
 }
 
 const testFunc = async () => {
+    const t = plotData.traces
     console.log(t)
     const zValues = []
     console.log(t.length)
@@ -613,7 +663,7 @@ const testFunc = async () => {
     }
     const currY = t[0].y
     console.log(`yVals: ${currY}`)
-    console.log(`yVals: ${currY.length}`)
+    console.log(`yVals length: ${currY.length}`)
     console.log(`yVals: ${currY[0]}`)
 
     const retVal = await apiCall2(zValues)
@@ -671,9 +721,12 @@ const testFunc = async () => {
 
 const testA = () => {
     console.log(traceDict)
+    console.log(plotData)
 }
 
+// $("#testBtn").click(plotHier)
 $("#testBtn").click(testA)
+// $("#testBtn").click(getHierarchyOrder)
 
 // const closeDropdown = (e) => {
 //     // console.log('close')

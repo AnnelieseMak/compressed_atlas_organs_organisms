@@ -941,16 +941,16 @@ class GetHierarchy(Resource):
 
         print(f'length: \n{len(dataArray)}')
 
-        dataArray = (np.log10(np.array(dataArray) + 0.5)).tolist()
+        # dataArray = (np.log10(np.array(dataArray) + 0.5)).tolist()
 
         for i, x in enumerate(dataArray):
             print(f'i: {i}\tx: {x}')
             colAvg = np.average(np.array(x), axis=1)
             print(f'averages: \n{colAvg}')
             print(f'avg[0]: {colAvg[0]}\n')
-            dataArray[i] = colAvg
+            dataArray[i] = colAvg + 0.5
         
-
+        # print(f'dataArray: \n{dataArray}\n')
         transformed = np.array(dataArray).T
         
         # features order
