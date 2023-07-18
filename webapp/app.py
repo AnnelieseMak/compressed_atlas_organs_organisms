@@ -446,6 +446,13 @@ def tempPage():
         'temp.html',
     )
 
+@app.route("/temp2", methods=["GET"])
+def tempPage2():
+    '''Temporary page to play around and test with'''
+    return render_template(
+        'temp2.html',
+    )
+
 # Static assets (JS/CSS)
 @app.route("/js/<path:path>")
 def send_js(path):

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <div id="pageContent" class="divSet2">
+    <div id="filterContainer">
+      <div id="filterMenuContainer">
+        <button id="filterMenuBtn">Filters</button>
+        <div id="filterBtnOther">
+          <div class="dropdown2">
+            <div id="dropSelect" style="border: 1px solid black">Matches</div>
+            <div id="dropContent">
+              <div id="dropOp-template" class="dropOp"></div>
+            </div>
+          </div>
+          <div id="filterViewSwitch">
+            <button id="viewNorm">show normal</button>
+            <button id="viewHier">show hierarchical</button>
+          </div>
+          <button class="pBtn">PLOT</button>
+        </div>
+      </div>
+      <div id="filterTabContent">
+        <!-- SEARCH BAR -->
+        <div id="filterSearch" class="filterSection">
+          <input type="input" id='searchInput' required/>
+          <label for="searchInput" id="searchLabel">Genes</label>
+        </div>
+        <!-- TISSUES -->
+        <div id="filterTissue" class="filterSection">
+          <div class="filterName">Tissues</div>
+          <div class="filterOpts">
+            <label for="tLung">
+              <input type="checkbox" id="tLung" class="tisOpt" value="Lung"/>
+              <div class="filterContent">
+                <img class="filterImg" src="/static/images/tissue_icons/Lung.svg"/>
+                <p class="filterLabel">Lung</p>
+              </div>
+            </label>
+
+            <label for="tHeart">
+              <input type="checkbox" id="tHeart" class="tisOpt" value="Heart"/>
+              <div class="filterContent">
+                <img class="filterImg" src="/static/images/tissue_icons/Heart.svg"/>
+                <p class="filterLabel">Heart</p>
+              </div>
+            </label>
+
+            <label for="tColon">
+              <input type="checkbox" id="tColon" class="tisOpt"  value="Colon"/>
+              <div class="filterContent">
+                <img class="filterImg" src="/static/images/tissue_icons/Colon.svg"/>
+                <p class="filterLabel">Colon</p>
+              </div>
+            </label>
+
+            <label for="tBoneMarrow">
+              <input type="checkbox" id="tBoneMarrow" class="tisOpt" value="Bone Marrow"/>
+              <div class="filterContent">
+                <img class="filterImg" src="/static/images/tissue_icons/Bone Marrow.svg"/>
+                <p id="filterLabelBM" class="filterLabel">Bone Marrow</p>
+              </div>
+            </label>
+
+            <label for="tKidney">
+              <input type="checkbox" id="tKidney" class="tisOpt" value="Kidney"/>
+              <div class="filterContent">
+                <img class="filterImg" src="/static/images/tissue_icons/Kidney.svg"/>
+                <p class="filterLabel">Kidney</p>
+              </div>
+            </label>
+            
+            <label for="tPancreas">
+              <input type="checkbox" id="tPancreas" class="tisOpt" value="Pancreas"/>
+              <div class="filterContent">
+                <img class="filterImg" src="/static/images/tissue_icons/Pancreas.svg"/>
+                <p class="filterLabel">Pancreas</p>
+              </div>
+            </label>
+
+            <label for="tTongue">
+              <input type="checkbox" id="tTongue" class="tisOpt" value="Tongue"/>
+              <div class="filterContent">
+                <img class="filterImg" src="/static/images/tissue_icons/Tongue.svg"/>
+                <p class="filterLabel">Tongue</p>
+              </div>
+            </label>
+          </div>
+        </div>
+        <hr />
+        <!-- SPECIES -->
+        <div id="filterSpecies" class="filterSection">
+          <div class="filterName">Species</div>
+          <div class="filterOpts">
+            <label for="sMouse">
+              <input type="checkbox" value="mouse" id="sMouse"  class="specOpt"/>
+              <div class="filterContent">
+                <img class="filterImg" src="/static/images/species_icons/mouse.svg"/>
+                <p class="filterLabel">Mouse</p>
+              </div>
+            </label>
+
+            <label for="sHuman">
+              <input type="checkbox" value="human" id="sHuman"  class="specOpt"/>
+              <div class="filterContent">
+                <img class="filterImg" src="/static/images/species_icons/human.svg"/>
+                <p class="filterLabel">Human</p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="plotContainer">
+      <div id="plotDiv"></div>
+      <div id="celltypeList2">
+        Celltypes
+        <div id="celltypeName2-template"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/temp2.js"></script>
+  
+{% endblock %}

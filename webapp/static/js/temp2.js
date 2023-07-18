@@ -162,14 +162,14 @@ const myFunc = (elPos, tickLabel) => {
         return
     }
 
-    const ctListEl = document.getElementById('celltypeList')
+    const ctListEl = document.getElementById('celltypeList2')
 
     if (ctListEl.style.display == "none") {
         console.log('is none')
         ctListEl.style.display = "block"
     }
 
-    const ctNameTemplate = document.getElementById('celltypeName-template')
+    const ctNameTemplate = document.getElementById('celltypeName2-template')
     const newCT = ctNameTemplate.cloneNode(true)
     newCT.removeAttribute('id')
     newCT.style.display = "block"
@@ -184,7 +184,7 @@ const myFunc = (elPos, tickLabel) => {
 
 const addBack = (el, elPos) => {
     el.remove()
-    const ctListParent = document.getElementById('celltypeList')
+    const ctListParent = document.getElementById('celltypeList2')
     if (ctListParent.childElementCount == 1) {
         ctListParent.style.display = "none"
     }
@@ -215,7 +215,7 @@ const clickable = () => {
 
 const generatePlot = async () => {
     // console.log('generate plot')
-    removeClones('celltypeList', 1)
+    removeClones('celltypeList2', 1)
     toggleCTList('close')
     
     const species = "mouse"
@@ -223,10 +223,10 @@ const generatePlot = async () => {
     const tissues = getCheckedboxNames('.tisOpt:checked')
     console.log(`tissue: ${tissues}\nspecies: ${species}`)
 
-    const matchOpt = document.getElementById('drop-select').innerHTML
+    const matchOpt = document.getElementById('dropSelect').innerHTML
     // const matchOpt = 2
 
-    const searchInput = $("#searchOpt").val()
+    const searchInput = $("#searchInput").val()
     // console.log(searchInput)
 
     const data = await getData(tissues, species, searchInput)
@@ -445,8 +445,8 @@ const collapsePlot = (tracePos, tickLabel) => {
 
     toggleCTList('open')
 
-    const CTList = document.getElementById('celltypeList')
-    const template = document.getElementById('celltypeName-template')
+    const CTList = document.getElementById('celltypeList2')
+    const template = document.getElementById('celltypeName2-template')
     const newItem = template.cloneNode(true)
     newItem.removeAttribute('id')
     newItem.style.display = 'block'
@@ -477,7 +477,7 @@ const makeXClickable = () => {
 }
 
 const toggleCTList = (action) => {
-    const CTList = document.getElementById('celltypeList')
+    const CTList = document.getElementById('celltypeList2')
     if (action == 'close' && CTList.childElementCount == 1) {
         CTList.classList.remove('active')
     } else if (action == 'open' && !CTList.classList.contains('active')) {
@@ -499,9 +499,9 @@ const updateNumMatchedOptions = (ele) => {
 }
 
 const removeNumMatchedOption = () => {
-    const optionParent = document.getElementById('drop-options')
+    const optionParent = document.getElementById('dropContent')
     optionParent.removeChild(optionParent.lastChild)
-    const dropSelect = document.getElementById('drop-select')
+    const dropSelect = document.getElementById('dropSelect')
     if (!isNaN(dropSelect.innerHTML) && dropSelect.innerHTML > optionParent.lastChild.innerHTML) {
         dropSelect.innerHTML = optionParent.lastChild.innerHTML
     }
@@ -509,14 +509,14 @@ const removeNumMatchedOption = () => {
 
 const addNumMatchedOption = () => {
     // console.log('add child')
-    const optionParent = document.getElementById('drop-options')
+    const optionParent = document.getElementById('dropContent')
     const childCount = optionParent.childElementCount
     const optionTemplate = document.getElementById('dropOp-template')
     const newOption = optionTemplate.cloneNode(true)
     newOption.removeAttribute("id")
     newOption.innerHTML = `${childCount}`
     newOption.onclick = function() {
-        document.getElementById('drop-select').innerHTML = `${childCount}`
+        document.getElementById('dropSelect').innerHTML = `${childCount}`
     }
 
     optionParent.appendChild(newOption)
@@ -524,11 +524,11 @@ const addNumMatchedOption = () => {
 
 const updateFilters = (featNames, matchOpt) => {
     // search bar
-    const searchBar = document.getElementById('searchOpt')
+    const searchBar = document.getElementById('searchInput')
     searchBar.value = featNames
 
     //number of matches
-    const dropSelect = document.getElementById('drop-select')
+    const dropSelect = document.getElementById('dropSelect')
     if (isNaN(matchOpt)) {
         dropSelect.innerHTML = 1
     }
@@ -536,12 +536,17 @@ const updateFilters = (featNames, matchOpt) => {
     // tissue
     const checkedTissueCount = document.querySelectorAll('.tisOpt:checked').length
     if (checkedTissueCount == 0) {
-        const lungCB = document.getElementById('tisOpt-Lung')
+        const lungCB = document.getElementById('tLung')
         lungCB.checked = true
         addNumMatchedOption()
     }
 
     // species
+    const checkedSpeciesCount = document.querySelectorAll('.speciesOpt:checked').length
+    if (checkedTissueCount == 0) {
+        const mouseCB = document.getElementById('sMouse')
+        mouseCB.checked = true
+    }
 }
 
 
@@ -630,7 +635,7 @@ $(".pBtn").click(generatePlot)
 $(".tisOpt").click(function() {updateNumMatchedOptions(this)})
 
 // toggle dropdown menu
-$(".dropdown").click(function () {toggleNumMatchedDrop(this)})
+$(".dropdown2").click(function () {toggleNumMatchedDrop(this)})
 
 // plot views
 $("#viewNorm").click(function() {changePlotView('normal')})
@@ -641,6 +646,14 @@ $(document).ready(function() {
     // plotTemplate()
     // generatePlot()
 });
+
+const toggleFilters = () => {
+    console.log('toggle')
+    const filter = document.getElementById('filterTabContent')
+    filter.classList.toggle('active')
+}
+
+$("#filterMenuBtn").click(toggleFilters)
 
 /*****************************************************************************
  *                             TEST INTERACTIONS
@@ -662,20 +675,6 @@ const apiCall2 = (requestData) => {
         });
     })
 }
-
-const testA = () => {
-    const a = document.getElementById('plotDiv').data
-    console.log(a)
-}
-
-$("#testBtn").click(testA)
-// $("#testBtn2").click(getHierarchyOrder)
-// $("#testBtn3").click(function(){changePlotView('normal')})
-// $("#testBtn4").click(function(){changePlotView('hierarchical')})
-// $("#testBtn5").click(function(){configureYAxis('normal')})
-// $("#testBtn6").click(function(){configureYAxis('hierarchical')})
-
-
 
 
 /*****************************************************************************

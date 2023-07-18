@@ -2,9 +2,8 @@
 {% block content %}
 
   <!-- <div class="columns tab-area" style="border: 1px solid black"> -->
-  <div class="columns tab-area" style="border: 1px solid red">
+  <div class="divSet1 columns tab-area" style="border: 1px solid red;">
     <div class="column" style="border: 1px solid green">
-      [ PLOT ]
       <div id="plotDiv"></div>
     </div>
     <div id="celltypeList" class="column is-1" style="border: 1px solid purple">
@@ -12,7 +11,7 @@
       <div id="celltypeName-template" style="display: none; border: 1px solid black"></div>
     </div>
   </div>
-  <div class="columns is-vcentered has-text-centered" style="border: 1px solid orange">
+  <div class="divSet1 columns is-vcentered has-text-centered" style="border: 1px solid orange">
     <div class="column" style="border: 1px solid blue; padding: 20px;">
         <div>FILTERS</div>
         <div>
@@ -28,10 +27,8 @@
           </div>
           <label></label>
           <br />
-          <label>
-            <input class="clusterOpt" type="checkbox">
-            Cluster
-          </label>
+          <button id="viewNorm">show normal</button>
+          <button id="viewHier">show hierarchical</button>
           <br />
           <br />
           <label>
@@ -76,14 +73,20 @@
         </div>
     </div>
     <div class="column" style="border: 1px solid purple">
-      <button class="button" id="pBtn">plot</button>
+      <button class="button pBtn">plot</button>
       <br />
       <br />
       <button class="button" id="plotBtn">template</button>
       <br />
       <button id="testBtn">test</button>
+      <button id="testBtn2">test2</button>
+      <button id="testBtn3">show normal</button>
+      <button id="testBtn4">show x hier</button>
+      <button id="testBtn5">test3</button>
+      <button id="testBtn6">test4</button>
     </div>
   </div>
+
   <script type="module" src="/js/temp.js"></script>
   
 {% endblock %}

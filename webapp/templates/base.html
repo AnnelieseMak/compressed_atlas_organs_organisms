@@ -17,7 +17,8 @@
   </head>
   <body>
   <!-- Navigation Bar -->
-  <nav class="navbar is-fixed-top has-shadow is-spaced is-light">
+  <!-- <nav class="navbar is-fixed-top has-shadow is-spaced is-light"> -->
+  <nav class="navbar has-shadow is-spaced is-light">
     <div class="navbar-brand">
       <a href="/" class="navbar-item">
         <h1 class="title is-5">Compressed Atlas</h1>
@@ -27,7 +28,7 @@
       <a href="{{ url_for('measurement_by_celltype') }}" class="button is-ghost has-text-info">
          By cell type
       </a>
-      <a href="{{ url_for('measurement_overtime_1feature') }}" class="button is-ghost has-text-info">
+      <!-- <a href="{{ url_for('measurement_overtime_1feature') }}" class="button is-ghost has-text-info">
           Over time (1 feature)
       </a>
       <a href="{{ url_for('measurement_overtime_1celltype') }}" class="button is-ghost has-text-info">
@@ -38,9 +39,12 @@
       </a>
       <a href="{{ url_for('measurement_species_comparison_1celltype') }}" class="button is-ghost has-text-info">
           Compare species (1 cell type)
-      </a>
+      </a> -->
       <a href="{{ url_for('tempPage') }}" class="button is-ghost has-text-info">
         TEMP
+      </a>
+      <a href="{{ url_for('tempPage2') }}" class="button is-ghost has-text-info">
+        Gene Expression
       </a>
       <!--
       <a href="{{ url_for('measurement_condition') }}" class="button is-ghost has-text-info">
@@ -49,7 +53,7 @@
       -->
   </div>
 
-  {% block navbarend %}
+  <!-- {% block navbarend %}
     <div class="navbar-end">
       <div class="field has-addons">
         <div class="control">
@@ -62,7 +66,7 @@
         </div>
       </div>
     </div>
-  {% endblock %}
+  {% endblock %} -->
 
   </nav>
 
