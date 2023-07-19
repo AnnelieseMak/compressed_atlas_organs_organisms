@@ -4,17 +4,20 @@
   <div id="pageContent" class="divSet2">
     <div id="filterContainer">
       <div id="filterMenuContainer">
-        <button id="filterMenuBtn">Filters</button>
+        <button id="filterMenuBtn"><i class="fa fa-filter fa-2xl"></i> Filter</button>
         <div id="filterBtnOther">
           <div class="dropdown2">
-            <div id="dropSelect" style="border: 1px solid black">Matches</div>
+            <div id="dropSelect">
+              <p id="dropBtnText">Matches</p>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
             <div id="dropContent">
               <div id="dropOp-template" class="dropOp"></div>
             </div>
           </div>
           <div id="filterViewSwitch">
-            <button id="viewNorm">show normal</button>
-            <button id="viewHier">show hierarchical</button>
+            <button id="viewNorm" class="viewSwitch active">Curated</button>
+            <button id="viewHier" class="viewSwitch">Hierarchical</button>
           </div>
           <button class="pBtn">PLOT</button>
         </div>
@@ -111,10 +114,12 @@
       </div>
     </div>
     <div id="plotContainer">
-      <div id="plotDiv"></div>
-      <div id="celltypeList2">
-        Celltypes
-        <div id="celltypeName2-template"></div>
+      <div id="plotDiv2" class="placeholderDiv">- Select your filters then click plot -</div>
+      <div id="celltypeListContainer">
+        <div id="celltypeListHeader">Hidden Celltypes</div>
+        <div id="celltypeList2">
+          <div id="celltypeName2-template"></div>
+        </div>
       </div>
     </div>
   </div>

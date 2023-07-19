@@ -11,6 +11,7 @@ const plotTemplate = () => {
     var trace1 = {
         x: [
           ['SF Zoo','SF Zoo','SF Zoo'],
+        //   [' ',' ',' '],
           ['giraffes', 'orangutans', 'monaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaakeys']
         ],
         y: ['y1', 'y2', 'y3'],
@@ -23,6 +24,7 @@ const plotTemplate = () => {
       var trace2 = {
         x: [
           ['LA Zoo','LA Zoo','LA Zoo'],
+        //   ['  ','  ','  '],
           ['g', 'o', 'm'],
         ],
         y: ['y1', 'y2', 'y3'],
@@ -72,45 +74,45 @@ const plotTemplate = () => {
         yaxis: {
             autorange: "reversed",
         },
-        // annotations: [
-        // {
-        //     x: 0,
-        //     y: -0.25,
-        //     yref: 'paper',
-        //     text: 'x0',
-        //     showarrow: false,
-        // },
-        // {
-        //     x: 1,
-        //     y: -0.25,
-        //     yref: 'paper',
-        //     text: 'xxxxxxxxxxxxxxxxxxxxx1',
-        //     showarrow: false,
-        //     textangle: -90
-        // },
-        // {
-        //     x: 2,
-        //     y: -0.25,
-        //     yref: 'paper',
-        //     text: 'x2',
-        //     showarrow: false, 
-        // },
-        // {
-        //     x: 3,
-        //     y: -0.25,
-        //     yref: 'paper',
-        //     text: 'x3s',
-        //     showarrow: false,
-        // },
-        // {
-        //     x: 4,
-        //     y: -0.25,
-        //     yref: 'paper',
-        //     text: 'x: 4',
-        //     showarrow: false,
-        //     // textangle: -90
-        // }
-        // ]
+        annotations: [
+        {
+            x: 0,
+            y: -0.25,
+            yref: 'paper',
+            text: 'x0',
+            showarrow: false,
+        },
+        {
+            x: 1,
+            y: -0.25,
+            yref: 'paper',
+            text: 'xxxxxxxxxxxxxxxxxxxxx1',
+            showarrow: false,
+            textangle: -90
+        },
+        {
+            x: 2,
+            y: -0.25,
+            yref: 'paper',
+            text: 'x2',
+            showarrow: false, 
+        },
+        {
+            x: 3,
+            y: -0.25,
+            yref: 'paper',
+            text: 'x3s',
+            showarrow: false,
+        },
+        {
+            x: 4,
+            y: -0.25,
+            yref: 'paper',
+            text: 'x: 4',
+            showarrow: false,
+            // textangle: -90
+        }
+        ]
       };
       testList = {'SF Zoo':0, 'LA Zoo':1, 'AU Zoo':2}
 
@@ -280,7 +282,9 @@ const generatePlot = async () => {
     for (const trace of traceData) {
         trace.zmax = maxVal
     }
+    // console.log(traceData)
     getHierarchyOrder(traceData)
+    // getAnnotations(traceData)
     // console.log('after hier')
 
     var layout = {
@@ -304,12 +308,45 @@ const generatePlot = async () => {
         },
         yaxis: {
             autorange: "reversed",
-        }
+        },
+        // annotations: [
+        //     {
+        //         x: 0,
+        //         y: -0.25,
+        //         yref: 'paper',
+        //         text: '1',
+        //         showarrow: false,
+        //     },
+        //     {
+        //         x: 1,
+        //         y: -0.25,
+        //         yref: 'paper',
+        //         text: '2',
+        //         showarrow: false,
+        //         // textangle: -90
+        //     },
+        // ]
     };
 
     Plotly.newPlot('plotDiv', traceData, layout);
     makeXClickable()
     updateFilters(featNames, matchOpt)
+}
+
+const getAnnotations = (traceData) => {
+    console.log(traceData)
+    const annotations = []
+    for (const [idx, trace] of traceData.entries()) {
+        console.log(idx, trace.x[0][0])
+        annotations.push({
+            x: idx,
+            y: -0.3,
+            yref: 'paper',
+            text: trace.x[0][0],
+            showarrow: false
+        })
+    }
+    console.log(annotations)
 }
 
 // return list of unique celltype names

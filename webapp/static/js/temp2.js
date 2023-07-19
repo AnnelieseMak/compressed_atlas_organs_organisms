@@ -131,7 +131,7 @@ const plotTemplate = () => {
 
     //   https://stackoverflow.com/questions/69874927/multiple-x-axis-in-plotly-timeseries
       
-      Plotly.newPlot('plotDiv', data, layout);
+      Plotly.newPlot('plotDiv2', data, layout);
     //   clickable()
 
     // const t = document.getElementsByClassName('annotation')
@@ -145,7 +145,7 @@ const plotTemplate = () => {
 
 const myFunc = (elPos, tickLabel) => {
     console.log(elPos, tickLabel)
-    const tv = document.getElementById('plotDiv')
+    const tv = document.getElementById('plotDiv2')
     console.log(tv.data)
     let visibleCount = 0
 
@@ -161,14 +161,14 @@ const myFunc = (elPos, tickLabel) => {
     if (visibleCount == 1) {
         return
     }
-
-    const ctListEl = document.getElementById('celltypeList2')
-
-    if (ctListEl.style.display == "none") {
-        console.log('is none')
-        ctListEl.style.display = "block"
-    }
-
+    // const ctListEl = 
+    
+    // if (ctListEl.style.display == "none") {
+    //     console.log('is none')
+    //     ctListEl.style.display = "block"
+    // }
+    
+    const ctListParent = document.getElementById('celltypeList2')
     const ctNameTemplate = document.getElementById('celltypeName2-template')
     const newCT = ctNameTemplate.cloneNode(true)
     newCT.removeAttribute('id')
@@ -176,9 +176,9 @@ const myFunc = (elPos, tickLabel) => {
     newCT.innerHTML = tickLabel
     newCT.onclick = function(){addBack(newCT, elPos)}
 
-    ctListEl.appendChild(newCT)
+    ctListParent.appendChild(newCT)
 
-    Plotly.restyle('plotDiv', {visible: false}, elPos)
+    Plotly.restyle('plotDiv2', {visible: false}, elPos)
     clickable()
 }
 
@@ -189,7 +189,7 @@ const addBack = (el, elPos) => {
         ctListParent.style.display = "none"
     }
 
-    Plotly.restyle('plotDiv', {visible: true}, elPos)
+    Plotly.restyle('plotDiv2', {visible: true}, elPos)
     clickable()
 }
 
@@ -223,7 +223,7 @@ const generatePlot = async () => {
     const tissues = getCheckedboxNames('.tisOpt:checked')
     console.log(`tissue: ${tissues}\nspecies: ${species}`)
 
-    const matchOpt = document.getElementById('dropSelect').innerHTML
+    const matchOpt = document.getElementById('dropBtnText').innerHTML
     // const matchOpt = 2
 
     const searchInput = $("#searchInput").val()
@@ -280,8 +280,7 @@ const generatePlot = async () => {
     for (const trace of traceData) {
         trace.zmax = maxVal
     }
-    getHierarchyOrder(traceData)
-    // console.log('after hier')
+    await getHierarchyOrder(traceData)
 
     var layout = {
         showlegend: false,
@@ -306,8 +305,15 @@ const generatePlot = async () => {
             autorange: "reversed",
         }
     };
+    $('#plotDiv2').empty()
+    $('#plotDiv2').removeClass('placeholderDiv')
+    Plotly.newPlot('plotDiv2', traceData, layout);
 
-    Plotly.newPlot('plotDiv', traceData, layout);
+    const plotView = $(".viewSwitch.active").attr('id')
+    if (plotView == "viewHier") {
+        $("#viewHier").trigger('click')
+    }
+
     makeXClickable()
     updateFilters(featNames, matchOpt)
 }
@@ -352,20 +358,22 @@ const getCellType_Tissue = (data, cellType, featuresCount) => {
         }
     }
 
-    // console.log(CTcols.flat())s
+    // console.log(CTcols.flat())
 
     return [CTcols, Math.max(...CTcols.flat()), tissueList]
 }
 
 const changePlotView = (view) => {
+    
     if (JSON.stringify(axisOrders.current) == JSON.stringify(axisOrders[view])) {
         return
     }
+
     const [yAxis, zVal] = configureYAxis(view)
     const xAxis = configureXAxis(view)
 
-    Plotly.restyle('plotDiv', {y: yAxis, z: zVal}, [...Array(zVal.length).keys()])
-    Plotly.moveTraces('plotDiv', xAxis)
+    Plotly.restyle('plotDiv2', {y: yAxis, z: zVal}, [...Array(zVal.length).keys()])
+    Plotly.moveTraces('plotDiv2', xAxis)
     makeXClickable()
 }
 
@@ -383,7 +391,7 @@ const configureXAxis = (view) => {
 }
 
 const configureYAxis = (view) => {
-    const plotTraces = document.getElementById('plotDiv').data
+    const plotTraces = document.getElementById('plotDiv2').data
     const zValues = []
     for (const zVal of plotTraces) {
         zValues.push(zVal.z)
@@ -430,7 +438,7 @@ const getCheckedboxNames = (loc) => {
  *                            INTERFACE METHODS
  *****************************************************************************/
 const collapsePlot = (tracePos, tickLabel) => {
-    const traces = document.getElementById('plotDiv').data
+    const traces = document.getElementById('plotDiv2').data
     let visibleCount = 0
 
     for (const trace of traces) {
@@ -454,7 +462,7 @@ const collapsePlot = (tracePos, tickLabel) => {
     newItem.onclick = function() {addToPlot(newItem, tickLabel)}
     CTList.append(newItem)
 
-    Plotly.restyle('plotDiv', {visible: false}, tracePos)
+    Plotly.restyle('plotDiv2', {visible: false}, tracePos)
     makeXClickable()
 }
 
@@ -462,7 +470,7 @@ const addToPlot = (ele, traceName) =>{
     ele.remove()
     toggleCTList('close')
     const tracePos = axisOrders.current.x.indexOf(traceName)
-    Plotly.restyle('plotDiv', {visible: true}, tracePos)
+    Plotly.restyle('plotDiv2', {visible: true}, tracePos)
     makeXClickable()
 }
 
@@ -501,7 +509,7 @@ const updateNumMatchedOptions = (ele) => {
 const removeNumMatchedOption = () => {
     const optionParent = document.getElementById('dropContent')
     optionParent.removeChild(optionParent.lastChild)
-    const dropSelect = document.getElementById('dropSelect')
+    const dropSelect = document.getElementById('dropBtnText')
     if (!isNaN(dropSelect.innerHTML) && dropSelect.innerHTML > optionParent.lastChild.innerHTML) {
         dropSelect.innerHTML = optionParent.lastChild.innerHTML
     }
@@ -516,7 +524,7 @@ const addNumMatchedOption = () => {
     newOption.removeAttribute("id")
     newOption.innerHTML = `${childCount}`
     newOption.onclick = function() {
-        document.getElementById('dropSelect').innerHTML = `${childCount}`
+        document.getElementById('dropBtnText').innerHTML = `${childCount}`
     }
 
     optionParent.appendChild(newOption)
@@ -528,7 +536,7 @@ const updateFilters = (featNames, matchOpt) => {
     searchBar.value = featNames
 
     //number of matches
-    const dropSelect = document.getElementById('dropSelect')
+    const dropSelect = document.getElementById('dropBtnText')
     if (isNaN(matchOpt)) {
         dropSelect.innerHTML = 1
     }
@@ -638,8 +646,16 @@ $(".tisOpt").click(function() {updateNumMatchedOptions(this)})
 $(".dropdown2").click(function () {toggleNumMatchedDrop(this)})
 
 // plot views
-$("#viewNorm").click(function() {changePlotView('normal')})
-$("#viewHier").click(function() {changePlotView('hierarchical')})
+$("#viewNorm").click(function() {
+    $("#viewNorm").addClass('active')
+    $("#viewHier").removeClass('active')
+    changePlotView('normal')
+})
+$("#viewHier").click(function() {
+    $("#viewNorm").removeClass('active')
+    $("#viewHier").addClass('active')
+    changePlotView('hierarchical')
+})
 
 // on page load
 $(document).ready(function() {
