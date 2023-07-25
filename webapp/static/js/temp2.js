@@ -280,16 +280,20 @@ const generatePlot = async () => {
     for (const trace of traceData) {
         trace.zmax = maxVal
     }
-    await getHierarchyOrder(traceData)
+
+    if (traceData.length > 1) {
+        await getHierarchyOrder(traceData)
+    }
 
     var layout = {
         showlegend: false,
         autosize: true,
-        automargin: true,
+        // automargin: true,
         margin: {
             autoexpand: true,
         },
         xaxis: {
+            automargin: true,
             tickson: "boundaries",
             ticklen: 15,
             showdividers: true,
@@ -299,7 +303,7 @@ const generatePlot = async () => {
             tickfont: {
                 size: 10
             },
-            // ticklabeloverflow: "hide past div",
+            ticklabeloverflow: "hide past div",
         },
         yaxis: {
             autorange: "reversed",
@@ -373,7 +377,10 @@ const changePlotView = (view) => {
     const xAxis = configureXAxis(view)
 
     Plotly.restyle('plotDiv2', {y: yAxis, z: zVal}, [...Array(zVal.length).keys()])
-    Plotly.moveTraces('plotDiv2', xAxis)
+    const plotTraces = document.getElementById('plotDiv2').data
+    if (plotTraces.length > 1) {
+        Plotly.moveTraces('plotDiv2', xAxis)
+    }
     makeXClickable()
 }
 
@@ -604,6 +611,7 @@ const getData = async (tissues, species, feature_names) => {
 }
 
 const getHierarchyOrder = async (traces) => {
+    console.log(traces)
     const zValues = []
     for (const zVal of traces) {
         zValues.push(zVal.z)
@@ -612,6 +620,8 @@ const getHierarchyOrder = async (traces) => {
     const reqData = {
         data: zValues,
     }
+
+    console.log(reqData)
 
     const hierOrders = await apiCall(JSON.stringify(reqData), '/data/getHierarchy')
 
