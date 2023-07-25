@@ -391,13 +391,18 @@ input[type=checkbox]:hover + .filterContent {
 }
 
 /****************** PLOT GRAPH *******************/
-.xtick2, .annotation {
+.xtick2 {
+    /* cursor: pointer;
+    pointer-events: all; */
+}
+
+.annotation {
     cursor: pointer;
     pointer-events: all;
 }
 
 .xtick2 > text {
-    fill: blue !important;
+    fill: none !important;
     font-size: 10px;
 }
 

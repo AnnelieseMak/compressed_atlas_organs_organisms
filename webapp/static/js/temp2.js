@@ -4,215 +4,6 @@ let axisOrders = {
     hierarchical: {x: [], y: []}
 }
 
-let testList = {}
-
-const plotTemplate = () => {
-    console.log('plot template')
-    var trace1 = {
-        x: [
-          ['SF Zoo','SF Zoo','SF Zoo'],
-          ['giraffes', 'orangutans', 'monaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaakeys']
-        ],
-        y: ['y1', 'y2', 'y3'],
-        z: [[10,11,112], [13,14,15], [16,17,18]],
-        visible: true,
-        name: '',
-        type: 'heatmap'
-      };
-      
-      var trace2 = {
-        x: [
-          ['LA Zoo','LA Zoo','LA Zoo'],
-          ['g', 'o', 'm'],
-        ],
-        y: ['y1', 'y2', 'y3'],
-        z: [[0,1,2], [3,1,5], [6,7,8]],
-        visible: true,
-        name: '',
-        type: 'heatmap'
-      };
-
-      var trace3 = {
-        x: [
-          ['AU Zoo','AU Zoo','AU Zoo'],
-          ['a', 'b', 'c'],
-        ],
-        y: ['y1', 'y2', 'y3'],
-        z: [[0,1,2], [3,7,5], [6,0,8]],
-        visible: true,
-        name: '',
-        type: 'heatmap'
-      };
-      
-      var data = [trace1, trace2, trace3];
-        var data2 = [trace1, trace3, trace2]
-      console.log(data)
-      console.log(data2)
-
-      var layout = {
-        height: 750,
-        // autosize: true,
-        // margin: {
-        //     automargin: true,
-        // },
-        paper_bgcolor:'#ff0000', 
-        showlegend: false,
-        xaxis: {
-          tickson: "boundaries",
-          ticklen: 15,
-          showdividers: true,
-          dividercolor: 'grey',
-          dividerwidth: 2,
-          title: 'zoos',
-          tickangle: 90,
-          automargin: true,
-        //   color: 'red'
-        //   ticklabeloverflow: 'hide past domain'
-        },
-        yaxis: {
-            autorange: "reversed",
-        },
-        // annotations: [
-        // {
-        //     x: 0,
-        //     y: -0.25,
-        //     yref: 'paper',
-        //     text: 'x0',
-        //     showarrow: false,
-        // },
-        // {
-        //     x: 1,
-        //     y: -0.25,
-        //     yref: 'paper',
-        //     text: 'xxxxxxxxxxxxxxxxxxxxx1',
-        //     showarrow: false,
-        //     textangle: -90
-        // },
-        // {
-        //     x: 2,
-        //     y: -0.25,
-        //     yref: 'paper',
-        //     text: 'x2',
-        //     showarrow: false, 
-        // },
-        // {
-        //     x: 3,
-        //     y: -0.25,
-        //     yref: 'paper',
-        //     text: 'x3s',
-        //     showarrow: false,
-        // },
-        // {
-        //     x: 4,
-        //     y: -0.25,
-        //     yref: 'paper',
-        //     text: 'x: 4',
-        //     showarrow: false,
-        //     // textangle: -90
-        // }
-        // ]
-      };
-      testList = {'SF Zoo':0, 'LA Zoo':1, 'AU Zoo':2}
-
-    //   annotations: class="annotations"
-
-    //   for (let i = 0; i < quarter_names.length; i++) {
-    //     text_annotations.push(
-    //       {
-    //         x: quarter_positions[i],
-    //         y: -0.15,
-    //         xref: 'paper',
-    //         yref: 'paper',
-    //         text: quarter_names[i],
-    //         showarrow: false,
-    //       }
-    //     )
-    //   }
-
-    //   https://stackoverflow.com/questions/69874927/multiple-x-axis-in-plotly-timeseries
-      
-      Plotly.newPlot('plotDiv2', data, layout);
-    //   clickable()
-
-    // const t = document.getElementsByClassName('annotation')
-    // const t = document.getElementsByClassName('xtick2')
-    // console.log(t)
-    // for (let i = 0;i < t.length; i++) {
-    //     // console.log(t[i])
-    //     t[i].onclick = function(){myFunc(i, t)}
-    // }
-}
-
-const myFunc = (elPos, tickLabel) => {
-    console.log(elPos, tickLabel)
-    const tv = document.getElementById('plotDiv2')
-    console.log(tv.data)
-    let visibleCount = 0
-
-    for (let i = 0; i < tv.data.length; i++) {
-        const traceData = tv.data[i]
-        console.log(traceData)
-        console.log(traceData.visible)
-        if (traceData.visible) {
-            visibleCount++
-        }
-    }
-
-    if (visibleCount == 1) {
-        return
-    }
-    // const ctListEl = 
-    
-    // if (ctListEl.style.display == "none") {
-    //     console.log('is none')
-    //     ctListEl.style.display = "block"
-    // }
-    
-    const ctListParent = document.getElementById('celltypeList2')
-    const ctNameTemplate = document.getElementById('celltypeName2-template')
-    const newCT = ctNameTemplate.cloneNode(true)
-    newCT.removeAttribute('id')
-    newCT.style.display = "block"
-    newCT.innerHTML = tickLabel
-    newCT.onclick = function(){addBack(newCT, elPos)}
-
-    ctListParent.appendChild(newCT)
-
-    Plotly.restyle('plotDiv2', {visible: false}, elPos)
-    clickable()
-}
-
-const addBack = (el, elPos) => {
-    el.remove()
-    const ctListParent = document.getElementById('celltypeList2')
-    if (ctListParent.childElementCount == 1) {
-        ctListParent.style.display = "none"
-    }
-
-    Plotly.restyle('plotDiv2', {visible: true}, elPos)
-    clickable()
-}
-
-const clickable = () => {
-    const xTicks = document.getElementsByClassName('xtick2')
-    // console.log(testList)
-
-    // console.log(`xticks`)
-    // console.log(xTicks)
-
-    for (let i = 0; i < xTicks.length; i++) {
-        const tickLabel = xTicks[i].children[0].innerHTML
-        // console.log(testList[tickLabel])
-        xTicks[i].onclick = function(){myFunc(testList[tickLabel], tickLabel)}
-    }
-
-}
-
-
-/*****************************************************************************
- *                              USED METHODS
- *****************************************************************************/
-
 const generatePlot = async () => {
     // console.log('generate plot')
     removeClones('celltypeList2', 1)
@@ -286,11 +77,13 @@ const generatePlot = async () => {
     }
 
     var layout = {
+        height: 700,
         showlegend: false,
         autosize: true,
-        // automargin: true,
+        automargin: true,
         margin: {
             autoexpand: true,
+            b: 200
         },
         xaxis: {
             automargin: true,
@@ -307,8 +100,10 @@ const generatePlot = async () => {
         },
         yaxis: {
             autorange: "reversed",
-        }
+        },
+        annotations: getAnnotations(traceData)
     };
+
     $('#plotDiv2').empty()
     $('#plotDiv2').removeClass('placeholderDiv')
     Plotly.newPlot('plotDiv2', traceData, layout);
@@ -318,8 +113,85 @@ const generatePlot = async () => {
         $("#viewHier").trigger('click')
     }
 
-    makeXClickable()
+    // makeXClickable()
+    makeClickable()
     updateFilters(featNames, matchOpt)
+}
+
+const makeClickable = () => {
+    const plotDiv = $("#plotDiv2")[0]
+    // const plotData = plotDiv.data
+    const plotAnnotations = plotDiv.layout.annotations
+    const annotationEls = document.getElementsByClassName('annotation')
+
+    for (let i = 0; i < annotationEls.length; i++) {
+        annotationEls[i].onclick = function(){hideTrace(plotAnnotations[i].text)}
+    }
+}
+
+const hideTrace = (annotationLabel) => {
+    const plotAnnotations = $("#plotDiv2")[0].layout.annotations
+    if (plotAnnotations.length == 1) {
+        return
+    }
+
+    const axisOrder = axisOrders.current.x
+    const tracePos = axisOrder.indexOf(annotationLabel)
+
+    toggleCTList('open')
+
+    const CTList = document.getElementById('celltypeList2')
+    const template = document.getElementById('celltypeName2-template')
+    const newItem = template.cloneNode(true)
+    newItem.removeAttribute('id')
+    newItem.style.display = 'block'
+    newItem.innerHTML = annotationLabel
+    newItem.onclick = function() {showTrace(newItem, annotationLabel)}
+    CTList.append(newItem)
+
+    Plotly.restyle('plotDiv2', {visible: false}, tracePos)
+
+    const annotation = getAnnotations()
+    Plotly.relayout('plotDiv2', {annotations: annotation})
+    makeClickable()
+}
+
+const showTrace = (ele, annotationLabel) => {
+    ele.remove()
+    toggleCTList('close')
+    const tracePos = axisOrders.current.x.indexOf(annotationLabel)
+    Plotly.restyle('plotDiv2', {visible: true}, tracePos)
+
+    const annotation = getAnnotations()
+    Plotly.relayout('plotDiv2', {annotations: annotation})
+    makeClickable()
+}
+
+// annotation labels
+const getAnnotations = (traceData) => {
+    traceData = traceData || $("#plotDiv2")[0].data
+
+    const annotation = []
+    let xCount = 0;
+    for (const trace of traceData) {
+        if (trace.visible) {
+            const xLabel = trace.x[0][0]
+            const xColCount = trace.x[1].length
+            const labelPos = xCount + (xColCount - 1)/2
+            annotation.push({
+                x: labelPos,
+                y: -0.50,
+                yref: 'paper',
+                text: xLabel,
+                showarrow: false,
+                textangle: '90',
+            })
+
+            xCount += xColCount
+        }
+    }
+
+    return annotation
 }
 
 // return list of unique celltype names
@@ -444,6 +316,14 @@ const getCheckedboxNames = (loc) => {
 /*****************************************************************************
  *                            INTERFACE METHODS
  *****************************************************************************/
+/***************************************************
+ *                  DEVELOPMENTAL
+ ***************************************************/
+
+/***************************************************
+ *                  CURRENT FIXED
+ ***************************************************/
+
 const collapsePlot = (tracePos, tickLabel) => {
     const traces = document.getElementById('plotDiv2').data
     let visibleCount = 0
@@ -643,9 +523,6 @@ const getHierarchyOrder = async (traces) => {
 /*****************************************************************************
  *                                INTERACTIONS
  *****************************************************************************/
-
-//temp plot button
-$("#plotBtn").click(plotTemplate)
 
 $(".pBtn").click(generatePlot)
 

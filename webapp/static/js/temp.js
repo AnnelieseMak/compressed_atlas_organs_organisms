@@ -7,143 +7,219 @@ let axisOrders = {
 let testList = {}
 
 const plotTemplate = () => {
-    console.log('plot template')
     var trace1 = {
-        x: [
-          ['SF Zoo','SF Zoo','SF Zoo'],
-        //   [' ',' ',' '],
-          ['giraffes', 'orangutans', 'monaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaakeys']
-        ],
+        x: [["celltype1","celltype1","celltype1"],['t1x1', 't1x2', 't1x3']],
         y: ['y1', 'y2', 'y3'],
-        z: [[10,11,112], [13,14,15], [16,17,18]],
+        z: [[0,1,2],[3,4,5],[6,7,8]],
         visible: true,
-        name: '',
-        type: 'heatmap'
-      };
-      
-      var trace2 = {
-        x: [
-          ['LA Zoo','LA Zoo','LA Zoo'],
-        //   ['  ','  ','  '],
-          ['g', 'o', 'm'],
-        ],
-        y: ['y1', 'y2', 'y3'],
-        z: [[0,1,2], [3,1,5], [6,7,8]],
-        visible: true,
-        name: '',
-        type: 'heatmap'
-      };
+        type: 'heatmap',
+    }
 
-      var trace3 = {
-        x: [
-          ['AU Zoo','AU Zoo','AU Zoo'],
-          ['a', 'b', 'c'],
-        ],
+    var trace2 = {
+        x: [["celltype2","celltype2","celltype2"],['t2x1', 't2x2', 't2x3']],
         y: ['y1', 'y2', 'y3'],
-        z: [[0,1,2], [3,7,5], [6,0,8]],
+        z: [[0,1,2],[3,4,5],[6,7,8]],
         visible: true,
-        name: '',
-        type: 'heatmap'
-      };
-      
-      var data = [trace1, trace2, trace3];
-        var data2 = [trace1, trace3, trace2]
-      console.log(data)
-      console.log(data2)
+        type: 'heatmap',
+    }
 
-      var layout = {
-        height: 750,
-        // autosize: true,
-        // margin: {
-        //     automargin: true,
-        // },
-        paper_bgcolor:'#ff0000', 
+    var trace3 = {
+        x: [["celltype3","celltype3"],['t3x1', 't3x2']],
+        y: ['y1', 'y2', 'y3'],
+        z: [[0,1],[3,4],[6,7]],
+        visible: true,
+        type: 'heatmap',
+    }
+    
+    var trace4 = {
+        x: [["celltype4"],['t4x1']],
+        y: ['y1', 'y2', 'y3'],
+        z: [[0],[3],[6]],
+        visible: true,
+        type: 'heatmap',
+    }
+    
+    const data = [trace1, trace2, trace3, trace4]
+    var ann = []
+    let xCount = 0;
+    for (const trace of data) {
+        console.log(trace)
+        if (trace.visible) {
+            const xLabel = trace.x[0][0]
+            const xColCount = trace.x[1].length
+            const labelPos = xCount + (xColCount - 1)/2
+            // console.log(`labelPos: ${labelPos}`)
+            ann.push({
+                x: labelPos,
+                y: -0.30,
+                yref: 'paper',
+                text: xLabel,
+                showarrow: false,
+                textangle: '45',
+            })
+            xCount += xColCount
+        }
+    }
+
+    var layout = {
         showlegend: false,
         xaxis: {
-          tickson: "boundaries",
-          ticklen: 15,
-          showdividers: true,
-          dividercolor: 'grey',
-          dividerwidth: 2,
-          title: 'zoos',
-          tickangle: 90,
-          automargin: true,
-        //   color: 'red'
-        //   ticklabeloverflow: 'hide past domain'
+            tickson: "boundaries",
+            ticklen: 15,
+            showdividers: true,
+            dividercolor: 'grey',
+            dividerwidth: 2,
+            tickangle: 90,
+            automargin: true,
         },
         yaxis: {
             autorange: "reversed",
         },
-        annotations: [
-        {
-            x: 0,
-            y: -0.25,
-            yref: 'paper',
-            text: 'x0',
-            showarrow: false,
-        },
-        {
-            x: 1,
-            y: -0.25,
-            yref: 'paper',
-            text: 'xxxxxxxxxxxxxxxxxxxxx1',
-            showarrow: false,
-            textangle: -90
-        },
-        {
-            x: 2,
-            y: -0.25,
-            yref: 'paper',
-            text: 'x2',
-            showarrow: false, 
-        },
-        {
-            x: 3,
-            y: -0.25,
-            yref: 'paper',
-            text: 'x3s',
-            showarrow: false,
-        },
-        {
-            x: 4,
-            y: -0.25,
-            yref: 'paper',
-            text: 'x: 4',
-            showarrow: false,
-            // textangle: -90
-        }
-        ]
-      };
-      testList = {'SF Zoo':0, 'LA Zoo':1, 'AU Zoo':2}
+        annotations: ann
+    }
 
-    //   annotations: class="annotations"
 
-    //   for (let i = 0; i < quarter_names.length; i++) {
-    //     text_annotations.push(
-    //       {
-    //         x: quarter_positions[i],
-    //         y: -0.15,
-    //         xref: 'paper',
-    //         yref: 'paper',
-    //         text: quarter_names[i],
-    //         showarrow: false,
-    //       }
-    //     )
-    //   }
-
-    //   https://stackoverflow.com/questions/69874927/multiple-x-axis-in-plotly-timeseries
-      
-      Plotly.newPlot('plotDiv', data, layout);
-    //   clickable()
-
-    // const t = document.getElementsByClassName('annotation')
-    // const t = document.getElementsByClassName('xtick2')
-    // console.log(t)
-    // for (let i = 0;i < t.length; i++) {
-    //     // console.log(t[i])
-    //     t[i].onclick = function(){myFunc(i, t)}
-    // }
+    Plotly.newPlot('plotDiv', data, layout);
 }
+
+// const plotTemplate = () => {
+//     console.log('plot template')
+//     var trace1 = {
+//         x: [
+//           ['SF Zoo','SF Zoo','SF Zoo'],
+//         //   [' ',' ',' '],
+//           ['giraffes', 'orangutans', 'monaaaaaaaaaakeys']
+//         ],
+//         y: ['y1', 'y2', 'y3'],
+//         z: [[10,11,112], [13,14,15], [16,17,18]],
+//         visible: true,
+//         name: '',
+//         type: 'heatmap'
+//       };
+      
+//       var trace2 = {
+//         x: [
+//           ['LA Zoo','LA Zoo','LA Zoo'],
+//         //   ['  ','  ','  '],
+//           ['g', 'o', 'm'],
+//         ],
+//         y: ['y1', 'y2', 'y3'],
+//         z: [[0,1,2], [3,1,5], [6,7,8]],
+//         visible: true,
+//         name: '',
+//         type: 'heatmap'
+//       };
+
+//       var trace3 = {
+//         x: [
+//           ['AU Zoo','AU Zoo','AU Zoo'],
+//           ['a', 'b', 'c'],
+//         ],
+//         y: ['y1', 'y2', 'y3'],
+//         z: [[0,1,2], [3,7,5], [6,0,8]],
+//         visible: true,
+//         name: '',
+//         type: 'heatmap'
+//       };
+      
+//       var data = [trace1, trace2, trace3];
+//         var data2 = [trace1, trace3, trace2]
+//       console.log(data)
+//       console.log(data2)
+
+//       var layout = {
+//         height: 750,
+//         // autosize: true,
+//         // margin: {
+//         //     automargin: true,
+//         // },
+//         // paper_bgcolor:'#ff0000', 
+//         showlegend: false,
+//         xaxis: {
+//           tickson: "boundaries",
+//           ticklen: 15,
+//           showdividers: true,
+//           dividercolor: 'grey',
+//           dividerwidth: 2,
+//           title: 'zoos',
+//           tickangle: 90,
+//           automargin: true,
+//         //   color: 'red'
+//         //   ticklabeloverflow: 'hide past domain'
+//         },
+//         yaxis: {
+//             autorange: "reversed",
+//         },
+//         // annotations: [
+//         // {
+//         //     x: 0,
+//         //     y: -0.25,
+//         //     yref: 'paper',
+//         //     text: 'x0',
+//         //     showarrow: false,
+//         // },
+//         // {
+//         //     x: 1,
+//         //     y: -0.25,
+//         //     yref: 'paper',
+//         //     text: 'xxxxxxxxxxxxxxxxxxxxx1',
+//         //     showarrow: false,
+//         //     textangle: -90
+//         // },
+//         // {
+//         //     x: 2,
+//         //     y: -0.25,
+//         //     yref: 'paper',
+//         //     text: 'x2',
+//         //     showarrow: false, 
+//         // },
+//         // {
+//         //     x: 3,
+//         //     y: -0.25,
+//         //     yref: 'paper',
+//         //     text: 'x3s',
+//         //     showarrow: false,
+//         // },
+//         // {
+//         //     x: 4,
+//         //     y: -0.25,
+//         //     yref: 'paper',
+//         //     text: 'x: 4',
+//         //     showarrow: false,
+//         //     // textangle: -90
+//         // }
+//         // ]
+//       };
+//       testList = {'SF Zoo':0, 'LA Zoo':1, 'AU Zoo':2}
+
+//     //   annotations: class="annotations"
+
+//     //   for (let i = 0; i < quarter_names.length; i++) {
+//     //     text_annotations.push(
+//     //       {
+//     //         x: quarter_positions[i],
+//     //         y: -0.15,
+//     //         xref: 'paper',
+//     //         yref: 'paper',
+//     //         text: quarter_names[i],
+//     //         showarrow: false,
+//     //       }
+//     //     )
+//     //   }
+
+//     //   https://stackoverflow.com/questions/69874927/multiple-x-axis-in-plotly-timeseries
+      
+//       Plotly.newPlot('plotDiv', data, layout);
+//     //   clickable()
+
+//     // const t = document.getElementsByClassName('annotation')
+//     // const t = document.getElementsByClassName('xtick2')
+//     // console.log(t)
+//     // for (let i = 0;i < t.length; i++) {
+//     //     // console.log(t[i])
+//     //     t[i].onclick = function(){myFunc(i, t)}
+//     // }
+// }
 
 const myFunc = (elPos, tickLabel) => {
     console.log(elPos, tickLabel)
@@ -282,17 +358,19 @@ const generatePlot = async () => {
     for (const trace of traceData) {
         trace.zmax = maxVal
     }
-    // console.log(traceData)
+
     getHierarchyOrder(traceData)
-    // getAnnotations(traceData)
-    // console.log('after hier')
+    const annotations = getAnnotations(traceData)
+    console.log(annotations)
 
     var layout = {
+        height: 700,
         showlegend: false,
         autosize: true,
         automargin: true,
         margin: {
             autoexpand: true,
+            b: 200
         },
         xaxis: {
             tickson: "boundaries",
@@ -309,44 +387,91 @@ const generatePlot = async () => {
         yaxis: {
             autorange: "reversed",
         },
-        // annotations: [
-        //     {
-        //         x: 0,
-        //         y: -0.25,
-        //         yref: 'paper',
-        //         text: '1',
-        //         showarrow: false,
-        //     },
-        //     {
-        //         x: 1,
-        //         y: -0.25,
-        //         yref: 'paper',
-        //         text: '2',
-        //         showarrow: false,
-        //         // textangle: -90
-        //     },
-        // ]
+        annotations: annotations
     };
 
     Plotly.newPlot('plotDiv', traceData, layout);
-    makeXClickable()
+    // makeXClickable()
+    makeClickable()
     updateFilters(featNames, matchOpt)
 }
 
-const getAnnotations = (traceData) => {
-    console.log(traceData)
-    const annotations = []
-    for (const [idx, trace] of traceData.entries()) {
-        console.log(idx, trace.x[0][0])
-        annotations.push({
-            x: idx,
-            y: -0.3,
-            yref: 'paper',
-            text: trace.x[0][0],
-            showarrow: false
-        })
+const makeClickable = () => {
+    const plotDiv = $("#plotDiv")[0]
+    const plotData = plotDiv.data
+    const plotAnnotations = plotDiv.layout.annotations
+    console.log(plotData)
+    console.log(plotAnnotations)
+    const annotationEls = document.getElementsByClassName('annotation')
+
+    
+    for (let i = 0; i < annotationEls.length; i++) {
+        console.log(i, annotationEls[i])
+        annotationEls[i].onclick = function(){hideTrace(plotAnnotations[i].text)}
     }
-    console.log(annotations)
+}
+
+const hideTrace = (annotationLabel) => {
+    console.log(annotationLabel)
+    const axisOrder = axisOrders.current.x
+    const tracePos = axisOrder.indexOf(annotationLabel)
+
+    toggleCTList('open')
+
+    const CTList = document.getElementById('celltypeList')
+    const template = document.getElementById('celltypeName-template')
+    const newItem = template.cloneNode(true)
+    newItem.removeAttribute('id')
+    newItem.style.display = 'block'
+    newItem.innerHTML = annotationLabel
+    newItem.onclick = function() {showTrace(newItem, annotationLabel)}
+    CTList.append(newItem)
+
+    Plotly.restyle('plotDiv', {visible: false}, tracePos)
+
+    const annotation = getAnnotations()
+    Plotly.relayout('plotDiv', {annotations: annotation})
+    makeClickable()
+}
+
+const showTrace = (ele, annotationLabel) => {
+    ele.remove()
+    toggleCTList('close')
+    const tracePos = axisOrders.current.x.indexOf(annotationLabel)
+    Plotly.restyle('plotDiv', {visible: true}, tracePos)
+
+    const annotation = getAnnotations()
+    Plotly.relayout('plotDiv', {annotations: annotation})
+    makeClickable()
+}
+
+
+const getAnnotations = (traceData) => {
+    traceData = traceData || $("#plotDiv")[0].data
+
+    const annotation = []
+    let xCount = 0;
+    for (const trace of traceData) {
+        console.log(trace)
+        if (trace.visible) {
+            const xLabel = trace.x[0][0]
+            const xColCount = trace.x[1].length
+            const labelPos = xCount + (xColCount - 1)/2
+            console.log(labelPos)
+            annotation.push({
+                x: labelPos,
+                y: -0.50,
+                yref: 'paper',
+                text: xLabel,
+                showarrow: false,
+                textangle: '90',
+            })
+
+            xCount += xColCount
+        }
+    }
+
+    return annotation
 }
 
 // return list of unique celltype names
@@ -700,17 +825,88 @@ const apiCall2 = (requestData) => {
     })
 }
 
-const testA = () => {
-    const a = document.getElementById('plotDiv').data
-    console.log(a)
+// const createXAnnotations = (traceData) => {
+//     console.log(traceData)
+// }
+
+// add annotations
+const testB = () => {
+    console.log('testB')
+    const plotDiv = $("#plotDiv")[0]
+    const plotData = plotDiv.data
+    console.log(plotDiv.layout.annotations)
+    console.log(plotData)
+
+    const annotation = []
+    let xCount = 0;
+    for (const trace of plotData) {
+        console.log(trace)
+        if (trace.visible) {
+            const xLabel = trace.x[0][0]
+            const xColCount = trace.x[1].length
+            const labelPos = xCount + (xColCount - 1)/2
+            console.log(labelPos)
+            annotation.push({
+                x: labelPos,
+                y: -0.30,
+                yref: 'paper',
+                text: xLabel,
+                showarrow: false,
+                textangle: '45',
+            })
+
+            xCount += xColCount
+        }
+    }
+
+    console.log(annotation)
+    Plotly.relayout('plotDiv', {annotations: annotation})
+    testC();
 }
 
-$("#testBtn").click(testA)
-// $("#testBtn2").click(getHierarchyOrder)
-// $("#testBtn3").click(function(){changePlotView('normal')})
-// $("#testBtn4").click(function(){changePlotView('hierarchical')})
-// $("#testBtn5").click(function(){configureYAxis('normal')})
-// $("#testBtn6").click(function(){configureYAxis('hierarchical')})
+// make clickable
+const testC = () => {
+    const plotDiv = $("#plotDiv")[0]
+    const plotData = plotDiv.data
+    const plotAnnotations = plotDiv.layout.annotations
+    console.log(plotData)
+    console.log(plotAnnotations)
+    const annotationEls = document.getElementsByClassName('annotation')
+
+    
+    for (let i = 0; i < annotationEls.length; i++) {
+        console.log(i, annotationEls[i])
+        annotationEls[i].onclick = function(){testD(plotAnnotations[i].text)}
+    }
+}
+
+const testD = (traceAnnotationLabel) => {
+    console.log('hide trace')
+    console.log(traceAnnotationLabel)
+}
+
+// hides a trace
+const testA = () => {
+    const plotDiv = $("#plotDiv")[0]
+    const plotData = plotDiv.data
+    console.log(plotData)
+    Plotly.restyle('plotDiv', {visible: false}, 1)
+}
+
+const testE = () => {
+    // const plotDiv = $("#plotDiv")[0]
+    // const plotData = plotDiv.data
+
+    // console.log(plotData)
+    console.log(axisOrders)
+}
+
+$("#testBtn").click(testB)
+$("#testBtn2").click(testA)
+$("#testBtn3").click(testC)
+$("#testBtn4").click(testE)
+// $("#testBtn5").click()
+// $("#testBtn6").click()
 
 
 
