@@ -253,7 +253,10 @@ const changePlotView = (view) => {
     if (plotTraces.length > 1) {
         Plotly.moveTraces('plotDiv2', xAxis)
     }
-    makeXClickable()
+    // makeXClickable()
+    const annotation = getAnnotations()
+    Plotly.relayout('plotDiv2', {annotations: annotation})
+    makeClickable()
 }
 
 const configureXAxis = (view) => {
