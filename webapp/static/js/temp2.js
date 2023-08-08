@@ -9,8 +9,9 @@ const generatePlot = async () => {
     removeClones('celltypeList2', 1)
     toggleCTList('close')
     
-    const species = "mouse"
-    // const species = getCheckedboxNames('.specOpt:checked')
+    // const species = "mouse"
+    const species = getCheckedboxNames('.specOpt:checked')
+    console.log(species)
     const tissues = getCheckedboxNames('.tisOpt:checked')
     console.log(`tissue: ${tissues}\nspecies: ${species}`)
 
@@ -327,52 +328,52 @@ const getCheckedboxNames = (loc) => {
  *                  CURRENT FIXED
  ***************************************************/
 
-const collapsePlot = (tracePos, tickLabel) => {
-    const traces = document.getElementById('plotDiv2').data
-    let visibleCount = 0
+// const collapsePlot = (tracePos, tickLabel) => {
+//     const traces = document.getElementById('plotDiv2').data
+//     let visibleCount = 0
 
-    for (const trace of traces) {
-        if (trace.visible) {
-            visibleCount++
-        }
-    }
+//     for (const trace of traces) {
+//         if (trace.visible) {
+//             visibleCount++
+//         }
+//     }
 
-    if (visibleCount == 1) {
-        return
-    }
+//     if (visibleCount == 1) {
+//         return
+//     }
 
-    toggleCTList('open')
+//     toggleCTList('open')
 
-    const CTList = document.getElementById('celltypeList2')
-    const template = document.getElementById('celltypeName2-template')
-    const newItem = template.cloneNode(true)
-    newItem.removeAttribute('id')
-    newItem.style.display = 'block'
-    newItem.innerHTML = tickLabel
-    newItem.onclick = function() {addToPlot(newItem, tickLabel)}
-    CTList.append(newItem)
+//     const CTList = document.getElementById('celltypeList2')
+//     const template = document.getElementById('celltypeName2-template')
+//     const newItem = template.cloneNode(true)
+//     newItem.removeAttribute('id')
+//     newItem.style.display = 'block'
+//     newItem.innerHTML = tickLabel
+//     newItem.onclick = function() {addToPlot(newItem, tickLabel)}
+//     CTList.append(newItem)
 
-    Plotly.restyle('plotDiv2', {visible: false}, tracePos)
-    makeXClickable()
-}
+//     Plotly.restyle('plotDiv2', {visible: false}, tracePos)
+//     makeXClickable()
+// }
 
-const addToPlot = (ele, traceName) =>{
-    ele.remove()
-    toggleCTList('close')
-    const tracePos = axisOrders.current.x.indexOf(traceName)
-    Plotly.restyle('plotDiv2', {visible: true}, tracePos)
-    makeXClickable()
-}
+// const addToPlot = (ele, traceName) =>{
+//     ele.remove()
+//     toggleCTList('close')
+//     const tracePos = axisOrders.current.x.indexOf(traceName)
+//     Plotly.restyle('plotDiv2', {visible: true}, tracePos)
+//     makeXClickable()
+// }
 
-const makeXClickable = () => {
-    const xTicks = document.getElementsByClassName('xtick2')
+// const makeXClickable = () => {
+//     const xTicks = document.getElementsByClassName('xtick2')
 
-    for (const tick of xTicks) {
-        const tickLabel = tick.children[0].innerHTML
-        const tracePos = axisOrders.current.x.indexOf(tickLabel)
-        tick.onclick = function(){collapsePlot(tracePos, tickLabel)}
-    }
-}
+//     for (const tick of xTicks) {
+//         const tickLabel = tick.children[0].innerHTML
+//         const tracePos = axisOrders.current.x.indexOf(tickLabel)
+//         tick.onclick = function(){collapsePlot(tracePos, tickLabel)}
+//     }
+// }
 
 const toggleCTList = (action) => {
     const CTList = document.getElementById('celltypeList2')
@@ -447,6 +448,11 @@ const updateFilters = (featNames, matchOpt) => {
     }
 }
 
+const toggleFilters = () => {
+    console.log('toggle')
+    const filter = document.getElementById('filterTabContent')
+    filter.classList.toggle('active')
+}
 
 /*****************************************************************************
  *                                API CALLS
@@ -467,7 +473,11 @@ const apiCall = (requestData, path) => {
     })
 }
 
-const getData = async (tissues, species, feature_names) => {
+const getData = async (tissues, speciesList, feature_names) => {
+    if (speciesList.length == 0) {
+        speciesList = ["mouse"]
+    }
+    console.log(speciesList)
 
     if (tissues.length == 0) {
         tissues = ["Lung"]
@@ -478,18 +488,20 @@ const getData = async (tissues, species, feature_names) => {
     }
     let data = {}
 
-    for (const tissue of tissues) {
-        const reqData = {
-            feature_names,
-            species,
-            tissue
+    for (const species of speciesList) {
+        for (const tissue of tissues) {
+            const reqData = {
+                feature_names,
+                species,
+                tissue
+            }
+            // console.log(reqData)
+            const retVal = await apiCall(reqData, '/data/by_celltype')
+            data[tissue] = retVal
+            // console.log(data)
         }
-        // console.log(reqData)
-        const retVal = await apiCall(reqData, '/data/by_celltype')
-        data[tissue] = retVal
-        // console.log(data)
     }
-
+    console.log(data)
     return data
 }
 
@@ -553,11 +565,6 @@ $(document).ready(function() {
     // generatePlot()
 });
 
-const toggleFilters = () => {
-    console.log('toggle')
-    const filter = document.getElementById('filterTabContent')
-    filter.classList.toggle('active')
-}
 
 $("#filterMenuBtn").click(toggleFilters)
 
@@ -565,41 +572,25 @@ $("#filterMenuBtn").click(toggleFilters)
  *                             TEST INTERACTIONS
  *****************************************************************************/
 
-const apiCall2 = (requestData) => {
-    var array = {data: requestData}
+const testFunc = async () => {
+    console.log('testFunc')
 
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            type: 'GET',
-            url: '/data/getHierarchy',
-            // data: JSON.stringify(array2),
-            data: JSON.stringify(array),
-            // data: requestData,
-            success: function(response) {
-                resolve(response)
-            }
-        });
-    })
+    // const reqData = {
+    //     reference: {
+    //         species: 'mouse',
+    //         feature_names: ["Actc1","Actn2","Myl2","Myh7","Col1a1","Col2a1","Pdgfrb","Pecam1","Gja5","Vwf","Ptprc","Ms4a1","Gzma","Cd3d","Cd68","Epcam"],
+    //     },
+    //     translateTo: ['human']
+    // }
+
+    const reqData = {
+        reference: {
+            species: 'human',
+            feature_names: ["ACTC1","ACTN2","MYL2","MYH7","COL1A1","COL2A1","PDGFRB","PECAM1","GJA5","VWF","PTPRC","MS4A1","GZMA","CD3D","CD68","EPCAM"],
+        },
+        translateTo: ['mouse', 'rat']
+    }
+    const ret = await apiCall(JSON.stringify(reqData), '/data/getHomolog')
 }
 
-
-/*****************************************************************************
- *                             RANDOM NOTES
- *****************************************************************************/
-
-// EACH TRACE IS FOR 1 CELL TYPE
-// trace
-//  x:
-//      x1: cell type   -->     [ct1, ct1]
-//      x2: tissue      -->     [lung, heart]
-//  y:  genes           -->     [g1, g2, g3]
-//  z:  values
-
-// var trace = {
-//     x: [
-//         []
-//     ],
-//     // y: ,
-//     // z: ,
-//     type: 'heatmap'
-// }
+$("#testBtn").click(testFunc)
