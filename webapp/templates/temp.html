@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 
+  <div style="border: 1px solid black; height: 100%; display: flex; justify-content: center; align-items: center;">
+    <div id="plotDiv" style="border: 1px solid red; height: 100%"></div>
+  </div>
+  <button id="testBtn">Test</button>
   <!-- <div class="columns tab-area" style="border: 1px solid black"> -->
-  <div class="divSet1 columns tab-area" style="border: 1px solid red;">
+  <!-- <div class="divSet1 columns tab-area" style="border: 1px solid red;">
     <div class="column" style="border: 1px solid green">
       <div id="plotDiv"></div>
     </div>
@@ -10,8 +14,8 @@
       Celltypes
       <div id="celltypeName-template" style="display: none; border: 1px solid black"></div>
     </div>
-  </div>
-  <div class="divSet1 columns is-vcentered has-text-centered" style="border: 1px solid orange">
+  </div> -->
+  <!-- <div class="divSet1 columns is-vcentered has-text-centered" style="border: 1px solid orange">
     <div class="column" style="border: 1px solid blue; padding: 20px;">
         <div>FILTERS</div>
         <div>
@@ -82,10 +86,10 @@
       <button id="testBtn2">test2</button>
       <button id="testBtn3">test3</button>
       <button id="testBtn4">test4</button>
-      <!-- <button id="testBtn5">test5</button> -->
-      <!-- <button id="testBtn6">test6</button> -->
+      <button id="testBtn5">test5</button>
+      <button id="testBtn6">test6</button>
     </div>
-  </div>
+  </div> -->
 
   <script type="module" src="/js/temp.js"></script>
   

@@ -575,22 +575,23 @@ $("#filterMenuBtn").click(toggleFilters)
 const testFunc = async () => {
     console.log('testFunc')
 
-    // const reqData = {
-    //     reference: {
-    //         species: 'mouse',
-    //         feature_names: ["Actc1","Actn2","Myl2","Myh7","Col1a1","Col2a1","Pdgfrb","Pecam1","Gja5","Vwf","Ptprc","Ms4a1","Gzma","Cd3d","Cd68","Epcam"],
-    //     },
-    //     translateTo: ['human']
-    // }
-
     const reqData = {
         reference: {
-            species: 'human',
-            feature_names: ["ACTC1","ACTN2","MYL2","MYH7","COL1A1","COL2A1","PDGFRB","PECAM1","GJA5","VWF","PTPRC","MS4A1","GZMA","CD3D","CD68","EPCAM"],
+            species: 'mouse',
+            feature_names: ["Actc1","Actn2","Myl2","Myh7","Col1a1","Col2a1","Pdgfrb","Pecam1","Gja5","Vwf","Ptprc","Ms4a1","Gzma","Cd3d","Cd68","Epcam"],
         },
-        translateTo: ['mouse', 'rat']
+        translateTo: ['human', 'rat']
     }
+
+    // const reqData = {
+    //     reference: {
+    //         species: 'human',
+    //         feature_names: ["ACTC1","ACTN2","MYL2","MYH7","COL1A1","COL2A1","PDGFRB","PECAM1","GJA5","VWF","PTPRC","MS4A1","GZMA","CD3D","CD68","EPCAM"],
+    //     },
+    //     translateTo: ['mouse']
+    // }
     const ret = await apiCall(JSON.stringify(reqData), '/data/getHomolog')
+    console.log(ret)
 }
 
 $("#testBtn").click(testFunc)

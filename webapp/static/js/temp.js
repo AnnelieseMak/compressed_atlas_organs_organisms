@@ -51,11 +51,11 @@ const plotTemplate = () => {
             // console.log(`labelPos: ${labelPos}`)
             ann.push({
                 x: labelPos,
-                y: -0.30,
+                y: -0.40,
                 yref: 'paper',
                 text: xLabel,
                 showarrow: false,
-                textangle: '45',
+                textangle: '90',
             })
             xCount += xColCount
         }
@@ -802,11 +802,212 @@ $("#viewHier").click(function() {changePlotView('hierarchical')})
 $(document).ready(function() {
     // plotTemplate()
     // generatePlot()
+    template()
 });
 
 /*****************************************************************************
  *                             TEST INTERACTIONS
  *****************************************************************************/
+
+const printData = () => {
+    var gd = document.getElementById('plotDiv')
+    console.log(gd.data)
+}
+
+$("#testBtn").click(printData)
+
+const template = () => {
+    console.log('template')
+    var trace1 = {
+        // x: [["celltype1","celltype1","celltype1"],['lung', 'heart']],
+        x: [["celltype1","celltype1","celltype1"],['t1x1', 't1x2', 't1x3']],
+        y: ['y1', 'y2', 'y3'],
+        z: [[0,1,2],[3,4,5],[null,null,8]],
+        visible: true,
+        type: 'heatmap',
+        // xgap: 3,
+        // ygap: 3,
+    }
+
+    var trace2 = {
+        x: [["celltype2","celltype2","celltype2"],['t2x1', 't2x2', 't2x3']],
+        y: ['y1', 'y2', 'y3'],
+        z: [[0,1,2],[3,4,5],[6,7,8]],
+        visible: true,
+        type: 'heatmap',
+        // xgap: 3,
+        // ygap: 3,
+    }
+
+    var trace3 = {
+        x: [["celltype3","celltype3"],['t3x1', 't3x2']],
+        y: ['y1', 'y2', 'y3'],
+        z: [[0,1],[3,4],[6,7]],
+        visible: true,
+        type: 'heatmap',
+        // xgap: 3,
+        // ygap: 3,
+    }
+    
+    var trace4 = {
+        x: [["celltype4"],['t4x1']],
+        y: ['y1', 'y2', 'y3'],
+        z: [[0],[3],[6]],
+        visible: true,
+        type: 'heatmap',
+        // xgap: 3,
+        // ygap: 3,
+    }
+    
+    // const data = [trace1, trace2, trace3, trace4]
+
+    var data = [{
+        x: [['celltype', 'celltype', 'celltype', 'celltype', 'celltype'], ['x1','x2','x3','x4','x5']],
+        y: ['Morning', 'Afternoon', 'Evening'],
+        z: [
+            [1, 20, 30, 50, 1],
+            [20, 1, 60, 80, 30],
+            [30, 60, 1, -10, 20]
+        ],
+        type: 'heatmap'
+    },
+    {
+        x: [['celltype2', 'celltype2', 'celltype2', 'celltype2', 'celltype2'], ['x1','x2','x3','x4','x5']],
+        y: ['Morning', 'Afternoon', 'Evening'],
+        z: [
+            [30, 60, 1, -10, 20],
+            [1, 20, 30, 50, 1],
+            [20, 1, 60, 80, 30],
+        ],
+        type: 'heatmap'
+    }
+    ];
+
+    // var ann = []
+    // let xCount = 0;
+    // for (const trace of data) {
+    //     if (trace.visible) {
+    //         const xLabel = trace.x[0][0]
+    //         const xColCount = trace.x[1].length
+    //         const labelPos = xCount + (xColCount - 1)/2
+    //         ann.push({
+    //             x: labelPos,
+    //             y: 1.1,
+    //             yref: 'paper',
+    //             text: xLabel,
+    //             showarrow: false,
+    //             textangle: '0',
+    //         })
+    //         xCount += xColCount
+    //     }
+    // }
+    // console.log(ann)
+    // ann.push({
+    //     x: 0,
+    //     y: -0.2,
+    //     yref: 'paper',
+    //     text: 'here',
+    //     showarrow: false,
+    //     textangle: '0',
+    // })
+    // ann.push({
+    //     x: 3,
+    //     y: -0.2,
+    //     yref: 'paper',
+    //     text: 'here2',
+    //     showarrow: false,
+    //     textangle: '0',
+    // })
+
+    // const shapesList = [{
+    //     type: 'line',
+    //     xref: 'x',
+    //     yref: 'paper',
+    //     x0: 2.5,
+    //     y0: -0.15,
+    //     x1: 2.5,
+    //     y1: 1.15,
+    // }
+    // ,{
+    //     type: 'line',
+    //     xref: 'x',
+    //     yref: 'paper',
+    //     x0: 5.5,
+    //     y0: -0.15,
+    //     x1: 5.5,
+    //     y1: 1.15,
+    // },{
+    //     type: 'line',
+    //     xref: 'x',
+    //     yref: 'paper',
+    //     x0: 7.5,
+    //     y0: -0.15,
+    //     x1: 7.5,
+    //     y1: 1.15,
+    // },
+    // ]
+
+    // shapesList.push({
+    //     type: 'line',
+    //     xref: 'paper',
+    //     yref: 'paper',
+    //     x0: 0,
+    //     y0: -0.075,
+    //     x1: 1,
+    //     y1: -0.075,
+    //     opacity: 0.2,
+    //     line: {
+    //         color: 'gray',
+    //     }
+    // }, {
+    //     type: 'line',
+    //     xref: 'x',
+    //     yref: 'paper',
+    //     x0: 1.5,
+    //     y0: 0,
+    //     x1: 1.5,
+    //     y1: -0.15,
+    //     opacity: 0.2,
+    //     line: {
+    //         color: 'gray',
+    //     } 
+    // })
+
+    var layout = {
+        height: 700,
+        showlegend: false,
+        autosize: true,
+        automargin: true,
+        margin: {
+            autoexpand: true,
+            b: 200
+        },
+        xaxis: {
+            type: 'multicategory',
+            // tickmode: "array",
+            // ticktext: ['Healthy', 'Healthy', 'Moderate', 'Diseased', 'Diseased', 'another1', 'another2', 'another3', 'another4', 'another5'],
+            // tickvals: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            // automargin: true,
+            // tickson: "boundaries",
+            // ticklen: 15,
+            // showdividers: true,
+            // dividercolor: 'grey',
+            // dividerwidth: 2,
+            // tickangle: 90,
+            tickfont: {
+                size: 10
+            },
+            ticklabeloverflow: "hide past div",
+        },
+        yaxis: {
+            autorange: "reversed",
+        },
+        // annotations: ann,
+        // shapes: shapesList,
+    };
+
+    Plotly.newPlot('plotDiv', data, layout);
+}
 
 const apiCall2 = (requestData) => {
     var array = {data: requestData}
@@ -845,21 +1046,21 @@ const testB = () => {
             const xLabel = trace.x[0][0]
             const xColCount = trace.x[1].length
             const labelPos = xCount + (xColCount - 1)/2
-            console.log(labelPos)
+            // console.log(labelPos)
             annotation.push({
                 x: labelPos,
-                y: -0.30,
+                y: -0.40,
                 yref: 'paper',
                 text: xLabel,
                 showarrow: false,
-                textangle: '45',
+                textangle: '90',
             })
 
             xCount += xColCount
         }
     }
 
-    console.log(annotation)
+    // console.log(annotation)
     Plotly.relayout('plotDiv', {annotations: annotation})
     testC();
 }
@@ -901,7 +1102,7 @@ const testE = () => {
     console.log(axisOrders)
 }
 
-$("#testBtn").click(testB)
+// $("#testBtn").click(testB)
 $("#testBtn2").click(testA)
 $("#testBtn3").click(testC)
 $("#testBtn4").click(testE)
