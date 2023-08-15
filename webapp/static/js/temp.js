@@ -513,8 +513,8 @@ const getCellType_Tissue = (data, cellType, featuresCount) => {
             colNo++
         }
     }
-
-    // console.log(CTcols.flat())s
+    // console.log(CTcols)
+    // console.log(CTcols.flat())
 
     return [CTcols, Math.max(...CTcols.flat()), tissueList]
 }
@@ -814,165 +814,162 @@ const printData = () => {
     console.log(gd.data)
 }
 
-$("#testBtn").click(printData)
+const plotData = async () => {
+
+    const data = await getData([], 'mouse', )
+    // console.log(data)
+
+    const firstTissue = data[Object.keys(data)[0]]
+    const featNames = firstTissue.features[0]
+
+    const allCellTypes = getAllCellTypes(data)
+
+    // console.log(featNames)
+    // console.log(allCellTypes)
+
+    const traceData = []
+
+    for (const [idx, cellType] of allCellTypes.entries()) {
+        // console.log(`idx: ${idx}\tcelltype: ${cellType}`)
+        const [CTvals, maxV, tissueList] = getCellType_Tissue(data, cellType, featNames.length)
+        // console.log(`CTvals: ${CTvals}\t tissueList: ${tissueList}`)
+        // console.log(maxV)
+
+        const x = [
+            Array(tissueList.length).fill(cellType),
+            tissueList
+        ]
+
+        console.log(x)
+        console.log(featNames)
+        console.log(CTvals)
+
+        // const trace = {
+        //     x: [
+        //         Array(tissueList.length).fill(cellType),
+        //         tissueList
+        //     ],
+        //     y: featNames,
+        //     z: CTvals,
+        //     zmin: 0,
+        //     colorscale: 'Reds',
+        //     type: 'heatmap',
+        //     name: '',
+        //     xgap: 3,
+        //     ygap: 3,
+        //     visible: true
+        // }
+        
+        traceData.push(trace)
+
+        if (idx == 1) {
+            break
+        }
+        // traceOrder.push(cellType)
+    }
+
+    Plotly.newPlot("plotDiv", traceData)
+}
+
+$("#testBtn").click(plotData)
+$("#testBtn2").click(printData)
 
 const template = () => {
-    console.log('template')
-    var trace1 = {
-        // x: [["celltype1","celltype1","celltype1"],['lung', 'heart']],
-        x: [["celltype1","celltype1","celltype1"],['t1x1', 't1x2', 't1x3']],
-        y: ['y1', 'y2', 'y3'],
-        z: [[0,1,2],[3,4,5],[null,null,8]],
-        visible: true,
-        type: 'heatmap',
-        // xgap: 3,
-        // ygap: 3,
-    }
-
-    var trace2 = {
-        x: [["celltype2","celltype2","celltype2"],['t2x1', 't2x2', 't2x3']],
-        y: ['y1', 'y2', 'y3'],
-        z: [[0,1,2],[3,4,5],[6,7,8]],
-        visible: true,
-        type: 'heatmap',
-        // xgap: 3,
-        // ygap: 3,
-    }
-
-    var trace3 = {
-        x: [["celltype3","celltype3"],['t3x1', 't3x2']],
-        y: ['y1', 'y2', 'y3'],
-        z: [[0,1],[3,4],[6,7]],
-        visible: true,
-        type: 'heatmap',
-        // xgap: 3,
-        // ygap: 3,
-    }
-    
-    var trace4 = {
-        x: [["celltype4"],['t4x1']],
-        y: ['y1', 'y2', 'y3'],
-        z: [[0],[3],[6]],
-        visible: true,
-        type: 'heatmap',
-        // xgap: 3,
-        // ygap: 3,
-    }
-    
-    // const data = [trace1, trace2, trace3, trace4]
-
     var data = [{
-        x: [['celltype', 'celltype', 'celltype', 'celltype', 'celltype'], ['x1','x2','x3','x4','x5']],
-        y: ['Morning', 'Afternoon', 'Evening'],
-        z: [
-            [1, 20, 30, 50, 1],
-            [20, 1, 60, 80, 30],
-            [30, 60, 1, -10, 20]
-        ],
-        type: 'heatmap'
+        x: [['celltype1','celltype1','celltype1','celltype1'],['mouse_lung','mouse_heart','human_lung','human_heart']],
+        y: ['g1', 'g2', 'g3'],
+        z: [[1,2,3,4],[5,6,7,8],[9,5,3,1]],
+        visible: true,
+        type: 'heatmap',
     },
     {
-        x: [['celltype2', 'celltype2', 'celltype2', 'celltype2', 'celltype2'], ['x1','x2','x3','x4','x5']],
-        y: ['Morning', 'Afternoon', 'Evening'],
-        z: [
-            [30, 60, 1, -10, 20],
-            [1, 20, 30, 50, 1],
-            [20, 1, 60, 80, 30],
-        ],
-        type: 'heatmap'
+        x: [['celltype2','celltype2','celltype2'],['mouse_lung','mouse_heart','human_lung']],
+        y: ['g1', 'g2', 'g3'],
+        z: [[5,6,7],[9,5,3],[1,2,7]],
+        visible: true,
+        type: 'heatmap',
+    },
+    {
+        x: [['celltype3','celltype3','celltype3','celltype3'],['mouse_lung','mouse_heart','human_lung','human_heart']],
+        y: ['g1', 'g2', 'g3'],
+        z: [[5,6,7,8],[9,5,3,1],[1,2,6,4]],
+        visible: true,
+        type: 'heatmap',
+    },
+    ]
+
+    // annotations: tissue axis, species axis, celltypes axis
+    // shapes:
+    //      vertical: trace divisions, species division
+    //      horizontal: spcecies/tissue axis
+
+    let labelPos = 0
+    let prevPos
+    let speciesCount = 0
+    const annotations = []
+    for (const trace of data) {
+        if (!trace.visible) {
+            continue
+        }
+        const celltype = trace.x[0][0]
+        const tisAxis = trace.x[1]
+        const celltypePos = labelPos+(tisAxis.length-1)/2
+        // annotation for celltype axis
+        annotations.push({
+            x: celltypePos,
+            y: 1.05,
+            yref: 'paper',
+            text: celltype,
+            showarrow: false,
+        })
+
+        let currSpecies
+        let prevSpecies
+        for (const label of tisAxis) {
+            const splitLabel = label.split("_")
+            const speciesType = splitLabel[0]
+            const tissueType = splitLabel[1]
+            if (!currSpecies) {
+                currSpecies = speciesType
+                prevSpecies = currSpecies
+            }
+            
+            console.log(speciesType)
+
+            // console.log(`\tspeciesType: ${speciesType}`)
+            // console.log(`\tcur: ${currSpecies}`)
+            // console.log(`\tprev: ${prevSpecies}`)
+
+            if (speciesType != currSpecies || !currSpecies) {
+                // console.log(`species count: ${speciesCount}`)
+
+                // annotations.push({
+                //     x: speciesPos,
+                //     y: -0.2,
+                //     yref: 'paper',
+                //     text: currSpecies,
+                //     showarrow: false,
+                //     textangle: '90'
+                // })
+                // prevPos = labelPos
+                // speciesCount = 0
+                prevSpecies = currSpecies
+                currSpecies = speciesType
+            }
+
+            // annotation for tissue axis
+            annotations.push({
+                x: labelPos,
+                y: -0.05,
+                yref: 'paper',
+                text: tissueType,
+                showarrow: false,
+            })
+            labelPos++;
+            speciesCount++;
+        }
     }
-    ];
-
-    // var ann = []
-    // let xCount = 0;
-    // for (const trace of data) {
-    //     if (trace.visible) {
-    //         const xLabel = trace.x[0][0]
-    //         const xColCount = trace.x[1].length
-    //         const labelPos = xCount + (xColCount - 1)/2
-    //         ann.push({
-    //             x: labelPos,
-    //             y: 1.1,
-    //             yref: 'paper',
-    //             text: xLabel,
-    //             showarrow: false,
-    //             textangle: '0',
-    //         })
-    //         xCount += xColCount
-    //     }
-    // }
-    // console.log(ann)
-    // ann.push({
-    //     x: 0,
-    //     y: -0.2,
-    //     yref: 'paper',
-    //     text: 'here',
-    //     showarrow: false,
-    //     textangle: '0',
-    // })
-    // ann.push({
-    //     x: 3,
-    //     y: -0.2,
-    //     yref: 'paper',
-    //     text: 'here2',
-    //     showarrow: false,
-    //     textangle: '0',
-    // })
-
-    // const shapesList = [{
-    //     type: 'line',
-    //     xref: 'x',
-    //     yref: 'paper',
-    //     x0: 2.5,
-    //     y0: -0.15,
-    //     x1: 2.5,
-    //     y1: 1.15,
-    // }
-    // ,{
-    //     type: 'line',
-    //     xref: 'x',
-    //     yref: 'paper',
-    //     x0: 5.5,
-    //     y0: -0.15,
-    //     x1: 5.5,
-    //     y1: 1.15,
-    // },{
-    //     type: 'line',
-    //     xref: 'x',
-    //     yref: 'paper',
-    //     x0: 7.5,
-    //     y0: -0.15,
-    //     x1: 7.5,
-    //     y1: 1.15,
-    // },
-    // ]
-
-    // shapesList.push({
-    //     type: 'line',
-    //     xref: 'paper',
-    //     yref: 'paper',
-    //     x0: 0,
-    //     y0: -0.075,
-    //     x1: 1,
-    //     y1: -0.075,
-    //     opacity: 0.2,
-    //     line: {
-    //         color: 'gray',
-    //     }
-    // }, {
-    //     type: 'line',
-    //     xref: 'x',
-    //     yref: 'paper',
-    //     x0: 1.5,
-    //     y0: 0,
-    //     x1: 1.5,
-    //     y1: -0.15,
-    //     opacity: 0.2,
-    //     line: {
-    //         color: 'gray',
-    //     } 
-    // })
-
+    
     var layout = {
         height: 700,
         showlegend: false,
@@ -983,31 +980,83 @@ const template = () => {
             b: 200
         },
         xaxis: {
-            type: 'multicategory',
-            // tickmode: "array",
-            // ticktext: ['Healthy', 'Healthy', 'Moderate', 'Diseased', 'Diseased', 'another1', 'another2', 'another3', 'another4', 'another5'],
-            // tickvals: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-            // automargin: true,
-            // tickson: "boundaries",
-            // ticklen: 15,
-            // showdividers: true,
-            // dividercolor: 'grey',
-            // dividerwidth: 2,
-            // tickangle: 90,
+            tickson: "boundaries",
+            ticklen: 15,
+            showdividers: true,
+            dividercolor: 'grey',
+            dividerwidth: 2,
+            tickangle: 90,
             tickfont: {
                 size: 10
             },
-            ticklabeloverflow: "hide past div",
+            // ticklabeloverflow: "hide past div",
         },
         yaxis: {
             autorange: "reversed",
         },
-        // annotations: ann,
-        // shapes: shapesList,
+        annotations: annotations
     };
 
-    Plotly.newPlot('plotDiv', data, layout);
+    Plotly.newPlot("plotDiv", data, layout)
 }
+
+// const template = () => {
+//     var data = [{
+//         // x: [['celltype1', 'celltype1', 'celltype1', 'celltype1', 'celltype1'],['species1', 'species1', 'species1','species1','species1'],['tissue1','tissue2','tissue3','tissue4','tissue5']],
+//         // x: [['celltype1', 'celltype1', 'celltype1', 'celltype1'],['species1', 'species1','species1','species1'],['tissue1','tissue2','tissue3','tissue4']],
+//         // x: [['celltype1', 'celltype1', 'celltype1'],['species1', 'species1','species1'],['tissue1','tissue2','tissue3']],
+//         x: [['celltype1', 'celltype1'],['species1', 'species1'],['tissue1','tissue2']],
+//         // x: [['celltype1'],['species1'],['tissue1']],
+
+//         // x: [['celltype1', 'celltype1', 'celltype1', 'celltype1','celltype1'],['tissue1','tissue2','tissue3','tissue4']],
+//         // x: [['celltype1'],['tissue1']],
+//         // x: ['tis1'],
+//         y: ['g1', 'g2', 'g3'],
+
+//         // y: ['g1', 'g2'],
+//         // z: [[1,2,3,4,5],[4,5,6,7,8]],
+//         // z: [[1,2,3],[4,5,6]],
+//         // z: [[1,2],[4,5]],
+//         // z: [[1],[4]],
+        
+//         // z: [[1,2,3,4,5],[4,5,6,7,8],[7,8,9,1,2]],
+//         z: [[1,2],[4,5],[7,8]],
+//         // z: [[1],[4],[7]],
+
+
+//         type: 'heatmap',
+//     },
+//     // {
+//     //     // x: [['celltype2', 'celltype2', 'celltype2'],['species1', 'species1', 'species1'],['tissue1','tissue2','tissue3']],
+//     //     x: [['celltype2'],['species1'],['tissue1']],
+//     //     y: ['g1', 'g2', 'g3'],
+//     //     z: [[3],[6],[9]],
+//     //     type: 'heatmap',
+//     // },
+//     ]
+//     // var data = [{
+//     //     // x: [['celltype1','celltype1','celltype1','celltype1'],['11','11','12','13'],['01','02','01','01']],
+//     //     x: [['celltype1','celltype1'],['tis1','tis2']],
+//     //     // x: ['tis1'],
+//     //     y: ['g1','g2'],
+//     //     z: [[1,2],[3,4]],
+//     //     type: 'heatmap',
+//     // },
+//     // {
+//     //     // x: [['celltype2','celltype2','celltype2','celltype2'],['11','11','12','13'],['01','02','01','01']],
+//     //     x: [['celltype2','celltype2','celltype2','celltype2'],['tis1','tis2','tis3','tis4']],
+//     //     y: ['g1','g2','g3'],
+//     //     z: [[1,2,3,4],[9,8,7,6],[4,3,2,1]],
+//     //     type: 'heatmap',
+//     // }
+//     // ]
+
+//     // console.log(data)
+
+//     Plotly.newPlot("plotDiv", data)
+  
+// }
+
 
 const apiCall2 = (requestData) => {
     var array = {data: requestData}
@@ -1025,10 +1074,6 @@ const apiCall2 = (requestData) => {
         });
     })
 }
-
-// const createXAnnotations = (traceData) => {
-//     console.log(traceData)
-// }
 
 // add annotations
 const testB = () => {
@@ -1103,32 +1148,8 @@ const testE = () => {
 }
 
 // $("#testBtn").click(testB)
-$("#testBtn2").click(testA)
+// $("#testBtn2").click(testA)
 $("#testBtn3").click(testC)
 $("#testBtn4").click(testE)
 // $("#testBtn5").click()
 // $("#testBtn6").click()
-
-
-
-
-/*****************************************************************************
- *                             RANDOM NOTES
- *****************************************************************************/
-
-// EACH TRACE IS FOR 1 CELL TYPE
-// trace
-//  x:
-//      x1: cell type   -->     [ct1, ct1]
-//      x2: tissue      -->     [lung, heart]
-//  y:  genes           -->     [g1, g2, g3]
-//  z:  values
-
-// var trace = {
-//     x: [
-//         []
-//     ],
-//     // y: ,
-//     // z: ,
-//     type: 'heatmap'
-// }

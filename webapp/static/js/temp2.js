@@ -19,7 +19,7 @@ const generatePlot = async () => {
     // const matchOpt = 2
 
     const searchInput = $("#searchInput").val()
-    // console.log(searchInput)
+    console.log(`searchInput: ${searchInput}`)
 
     const data = await getData(tissues, species, searchInput)
     // console.log(`data:\n${JSON.stringify(data)}`)
@@ -114,58 +114,8 @@ const generatePlot = async () => {
         $("#viewHier").trigger('click')
     }
 
-    // makeXClickable()
     makeClickable()
     updateFilters(featNames, matchOpt)
-}
-
-const makeClickable = () => {
-    const plotDiv = $("#plotDiv2")[0]
-    // const plotData = plotDiv.data
-    const plotAnnotations = plotDiv.layout.annotations
-    const annotationEls = document.getElementsByClassName('annotation')
-
-    for (let i = 0; i < annotationEls.length; i++) {
-        annotationEls[i].onclick = function(){hideTrace(plotAnnotations[i].text)}
-    }
-}
-
-const hideTrace = (annotationLabel) => {
-    const plotAnnotations = $("#plotDiv2")[0].layout.annotations
-    if (plotAnnotations.length == 1) {
-        return
-    }
-
-    const axisOrder = axisOrders.current.x
-    const tracePos = axisOrder.indexOf(annotationLabel)
-
-    toggleCTList('open')
-
-    const CTList = document.getElementById('celltypeList2')
-    const template = document.getElementById('celltypeName2-template')
-    const newItem = template.cloneNode(true)
-    newItem.removeAttribute('id')
-    newItem.style.display = 'block'
-    newItem.innerHTML = annotationLabel
-    newItem.onclick = function() {showTrace(newItem, annotationLabel)}
-    CTList.append(newItem)
-
-    Plotly.restyle('plotDiv2', {visible: false}, tracePos)
-
-    const annotation = getAnnotations()
-    Plotly.relayout('plotDiv2', {annotations: annotation})
-    makeClickable()
-}
-
-const showTrace = (ele, annotationLabel) => {
-    ele.remove()
-    toggleCTList('close')
-    const tracePos = axisOrders.current.x.indexOf(annotationLabel)
-    Plotly.restyle('plotDiv2', {visible: true}, tracePos)
-
-    const annotation = getAnnotations()
-    Plotly.relayout('plotDiv2', {annotations: annotation})
-    makeClickable()
 }
 
 // annotation labels
@@ -240,6 +190,63 @@ const getCellType_Tissue = (data, cellType, featuresCount) => {
     return [CTcols, Math.max(...CTcols.flat()), tissueList]
 }
 
+/***************************************************
+ *                  COLLAPSIBLE
+ ***************************************************/
+
+const makeClickable = () => {
+    const plotDiv = $("#plotDiv2")[0]
+    // const plotData = plotDiv.data
+    const plotAnnotations = plotDiv.layout.annotations
+    const annotationEls = document.getElementsByClassName('annotation')
+
+    for (let i = 0; i < annotationEls.length; i++) {
+        annotationEls[i].onclick = function(){hideTrace(plotAnnotations[i].text)}
+    }
+}
+
+const hideTrace = (annotationLabel) => {
+    const plotAnnotations = $("#plotDiv2")[0].layout.annotations
+    if (plotAnnotations.length == 1) {
+        return
+    }
+
+    const axisOrder = axisOrders.current.x
+    const tracePos = axisOrder.indexOf(annotationLabel)
+
+    toggleCTList('open')
+
+    const CTList = document.getElementById('celltypeList2')
+    const template = document.getElementById('celltypeName2-template')
+    const newItem = template.cloneNode(true)
+    newItem.removeAttribute('id')
+    newItem.style.display = 'block'
+    newItem.innerHTML = annotationLabel
+    newItem.onclick = function() {showTrace(newItem, annotationLabel)}
+    CTList.append(newItem)
+
+    Plotly.restyle('plotDiv2', {visible: false}, tracePos)
+
+    const annotation = getAnnotations()
+    Plotly.relayout('plotDiv2', {annotations: annotation})
+    makeClickable()
+}
+
+const showTrace = (ele, annotationLabel) => {
+    ele.remove()
+    toggleCTList('close')
+    const tracePos = axisOrders.current.x.indexOf(annotationLabel)
+    Plotly.restyle('plotDiv2', {visible: true}, tracePos)
+
+    const annotation = getAnnotations()
+    Plotly.relayout('plotDiv2', {annotations: annotation})
+    makeClickable()
+}
+
+/***************************************************
+ *                  HIERARCHY
+ ***************************************************/
+
 const changePlotView = (view) => {
     
     if (JSON.stringify(axisOrders.current) == JSON.stringify(axisOrders[view])) {
@@ -254,7 +261,7 @@ const changePlotView = (view) => {
     if (plotTraces.length > 1) {
         Plotly.moveTraces('plotDiv2', xAxis)
     }
-    // makeXClickable()
+    
     const annotation = getAnnotations()
     Plotly.relayout('plotDiv2', {annotations: annotation})
     makeClickable()
@@ -327,53 +334,6 @@ const getCheckedboxNames = (loc) => {
 /***************************************************
  *                  CURRENT FIXED
  ***************************************************/
-
-// const collapsePlot = (tracePos, tickLabel) => {
-//     const traces = document.getElementById('plotDiv2').data
-//     let visibleCount = 0
-
-//     for (const trace of traces) {
-//         if (trace.visible) {
-//             visibleCount++
-//         }
-//     }
-
-//     if (visibleCount == 1) {
-//         return
-//     }
-
-//     toggleCTList('open')
-
-//     const CTList = document.getElementById('celltypeList2')
-//     const template = document.getElementById('celltypeName2-template')
-//     const newItem = template.cloneNode(true)
-//     newItem.removeAttribute('id')
-//     newItem.style.display = 'block'
-//     newItem.innerHTML = tickLabel
-//     newItem.onclick = function() {addToPlot(newItem, tickLabel)}
-//     CTList.append(newItem)
-
-//     Plotly.restyle('plotDiv2', {visible: false}, tracePos)
-//     makeXClickable()
-// }
-
-// const addToPlot = (ele, traceName) =>{
-//     ele.remove()
-//     toggleCTList('close')
-//     const tracePos = axisOrders.current.x.indexOf(traceName)
-//     Plotly.restyle('plotDiv2', {visible: true}, tracePos)
-//     makeXClickable()
-// }
-
-// const makeXClickable = () => {
-//     const xTicks = document.getElementsByClassName('xtick2')
-
-//     for (const tick of xTicks) {
-//         const tickLabel = tick.children[0].innerHTML
-//         const tracePos = axisOrders.current.x.indexOf(tickLabel)
-//         tick.onclick = function(){collapsePlot(tracePos, tickLabel)}
-//     }
-// }
 
 const toggleCTList = (action) => {
     const CTList = document.getElementById('celltypeList2')

@@ -396,12 +396,12 @@ input[type=checkbox]:hover + .filterContent {
     pointer-events: all; */
 }
 
-.annotation {
+/* .annotation {
     cursor: pointer;
     pointer-events: all;
-}
+} */
 
-.xtick2 > text {
+.xtick2 > text, .xtick > text {
     fill: none !important;
     font-size: 10px;
 }
