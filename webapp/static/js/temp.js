@@ -887,6 +887,7 @@ const template = () => {
         type: 'heatmap',
     },
     {
+        // x: [['celltype2','celltype2','celltype2'],['mouse_lung','mouse_heart','human_lung']],
         x: [['celltype2','celltype2','celltype2'],['mouse_lung','mouse_heart','human_lung']],
         y: ['g1', 'g2', 'g3'],
         z: [[5,6,7],[9,5,3],[1,2,7]],
@@ -907,9 +908,11 @@ const template = () => {
     //      vertical: trace divisions, species division
     //      horizontal: spcecies/tissue axis
 
+    const shapes = []
+
     let labelPos = 0
     const annotations = []
-    for (const trace of data) {
+    for (const [idxT, trace] of data.entries()) {
         if (!trace.visible) {
             continue
         }
@@ -919,7 +922,7 @@ const template = () => {
         // annotation for celltype axis
         annotations.push({
             x: celltypePos,
-            y: 1.05,
+            y: 1.1,
             yref: 'paper',
             text: celltype,
             showarrow: false,
@@ -928,12 +931,12 @@ const template = () => {
 
 
         let speciesCount = 0
-        for (const [idx, label] of tisAxis.entries()) {
+        for (const [idxL, label] of tisAxis.entries()) {
             const splitLabel = label.split("_")
             const speciesType = splitLabel[0]
             const tissueType = splitLabel[1]
                 
-            const nextId = idx+1
+            const nextId = idxL+1
             const nextEle = tisAxis[nextId]
 
             if (nextEle == undefined || !nextEle.startsWith(speciesType)) {
@@ -941,13 +944,27 @@ const template = () => {
                 // annotation for species axis
                 annotations.push({
                     x: speciesPos,
-                    y: -0.2,
+                    y: -0.25,
                     yref: 'paper',
                     text: speciesType,
                     showarrow: false,
-                    // textangle: '45'
+                    textangle: '90'
                 })
                 speciesCount = 0
+                if (nextEle != undefined) {
+                    const speciesLinePos = labelPos+0.5
+                    shapes.push({
+                        type: 'line',
+                        yref: 'paper',
+                        x0: speciesLinePos,
+                        y0: 0,
+                        x1: speciesLinePos,
+                        y1: -0.25,
+                    })
+                }
+                else {
+                    
+                }
             } else {
                 speciesCount++;
             }
@@ -961,6 +978,22 @@ const template = () => {
                 showarrow: false,
             })
             labelPos++;
+        }
+
+        const nextTrace = data[idxT+1]
+        if (nextTrace) {
+            const celltypeLinePos = labelPos-0.5
+            shapes.push({
+                type: 'line',
+                yref: 'paper',
+                x0: celltypeLinePos,
+                y0: 1.15,
+                x1: celltypeLinePos,
+                y1: 0,
+                line: {
+                    width: 3,
+                }
+            })
         }
     }
    
@@ -988,7 +1021,8 @@ const template = () => {
         yaxis: {
             autorange: "reversed",
         },
-        annotations: annotations
+        annotations: annotations,
+        shapes: shapes
     };
 
     Plotly.newPlot("plotDiv", data, layout)
