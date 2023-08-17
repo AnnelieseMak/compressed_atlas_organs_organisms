@@ -810,8 +810,12 @@ $(document).ready(function() {
  *****************************************************************************/
 
 const printData = () => {
-    var gd = document.getElementById('plotDiv')
-    console.log(gd.data)
+    const celltypeAxis = document.getElementsByClassName('annotation')
+    const plotAnnotations = plotDiv.layout.annotations
+    console.log(`celltype axis:`)
+    console.log(celltypeAxis)
+    console.log(`plot annotation:`)
+    console.log(plotAnnotations)
 }
 
 const plotData = async () => {
@@ -876,9 +880,9 @@ $("#testBtn2").click(printData)
 
 const template = () => {
     var data = [{
-        x: [['celltype1','celltype1','celltype1','celltype1'],['mouse_lung','mouse_heart','human_lung','human_heart']],
+        x: [['celltype1','celltype1','celltype1','celltype1','celltype1'],['mouse_lung','mouse_heart','human_lung','human_heart','human_colon']],
         y: ['g1', 'g2', 'g3'],
-        z: [[1,2,3,4],[5,6,7,8],[9,5,3,1]],
+        z: [[1,2,3,4,6],[5,6,7,8,6],[9,5,3,1,6]],
         visible: true,
         type: 'heatmap',
     },
@@ -904,8 +908,6 @@ const template = () => {
     //      horizontal: spcecies/tissue axis
 
     let labelPos = 0
-    let prevPos
-    let speciesCount = 0
     const annotations = []
     for (const trace of data) {
         if (!trace.visible) {
@@ -921,40 +923,33 @@ const template = () => {
             yref: 'paper',
             text: celltype,
             showarrow: false,
+            captureevents: true,
         })
 
-        let currSpecies
-        let prevSpecies
-        for (const label of tisAxis) {
+
+        let speciesCount = 0
+        for (const [idx, label] of tisAxis.entries()) {
             const splitLabel = label.split("_")
             const speciesType = splitLabel[0]
             const tissueType = splitLabel[1]
-            if (!currSpecies) {
-                currSpecies = speciesType
-                prevSpecies = currSpecies
-            }
-            
-            console.log(speciesType)
+                
+            const nextId = idx+1
+            const nextEle = tisAxis[nextId]
 
-            // console.log(`\tspeciesType: ${speciesType}`)
-            // console.log(`\tcur: ${currSpecies}`)
-            // console.log(`\tprev: ${prevSpecies}`)
-
-            if (speciesType != currSpecies || !currSpecies) {
-                // console.log(`species count: ${speciesCount}`)
-
-                // annotations.push({
-                //     x: speciesPos,
-                //     y: -0.2,
-                //     yref: 'paper',
-                //     text: currSpecies,
-                //     showarrow: false,
-                //     textangle: '90'
-                // })
-                // prevPos = labelPos
-                // speciesCount = 0
-                prevSpecies = currSpecies
-                currSpecies = speciesType
+            if (nextEle == undefined || !nextEle.startsWith(speciesType)) {
+                const speciesPos = labelPos-(speciesCount/2)
+                // annotation for species axis
+                annotations.push({
+                    x: speciesPos,
+                    y: -0.2,
+                    yref: 'paper',
+                    text: speciesType,
+                    showarrow: false,
+                    // textangle: '45'
+                })
+                speciesCount = 0
+            } else {
+                speciesCount++;
             }
 
             // annotation for tissue axis
@@ -966,12 +961,11 @@ const template = () => {
                 showarrow: false,
             })
             labelPos++;
-            speciesCount++;
         }
     }
-    
+   
     var layout = {
-        height: 700,
+        height: 600,
         showlegend: false,
         autosize: true,
         automargin: true,
@@ -998,6 +992,17 @@ const template = () => {
     };
 
     Plotly.newPlot("plotDiv", data, layout)
+
+    const gd = document.getElementById('plotDiv')
+    gd.on('plotly_clickannotation', (annotation) => {
+        console.log('annotation clicked !!!');
+        const celltype = annotation.annotation.text
+        console.log(celltype);
+
+        // call hide trace function
+
+    })
+
 }
 
 // const template = () => {

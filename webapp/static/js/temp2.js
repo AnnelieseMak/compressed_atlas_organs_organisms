@@ -97,7 +97,7 @@ const generatePlot = async () => {
             tickfont: {
                 size: 10
             },
-            ticklabeloverflow: "hide past div",
+            // ticklabeloverflow: "hide past div",
         },
         yaxis: {
             autorange: "reversed",
