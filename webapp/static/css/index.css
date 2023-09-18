@@ -406,10 +406,10 @@ input[type=checkbox]:hover + .filterContent {
     font-size: 10px;
 }
 
-/* .xtick > text {
+.xtick > text {
     fill: none !important;
     font-size: 10px;
-} */
+}
 
 /**************** DROPDOWN TEMP1 *******************/
 .dropdown {

@@ -110,6 +110,7 @@ class MeasurementByCelltype(Resource):
                 )[new_species]
                 species = new_species
                 missing_genes = 'skip'
+                print(f'is here')
             else:
                 missing_genes = 'throw'
 

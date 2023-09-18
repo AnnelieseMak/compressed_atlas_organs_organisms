@@ -25,7 +25,8 @@ const generatePlot = async () => {
     // console.log(`data:\n${JSON.stringify(data)}`)
     // console.log(`data:\n${data}`)
 
-    const firstTissue = data[Object.keys(data)[0]]
+    const firstSpecies = data[Object.keys(data)[0]]
+    const firstTissue = firstSpecies[Object.keys(firstSpecies)[0]]
     const featNames = firstTissue.features[0]
 
     const allCellTypes = getAllCellTypes(data)
@@ -135,7 +136,7 @@ const getAnnotations = (traceData) => {
                 yref: 'paper',
                 text: xLabel,
                 showarrow: false,
-                textangle: '90',
+                textangle: '-90',
             })
 
             xCount += xColCount
@@ -437,7 +438,6 @@ const getData = async (tissues, speciesList, feature_names) => {
     if (speciesList.length == 0) {
         speciesList = ["mouse"]
     }
-    console.log(speciesList)
 
     if (tissues.length == 0) {
         tissues = ["Lung"]
@@ -446,7 +446,13 @@ const getData = async (tissues, speciesList, feature_names) => {
     if (!feature_names) {
         feature_names = "Actc1,Actn2,Myl2,Myh7,Col1a1,Col2a1,Pdgfrb,Pecam1,Gja5,Vwf,Ptprc,Ms4a1,Gzma,Cd3d,Cd68,Epcam"
     }
+
     let data = {}
+    for (const species of speciesList) {
+        data[species] = {}
+    }
+    
+    // const homolog = getTranslation()
 
     for (const species of speciesList) {
         for (const tissue of tissues) {
@@ -457,7 +463,7 @@ const getData = async (tissues, speciesList, feature_names) => {
             }
             // console.log(reqData)
             const retVal = await apiCall(reqData, '/data/by_celltype')
-            data[tissue] = retVal
+            data[species][tissue] = retVal
             // console.log(data)
         }
     }
@@ -493,6 +499,19 @@ const getHierarchyOrder = async (traces) => {
         hierYName.push(axisOrders.normal.y[value])
     }
     axisOrders.hierarchical.y = hierYName
+}
+
+const getTranslation = async (refSpecies, refFeat, translateTo) => {
+    const reqData = {
+        reference: {
+            species: refSpecies,
+            feature_names: refFeat,
+        },
+        translateTo
+    }
+
+    const ret = await apiCall(JSON.stringify(reqData), '/data/getHomolog')
+    console.log(ret)
 }
 
 /*****************************************************************************
@@ -554,4 +573,18 @@ const testFunc = async () => {
     console.log(ret)
 }
 
+const testFunc2 = () => {
+    console.log('test2')
+    const data = {}
+
+    const speciesList = ['mouse', 'human']
+
+    for (const species of speciesList) {
+        data[species] = {}
+    }
+
+    console.log(data)
+}
+
 $("#testBtn").click(testFunc)
+$("#testBtn2").click(testFunc2)

@@ -953,17 +953,18 @@ const template = () => {
                 speciesCount = 0
                 if (nextEle != undefined) {
                     const speciesLinePos = labelPos+0.5
+                    // species line division
                     shapes.push({
                         type: 'line',
                         yref: 'paper',
                         x0: speciesLinePos,
-                        y0: 0,
+                        y0: 1,
                         x1: speciesLinePos,
                         y1: -0.25,
+                        line: {
+                            dash: 'dot'
+                        }
                     })
-                }
-                else {
-                    
                 }
             } else {
                 speciesCount++;
@@ -983,6 +984,7 @@ const template = () => {
         const nextTrace = data[idxT+1]
         if (nextTrace) {
             const celltypeLinePos = labelPos-0.5
+            // celltype line division
             shapes.push({
                 type: 'line',
                 yref: 'paper',
