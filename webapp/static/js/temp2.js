@@ -4,6 +4,8 @@ let axisOrders = {
     hierarchical: {x: [], y: []}
 }
 
+let translations
+
 const generatePlot = async () => {
     // console.log('generate plot')
     removeClones('celltypeList2', 1)
@@ -11,7 +13,7 @@ const generatePlot = async () => {
     
     // const species = "mouse"
     const species = getCheckedboxNames('.specOpt:checked')
-    console.log(species)
+    // console.log(species)
     const tissues = getCheckedboxNames('.tisOpt:checked')
     console.log(`tissue: ${tissues}\nspecies: ${species}`)
 
@@ -19,32 +21,41 @@ const generatePlot = async () => {
     // const matchOpt = 2
 
     const searchInput = $("#searchInput").val()
-    console.log(`searchInput: ${searchInput}`)
+    // console.log(`searchInput: ${searchInput}`)
 
     const data = await getData(tissues, species, searchInput)
     // console.log(`data:\n${JSON.stringify(data)}`)
     // console.log(`data:\n${data}`)
-
+    
     const firstSpecies = data[Object.keys(data)[0]]
     const firstTissue = firstSpecies[Object.keys(firstSpecies)[0]]
     const featNames = firstTissue.features[0]
-
+    
     const allCellTypes = getAllCellTypes(data)
-    // console.log(allCellTypes)
+    console.log(allCellTypes)
     // const traceData = new Array(allCellTypes.length)
-
+    
     let traceData = []
     let maxVal = 0
     let traceOrder = []
 
+    // console.log(translations)
+    // console.log(featNames)
+    // const yLabel = 
+    // for (let i = 0; i < featNames.length; i++) {
+    //     for (const [keySpecies, valueSpecies] of Object.entries(translations)) {
+            
+    //     }
+    // }
+    
     for (const [idx, cellType] of allCellTypes.entries()) {
         const [CTvals, maxV, tissueList] = getCellType_Tissue(data, cellType, featNames.length)
         // console.log(maxV)
-
+        
         if (matchOpt > tissueList.length) {
             continue
         }
-
+        
         maxVal = Math.max(maxVal, maxV)
         const trace = {
             x: [
@@ -64,6 +75,7 @@ const generatePlot = async () => {
         
         traceData.push(trace)
         traceOrder.push(cellType)
+        // return
     }
 
     axisOrders.current.x = axisOrders.normal.x = traceOrder
@@ -94,7 +106,7 @@ const generatePlot = async () => {
             showdividers: true,
             dividercolor: 'grey',
             dividerwidth: 2,
-            tickangle: 90,
+            tickangle: -90,
             tickfont: {
                 size: 10
             },
@@ -150,46 +162,102 @@ const getAnnotations = (traceData) => {
 const getAllCellTypes = (data) => {
     let allCellTypes = []
 
-    for (const [key, value] of Object.entries(data)) {
-        allCellTypes.push(...value.celltypes)
+    for (const [keySpecies, valueSpecies] of Object.entries(data)) {
+        for (const [keyTissue, valueTissue] of Object.entries(valueSpecies)) {
+            console.log(keyTissue, valueTissue)
+            allCellTypes.push(...valueTissue.celltypes)
+        }
     }
+
+    // for (const [key, value] of Object.entries(data)) {
+    //     allCellTypes.push(...value.celltypes)
+    // }
 
     allCellTypes = [...new Set(allCellTypes)]
 
     return allCellTypes
 }
 
-// get celltype data of each tissue
 const getCellType_Tissue = (data, cellType, featuresCount) => {
     // console.log('\t\t\t\t\t\t\t\tFUNCTION: getCellType_Tissue')
-    // console.log(data)
+    console.log(data)
     const CTcols = [...Array(featuresCount)].map(e => Array(1));
     let tissueList = []
     let colNo = 0
-    
-    for (const [key, value] of Object.entries(data)) {
-        // console.log(colNo, key)
-        // console.log(key, value)
-        const tissueCT = value.celltypes
-        const CTidx = tissueCT.indexOf(cellType)
 
-        if (CTidx != -1) {
-            const tissueData = value.data[0]
-            // console.log(`tissueData: ${JSON.stringify(tissueData)}`)
-            // console.log(`${key} data at ${CTidx}: ${tissueData[0][CTidx]}`)
-            for (let i = 0; i < featuresCount; i++) {
-                // console.log(`[${i}][${CTidx}]: ${tissueData[i][CTidx]}`)
-                CTcols[i][colNo] = tissueData[i][CTidx]
+    for (const [keySpecies, valueSpecies] of Object.entries(data)) {
+        console.log(keySpecies)
+        for (const [keyTissue, valueTissue] of Object.entries(valueSpecies)) {
+            const tissueCT = valueTissue.celltypes
+            const CTidx = tissueCT.indexOf(cellType)
+
+            if (CTidx != -1) {
+                const tissueData = valueTissue.data[0]
+                for (let i = 0; i < featuresCount; i++) {
+                    CTcols[i][colNo] = tissueData[i][CTidx]
+                }
+                const label = `${keySpecies}_${keyTissue}`
+                tissueList.push(label)
+                colNo++
             }
-            tissueList.push(key)
-            colNo++
         }
     }
+    
+    // for (const [key, value] of Object.entries(data)) {
+    //     // console.log(colNo, key)
+    //     // console.log(key, value)
+    //     const tissueCT = value.celltypes
+    //     const CTidx = tissueCT.indexOf(cellType)
+
+    //     if (CTidx != -1) {
+    //         const tissueData = value.data[0]
+    //         // console.log(`tissueData: ${JSON.stringify(tissueData)}`)
+    //         // console.log(`${key} data at ${CTidx}: ${tissueData[0][CTidx]}`)
+    //         for (let i = 0; i < featuresCount; i++) {
+    //             // console.log(`[${i}][${CTidx}]: ${tissueData[i][CTidx]}`)
+    //             CTcols[i][colNo] = tissueData[i][CTidx]
+    //         }
+    //         tissueList.push(key)
+    //         colNo++
+    //     }
+    // }
 
     // console.log(CTcols.flat())
 
     return [CTcols, Math.max(...CTcols.flat()), tissueList]
 }
+
+// get celltype data of each tissue
+// const getCellType_Tissue = (data, cellType, featuresCount) => {
+//     // console.log('\t\t\t\t\t\t\t\tFUNCTION: getCellType_Tissue')
+//     // console.log(data)
+//     const CTcols = [...Array(featuresCount)].map(e => Array(1));
+//     let tissueList = []
+//     let colNo = 0
+    
+//     for (const [key, value] of Object.entries(data)) {
+//         // console.log(colNo, key)
+//         // console.log(key, value)
+//         const tissueCT = value.celltypes
+//         const CTidx = tissueCT.indexOf(cellType)
+
+//         if (CTidx != -1) {
+//             const tissueData = value.data[0]
+//             // console.log(`tissueData: ${JSON.stringify(tissueData)}`)
+//             // console.log(`${key} data at ${CTidx}: ${tissueData[0][CTidx]}`)
+//             for (let i = 0; i < featuresCount; i++) {
+//                 // console.log(`[${i}][${CTidx}]: ${tissueData[i][CTidx]}`)
+//                 CTcols[i][colNo] = tissueData[i][CTidx]
+//             }
+//             tissueList.push(key)
+//             colNo++
+//         }
+//     }
+
+//     // console.log(CTcols.flat())
+
+//     return [CTcols, Math.max(...CTcols.flat()), tissueList]
+// }
 
 /***************************************************
  *                  COLLAPSIBLE
@@ -434,28 +502,35 @@ const apiCall = (requestData, path) => {
     })
 }
 
-const getData = async (tissues, speciesList, feature_names) => {
-    if (speciesList.length == 0) {
-        speciesList = ["mouse"]
+const getData = async (tissues, speciesList, feats) => {    
+    if (!speciesList.length) {
+        speciesList = ["mouse","human"]
+        // speciesList = ["mouse"]
     }
 
-    if (tissues.length == 0) {
-        tissues = ["Lung"]
+    if (!tissues.length) {
+        tissues = ["Lung","Heart"]
     }
 
-    if (!feature_names) {
-        feature_names = "Actc1,Actn2,Myl2,Myh7,Col1a1,Col2a1,Pdgfrb,Pecam1,Gja5,Vwf,Ptprc,Ms4a1,Gzma,Cd3d,Cd68,Epcam"
+    if (!feats) {
+        feats = "Actc1,Actn2,Myl2,Myh7,Col1a1,Col2a1,Pdgfrb,Pecam1,Gja5,Vwf,Ptprc,Ms4a1,Gzma,Cd3d,Cd68,Epcam"
     }
 
     let data = {}
     for (const species of speciesList) {
         data[species] = {}
     }
-    
-    // const homolog = getTranslation()
+
+    const featList = feats.split(",")
+    const translateTo = speciesList.slice(1)
+    const refSpecies = speciesList[0]
+    translations = await getTranslation(refSpecies, featList, translateTo)
+    console.log(translations)
 
     for (const species of speciesList) {
         for (const tissue of tissues) {
+            let feature_names = translations[species].toString()
+            console.log(feature_names)
             const reqData = {
                 feature_names,
                 species,
@@ -502,6 +577,10 @@ const getHierarchyOrder = async (traces) => {
 }
 
 const getTranslation = async (refSpecies, refFeat, translateTo) => {
+    if (!translateTo.length) {
+        return {[refSpecies]: refFeat}
+    }
+    
     const reqData = {
         reference: {
             species: refSpecies,
@@ -511,7 +590,7 @@ const getTranslation = async (refSpecies, refFeat, translateTo) => {
     }
 
     const ret = await apiCall(JSON.stringify(reqData), '/data/getHomolog')
-    console.log(ret)
+    return ret
 }
 
 /*****************************************************************************

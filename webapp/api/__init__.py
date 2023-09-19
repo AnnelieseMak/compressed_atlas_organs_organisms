@@ -67,7 +67,6 @@ class MeasurementByCelltype(Resource):
         new_species = args.get("newSpecies")
         tissue = args.get("tissue")
         featurestring = args.get("feature_names")
-        print(featurestring)
 
         # A cap on gene names to avoid overload is reasonable
         featurestring = ','.join(featurestring.replace(' ', '').split(',')[:500])
@@ -77,8 +76,8 @@ class MeasurementByCelltype(Resource):
         feature_stringd = validate_correct_feature_mix(
             featurestring, species=species,
         )
-        print(f'feature_stringd: {feature_stringd}')
-        print(f'feature_stringd length: {len(feature_stringd)}')
+        # print(f'feature_stringd: {feature_stringd}')
+        # print(f'feature_stringd length: {len(feature_stringd)}')
         if len(feature_stringd) == 0:
             return None
 
@@ -99,9 +98,9 @@ class MeasurementByCelltype(Resource):
         # print(f'feature_stringd.items(): {feature_stringd.items()}')
         for feature_type, featurestring in feature_stringd.items():
             # NOTE: this is where it gets tricky with canonical intervals
-            print(f'feature_type: {feature_type}\t featurestring: {featurestring}')
+            # print(f'feature_type: {feature_type}\t featurestring: {featurestring}')
             feature_names = featurestring.split(',')
-            print(f'feature_names: {feature_names}')
+            # print(f'feature_names: {feature_names}')
 
             # If we are switching species, get orthologs
             if new_species is not None:
@@ -110,12 +109,11 @@ class MeasurementByCelltype(Resource):
                 )[new_species]
                 species = new_species
                 missing_genes = 'skip'
-                print(f'is here')
+                # print(f'is here')
             else:
                 missing_genes = 'throw'
 
             # getMeasurementByCellType(feature_type, feature_names, species, tissue, missing_genes)
-
             try:
                 df = get_counts(
                         "celltype",
@@ -169,8 +167,8 @@ class MeasurementByCelltype(Resource):
             else:
                 pseudocount = 0.01
             dfl = np.log10(df + pseudocount)
-            print(f'df1: \n {dfl}')
-            print(f'df: \n{df}')
+            # print(f'df1: \n {dfl}')
+            # print(f'df: \n{df}')
             # print(f'df.values: \n{df.values}')
 
             if len(feature_names) <= 2:
@@ -182,7 +180,7 @@ class MeasurementByCelltype(Resource):
                     pplist,
                     optimal_ordering=True)
                 idLeavesList = leaves_list(linkVal)
-                print(f'dfl.values: \n {dfl.values}')
+                # print(f'dfl.values: \n {dfl.values}')
                 # print(f'length dfl.values: \n {len(dfl.values)}')
                 # print(f'pplist: \n {pplist}\n')
                 # print(f'linkVal:\n {linkVal}\n')
