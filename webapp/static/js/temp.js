@@ -879,28 +879,72 @@ $("#testBtn").click(plotData)
 $("#testBtn2").click(printData)
 
 const template = () => {
-    var data = [{
-        x: [['celltype1','celltype1','celltype1','celltype1','celltype1'],['mouse_lung','mouse_heart','human_lung','human_heart','human_colon']],
-        y: ['g1', 'g2', 'g3'],
-        z: [[1,2,3,4,6],[5,6,7,8,6],[9,5,3,1,6]],
+    var data = [
+    {
+        x: [['celltype0','celltype0','celltype0','celltype0'],['mouse_lung', 'human_lung']],
+        // y: ['g1', 'g2', 'g3'],
+        y: ['g1, g11', 'g2, g22', 'g3, g33', 'g4, g44', 'g5, g55', 'g6, g66'],
+        z: [[5,6],[9,5],[1,2],[3,2],[5,2],[1,9]],
         visible: true,
         type: 'heatmap',
     },
+    // {
+    //     x: [['celltype1','celltype1','celltype1','celltype1','celltype1'],['mouse_lung','mouse_heart','human_lung','human_heart','human_colon']],
+    //     // y: ['g1', 'g2', 'g3'],
+    //     y: ['g1, g11', 'g2, g22', 'g3, g33', 'g4, g44', 'g5, g55', 'g6, g66'],
+    //     z: [[1,2,3,4,6],[5,6,7,8,6],[9,5,3,1,6],[9,5,3,1,6],[9,5,3,1,6],[9,5,3,1,6]],
+    //     visible: true,
+    //     type: 'heatmap',
+    // },
     {
         // x: [['celltype2','celltype2','celltype2'],['mouse_lung','mouse_heart','human_lung']],
         x: [['celltype2','celltype2','celltype2'],['mouse_lung','mouse_heart','human_lung']],
-        y: ['g1', 'g2', 'g3'],
-        z: [[5,6,7],[9,5,3],[1,2,7]],
+        // y: ['g1', 'g2', 'g3'],
+        y: ['g1, g11', 'g2, g22', 'g3, g33', 'g4, g44', 'g5, g55', 'g6, g66'],
+        z: [[5,6,7],[9,5,3],[1,2,7],[5,6,7],[9,5,3],[1,2,7]],
         visible: true,
         type: 'heatmap',
     },
     {
         x: [['celltype3','celltype3','celltype3','celltype3'],['mouse_lung','mouse_heart','human_lung','human_heart']],
-        y: ['g1', 'g2', 'g3'],
-        z: [[5,6,7,8],[9,5,3,1],[1,2,6,4]],
+        // y: ['g1', 'g2', 'g3'],
+        y: ['g1, g11', 'g2, g22', 'g3, g33', 'g4, g44', 'g5, g55', 'g6, g66'],
+        z: [[5,6,7,8],[9,5,3,1],[1,2,6,4],[1,2,6,4],[1,2,6,4],[1,2,6,4]],
         visible: true,
         type: 'heatmap',
     },
+    {
+        x: [['celltype4','celltype4','celltype4','celltype4'],['mouse_lung','mouse_heart','human_lung','human_heart']],
+        // y: ['g1', 'g2', 'g3'],
+        y: ['g1, g11', 'g2, g22', 'g3, g33', 'g4, g44', 'g5, g55', 'g6, g66'],
+        z: [[5,6,7,8],[9,5,3,1],[1,2,6,4],[1,2,6,4], [1,2,6,4], [1,2,6,4]],
+        visible: true,
+        type: 'heatmap',
+    },
+    // {
+    //     x: [['celltype5','celltype5','celltype5','celltype5'],['mouse_lung','mouse_heart','human_lung','human_heart']],
+    //     // y: ['g1', 'g2', 'g3'],
+    //     y: ['g1, g11', 'g2, g22', 'g3, g33'],
+    //     z: [[5,6,7,8],[9,5,3,1],[1,2,6,4]],
+    //     visible: true,
+    //     type: 'heatmap',
+    // },
+    // {
+    //     x: [['celltype6','celltype6','celltype6','celltype6'],['mouse_lung','mouse_heart','human_lung','human_heart']],
+    //     // y: ['g1', 'g2', 'g3'],
+    //     y: ['g1, g11', 'g2, g22', 'g3, g33'],
+    //     z: [[5,6,7,8],[9,5,3,1],[1,2,6,4]],
+    //     visible: true,
+    //     type: 'heatmap',
+    // },
+    // {
+    //     x: [['celltype7','celltype7','celltype7','celltype7'],['mouse_lung','mouse_heart','human_lung','human_heart']],
+    //     // y: ['g1', 'g2', 'g3'],
+    //     y: ['g1, g11', 'g2, g22', 'g3, g33'],
+    //     z: [[5,6,7,8],[9,5,3,1],[1,2,6,4]],
+    //     visible: true,
+    //     type: 'heatmap',
+    // },
     ]
 
     // annotations: tissue axis, species axis, celltypes axis

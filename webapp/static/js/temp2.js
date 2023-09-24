@@ -39,14 +39,16 @@ const generatePlot = async () => {
     let maxVal = 0
     let traceOrder = []
 
-    // console.log(translations)
-    // console.log(featNames)
-    // const yLabel = 
-    // for (let i = 0; i < featNames.length; i++) {
-    //     for (const [keySpecies, valueSpecies] of Object.entries(translations)) {
-            
-    //     }
-    // }
+    console.log(translations)
+    console.log(featNames)
+    const yLabel = []
+    for (let i = 0; i < featNames.length; i++) {
+        let label = ""
+        for (const [keySpecies, valueSpecies] of Object.entries(translations)) {
+            label = label.concat(valueSpecies[i], ', ')
+        }
+        yLabel.push(label)
+    }
     
     for (const [idx, cellType] of allCellTypes.entries()) {
         const [CTvals, maxV, tissueList] = getCellType_Tissue(data, cellType, featNames.length)
@@ -62,14 +64,15 @@ const generatePlot = async () => {
                 Array(tissueList.length).fill(cellType),
                 tissueList
             ],
-            y: featNames,
+            // y: featNames,
+            y: yLabel,
             z: CTvals,
             zmin: 0,
             colorscale: 'Reds',
             type: 'heatmap',
             name: '',
-            xgap: 3,
-            ygap: 3,
+            // xgap: 3,
+            // ygap: 3,
             visible: true
         }
         
@@ -114,6 +117,7 @@ const generatePlot = async () => {
         },
         yaxis: {
             autorange: "reversed",
+            automargin: true,
         },
         annotations: getAnnotations(traceData)
     };
@@ -530,7 +534,6 @@ const getData = async (tissues, speciesList, feats) => {
     for (const species of speciesList) {
         for (const tissue of tissues) {
             let feature_names = translations[species].toString()
-            console.log(feature_names)
             const reqData = {
                 feature_names,
                 species,
@@ -653,16 +656,19 @@ const testFunc = async () => {
 }
 
 const testFunc2 = () => {
-    console.log('test2')
-    const data = {}
+    const p = document.getElementById('plotDiv2')
+    console.log(p.data)
+    console.log(p.layout)
+    // console.log('test2')
+    // const data = {}
 
-    const speciesList = ['mouse', 'human']
+    // const speciesList = ['mouse', 'human']
 
-    for (const species of speciesList) {
-        data[species] = {}
-    }
+    // for (const species of speciesList) {
+    //     data[species] = {}
+    // }
 
-    console.log(data)
+    // console.log(data)
 }
 
 $("#testBtn").click(testFunc)
