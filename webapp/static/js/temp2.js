@@ -7,7 +7,6 @@ let axisOrders = {
 let translations
 
 const generatePlot = async () => {
-    // console.log('generate plot')
     removeClones('celltypeList2', 1)
     toggleCTList('close')
     
@@ -22,6 +21,18 @@ const generatePlot = async () => {
 
     const searchInput = $("#searchInput").val()
     // console.log(`searchInput: ${searchInput}`)
+
+    const celltypeOptId = $(".celltypeSwitch.active").attr('id')
+    let celltypeMatch
+    if (celltypeOptId != "celltypeSwitchAll") {
+        const inputVal = $("#celltypeSwitchInput").val()
+        // TO DO: VALID CELLTYPE
+        if (inputVal) {
+            celltypeMatch = inputVal
+        } else {
+            $("#celltypeSwitchAll").trigger('click')
+        }
+    }
 
     const data = await getData(tissues, species, searchInput)
     // console.log(`data:\n${JSON.stringify(data)}`)
@@ -53,12 +64,17 @@ const generatePlot = async () => {
     for (const [idx, cellType] of allCellTypes.entries()) {
         const [CTvals, maxV, tissueList] = getCellType_Tissue(data, cellType, featNames.length)
         // console.log(maxV)
+
         
         if (matchOpt > tissueList.length) {
             continue
         }
         
-        maxVal = Math.max(maxVal, maxV)
+        let traceVis = true
+        if (celltypeMatch && cellType != celltypeMatch) {
+            traceVis = false
+        }
+        
         const trace = {
             x: [
                 Array(tissueList.length).fill(cellType),
@@ -68,13 +84,19 @@ const generatePlot = async () => {
             y: yLabel,
             z: CTvals,
             zmin: 0,
-            colorscale: 'Reds',
+            // colorscale: 'Reds',
+            colorscale: [
+                ['0.0', 'rgb(230, 231, 232)'],
+                ['1.0', 'rgb(53, 76, 115)']
+            ],
             type: 'heatmap',
             name: '',
-            // xgap: 3,
-            // ygap: 3,
-            visible: true
+            xgap: 0.5,
+            ygap: 0.5,
+            visible: traceVis
         }
+
+        maxVal = Math.max(maxVal, maxV)
         
         traceData.push(trace)
         traceOrder.push(cellType)
@@ -93,14 +115,17 @@ const generatePlot = async () => {
         await getHierarchyOrder(traceData)
     }
 
+    const [annotation, shape] = getAnnotationShapes(traceData)
+
     var layout = {
-        height: 700,
+        height: 800,
         showlegend: false,
         autosize: true,
         automargin: true,
         margin: {
             autoexpand: true,
-            b: 200
+            b: 200,
+            t: 200
         },
         xaxis: {
             automargin: true,
@@ -119,7 +144,9 @@ const generatePlot = async () => {
             autorange: "reversed",
             automargin: true,
         },
-        annotations: getAnnotations(traceData)
+        // annotations: getAnnotations(traceData)
+        annotations: annotation,
+        shapes: shape,
     };
 
     $('#plotDiv2').empty()
@@ -135,32 +162,151 @@ const generatePlot = async () => {
     updateFilters(featNames, matchOpt)
 }
 
-// annotation labels
-const getAnnotations = (traceData) => {
+// layout annotations and shapes
+const getAnnotationShapes = (traceData) => {
     traceData = traceData || $("#plotDiv2")[0].data
+    let annotations = []
+    let shapes = []
+    let labelPos = 0
 
-    const annotation = []
-    let xCount = 0;
-    for (const trace of traceData) {
-        if (trace.visible) {
-            const xLabel = trace.x[0][0]
-            const xColCount = trace.x[1].length
-            const labelPos = xCount + (xColCount - 1)/2
-            annotation.push({
-                x: labelPos,
-                y: -0.50,
+    for (const [idxTrace, trace] of traceData.entries()) {
+        if (!trace.visible) {
+            continue
+        }
+
+        annotations.push(getCelltypeAnnotation(labelPos, trace))
+
+        const [retPos, retAnn, retShapes] = getSpecTisAnnotation(labelPos, trace)
+        labelPos = retPos
+        annotations = annotations.concat(retAnn)
+        shapes = shapes.concat(retShapes)
+        
+        const nextTrace = traceData[idxTrace+1]
+        if (nextTrace) {
+            const celltypeLinePos = labelPos-0.5
+            // celltype line division
+            shapes.push({
+                type: 'line',
                 yref: 'paper',
-                text: xLabel,
-                showarrow: false,
-                textangle: '-90',
+                x0: celltypeLinePos,
+                y0: 1.1,
+                x1: celltypeLinePos,
+                y1: 0,
+                line: {
+                    width: 1,
+                }
             })
-
-            xCount += xColCount
         }
     }
-
-    return annotation
+    
+    return [annotations, shapes]
 }
+
+const getCelltypeAnnotation = (labelPos, trace) => {
+    const celltype = trace.x[0][0]
+    const tisAxis = trace.x[1]
+    const celltypePos = labelPos+(tisAxis.length-1)/2
+    return {
+        x: celltypePos,
+        y: 1.03,
+        yref: 'paper',
+        text: celltype,
+        textangle: '-90',
+        yanchor: 'bottom',
+        showarrow: false,
+        captureevents: true,
+    }
+}
+
+const getSpecTisAnnotation = (labelPos, trace) => {
+    const annotations = []
+    const shapes = []
+    const tisAxis = trace.x[1]
+    let speciesCount = 0
+
+    for (const [idxL, label] of tisAxis.entries()) {
+        const splitLabel = label.split("_")
+        const speciesType = splitLabel[0]
+        const tissueType = splitLabel[1]
+
+        const nextId = idxL+1
+        const nextEle = tisAxis[nextId]
+
+        if (nextEle == undefined || !nextEle.startsWith(speciesType)) {
+            const speciesPos = labelPos-(speciesCount/2)
+            // annotation for species axis
+            annotations.push({
+                x: speciesPos,
+                y: -0.1,
+                yref: 'paper',
+                text: speciesType,
+                showarrow: false,
+                textangle: '-90',
+                yanchor: 'top',
+            })
+            speciesCount = 0
+            if (nextEle != undefined) {
+                const speciesLinePos = labelPos+0.5
+                // species line division
+                shapes.push({
+                    type: 'line',
+                    yref: 'paper',
+                    x0: speciesLinePos,
+                    y0: 1,
+                    x1: speciesLinePos,
+                    y1: 0,
+                    line: {
+                        width: 0.5,
+                        dash: 'dot'
+                    }
+                })
+            }
+        } else {
+            speciesCount++;
+        }
+
+        // annotation for tissue axis
+        annotations.push({
+            x: labelPos,
+            y: -0.0,
+            yref: 'paper',
+            text: tissueType,
+            showarrow: false,
+            textangle: '-90',
+            yanchor: 'top',
+        })
+        labelPos++;
+    }
+
+    return [labelPos, annotations, shapes]
+}
+
+// annotation labels
+// const getAnnotations = (traceData) => {
+//     traceData = traceData || $("#plotDiv2")[0].data
+
+//     const annotation = []
+//     let xCount = 0;
+//     for (const trace of traceData) {
+//         if (trace.visible) {
+//             const xLabel = trace.x[0][0]
+//             const xColCount = trace.x[1].length
+//             const labelPos = xCount + (xColCount - 1)/2
+//             annotation.push({
+//                 x: labelPos,
+//                 y: -0.50,
+//                 yref: 'paper',
+//                 text: xLabel,
+//                 showarrow: false,
+//                 textangle: '-90',
+//             })
+
+//             xCount += xColCount
+//         }
+//     }
+
+//     return annotation
+// }
 
 // return list of unique celltype names
 const getAllCellTypes = (data) => {
@@ -184,13 +330,13 @@ const getAllCellTypes = (data) => {
 
 const getCellType_Tissue = (data, cellType, featuresCount) => {
     // console.log('\t\t\t\t\t\t\t\tFUNCTION: getCellType_Tissue')
-    console.log(data)
+    // console.log(data)
     const CTcols = [...Array(featuresCount)].map(e => Array(1));
     let tissueList = []
     let colNo = 0
 
     for (const [keySpecies, valueSpecies] of Object.entries(data)) {
-        console.log(keySpecies)
+        // console.log(keySpecies)
         for (const [keyTissue, valueTissue] of Object.entries(valueSpecies)) {
             const tissueCT = valueTissue.celltypes
             const CTidx = tissueCT.indexOf(cellType)
@@ -206,62 +352,9 @@ const getCellType_Tissue = (data, cellType, featuresCount) => {
             }
         }
     }
-    
-    // for (const [key, value] of Object.entries(data)) {
-    //     // console.log(colNo, key)
-    //     // console.log(key, value)
-    //     const tissueCT = value.celltypes
-    //     const CTidx = tissueCT.indexOf(cellType)
-
-    //     if (CTidx != -1) {
-    //         const tissueData = value.data[0]
-    //         // console.log(`tissueData: ${JSON.stringify(tissueData)}`)
-    //         // console.log(`${key} data at ${CTidx}: ${tissueData[0][CTidx]}`)
-    //         for (let i = 0; i < featuresCount; i++) {
-    //             // console.log(`[${i}][${CTidx}]: ${tissueData[i][CTidx]}`)
-    //             CTcols[i][colNo] = tissueData[i][CTidx]
-    //         }
-    //         tissueList.push(key)
-    //         colNo++
-    //     }
-    // }
-
-    // console.log(CTcols.flat())
 
     return [CTcols, Math.max(...CTcols.flat()), tissueList]
 }
-
-// get celltype data of each tissue
-// const getCellType_Tissue = (data, cellType, featuresCount) => {
-//     // console.log('\t\t\t\t\t\t\t\tFUNCTION: getCellType_Tissue')
-//     // console.log(data)
-//     const CTcols = [...Array(featuresCount)].map(e => Array(1));
-//     let tissueList = []
-//     let colNo = 0
-    
-//     for (const [key, value] of Object.entries(data)) {
-//         // console.log(colNo, key)
-//         // console.log(key, value)
-//         const tissueCT = value.celltypes
-//         const CTidx = tissueCT.indexOf(cellType)
-
-//         if (CTidx != -1) {
-//             const tissueData = value.data[0]
-//             // console.log(`tissueData: ${JSON.stringify(tissueData)}`)
-//             // console.log(`${key} data at ${CTidx}: ${tissueData[0][CTidx]}`)
-//             for (let i = 0; i < featuresCount; i++) {
-//                 // console.log(`[${i}][${CTidx}]: ${tissueData[i][CTidx]}`)
-//                 CTcols[i][colNo] = tissueData[i][CTidx]
-//             }
-//             tissueList.push(key)
-//             colNo++
-//         }
-//     }
-
-//     // console.log(CTcols.flat())
-
-//     return [CTcols, Math.max(...CTcols.flat()), tissueList]
-// }
 
 /***************************************************
  *                  COLLAPSIBLE
@@ -300,8 +393,8 @@ const hideTrace = (annotationLabel) => {
 
     Plotly.restyle('plotDiv2', {visible: false}, tracePos)
 
-    const annotation = getAnnotations()
-    Plotly.relayout('plotDiv2', {annotations: annotation})
+    const [annotation, shape] = getAnnotationShapes()
+    Plotly.relayout('plotDiv2', {annotations: annotation, shapes: shape})
     makeClickable()
 }
 
@@ -311,8 +404,8 @@ const showTrace = (ele, annotationLabel) => {
     const tracePos = axisOrders.current.x.indexOf(annotationLabel)
     Plotly.restyle('plotDiv2', {visible: true}, tracePos)
 
-    const annotation = getAnnotations()
-    Plotly.relayout('plotDiv2', {annotations: annotation})
+    const [annotation, shape] = getAnnotationShapes()
+    Plotly.relayout('plotDiv2', {annotations: annotation, shapes: shape})
     makeClickable()
 }
 
@@ -335,8 +428,8 @@ const changePlotView = (view) => {
         Plotly.moveTraces('plotDiv2', xAxis)
     }
     
-    const annotation = getAnnotations()
-    Plotly.relayout('plotDiv2', {annotations: annotation})
+    const [annotation, shape] = getAnnotationShapes()
+    Plotly.relayout('plotDiv2', {annotations: annotation, shapes: shape})
     makeClickable()
 }
 
@@ -508,12 +601,13 @@ const apiCall = (requestData, path) => {
 
 const getData = async (tissues, speciesList, feats) => {    
     if (!speciesList.length) {
-        speciesList = ["mouse","human"]
-        // speciesList = ["mouse"]
+        speciesList = ["mouse"]
+        // speciesList = ["mouse","human"]
     }
 
     if (!tissues.length) {
-        tissues = ["Lung","Heart"]
+        tissues = ["Lung"]
+        // tissues = ["Lung","Heart"]        
     }
 
     if (!feats) {
@@ -605,6 +699,16 @@ $(".pBtn").click(generatePlot)
 // update number matched dropdown options
 $(".tisOpt").click(function() {updateNumMatchedOptions(this)})
 
+// all or one celltype
+$("#celltypeSwitchAll").click(function() {
+    $("#celltypeSwitchAll").addClass('active')
+    $("#celltypeSwitchOne").removeClass('active')
+})
+$("#celltypeSwitchOne").click(function() {
+    $("#celltypeSwitchOne").addClass('active')
+    $("#celltypeSwitchAll").removeClass('active')
+})
+
 // toggle dropdown menu
 $(".dropdown2").click(function () {toggleNumMatchedDrop(this)})
 
@@ -655,21 +759,14 @@ const testFunc = async () => {
     console.log(ret)
 }
 
-const testFunc2 = () => {
-    const p = document.getElementById('plotDiv2')
-    console.log(p.data)
-    console.log(p.layout)
-    // console.log('test2')
-    // const data = {}
-
-    // const speciesList = ['mouse', 'human']
-
-    // for (const species of speciesList) {
-    //     data[species] = {}
-    // }
-
-    // console.log(data)
+const testFunc2 = async () => {
+    console.log('here')
+    const tissue = ['Bone marrow']
+    const species = ['human']
+    const features = null
+    const data = await getData(tissue, species, features)
+    console.log(data)
 }
 
-$("#testBtn").click(testFunc)
+// $("#testBtn").click(testFunc)
 $("#testBtn2").click(testFunc2)

@@ -5,25 +5,45 @@
     <button id="testBtn">TRANSLATION</button>
     <button id="testBtn2">TEST</button>
     <div id="filterContainer">
+      <!-- TOP FILTER -->
       <div id="filterMenuContainer">
         <button id="filterMenuBtn"><i class="fa fa-filter fa-2xl"></i> Filter</button>
         <div id="filterBtnOther">
-          <div class="dropdown2">
-            <div id="dropSelect">
-              <p id="dropBtnText">Matches</p>
-              <i class="fa-solid fa-chevron-down"></i>
-            </div>
-            <div id="dropContent">
-              <div id="dropOp-template" class="dropOp"></div>
+          <!-- ALL OR SPECIFIC CELLTYPE -->
+          <div id="filterCelltypeSwitch">
+            <div id="celltypeSwitchLabel" class="topFilterLabel">Celltype</div>
+            <div id="celltypeSwitchBtns">
+              <button id="celltypeSwitchAll" class="celltypeSwitch active">All</button>
+              <button id="celltypeSwitchOne" class="celltypeSwitch">
+                <input id="celltypeSwitchInput" type="input" placeholder="e.g. neutrophil">
+              </button>
             </div>
           </div>
+          <!-- NUMBER OF MATCHES -->
+          <div>
+            <div class="topFilterLabel">Matched Columns</div>
+            <div class="dropdown2">
+              <div id="dropSelect">
+                <p id="dropBtnText">Matches</p>
+                <i class="fa-solid fa-chevron-down"></i>
+              </div>
+              <div id="dropContent">
+                <div id="dropOp-template" class="dropOp"></div>
+              </div>
+            </div>
+          </div>
+          <!-- CURATED / HIEARCHICAL -->
           <div id="filterViewSwitch">
-            <button id="viewNorm" class="viewSwitch active">Curated</button>
-            <button id="viewHier" class="viewSwitch">Hierarchical</button>
+            <div class="topFilterLabel">View</div>
+            <div id="filterViewSwitchBtns">
+              <button id="viewNorm" class="viewSwitch active">Curated</button>
+              <button id="viewHier" class="viewSwitch">Hierarchical</button>
+            </div>
           </div>
           <button class="pBtn">PLOT</button>
         </div>
       </div>
+      <!-- BOTTOM FILTER -->
       <div id="filterTabContent">
         <!-- SEARCH BAR -->
         <div id="filterSearch" class="filterSection">

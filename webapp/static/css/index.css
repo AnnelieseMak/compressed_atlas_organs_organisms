@@ -213,11 +213,15 @@ hr {
 #filterBtnOther {
     display: flex;
     flex-direction: row;
-    width: 35%;
+    /* width: 35%; */
     overflow-y: visible;
     justify-content: flex-end;
     align-items: center;
     gap: 10px;
+}
+
+.topFilterLabel {
+    font-size: 12px;
 }
 
 .pBtn {
@@ -241,7 +245,7 @@ hr {
     color: #fff;
 }
 
-/**************** FILTERS TAB CONTENT *****************/
+/**************** BOTTOM FILTERS TAB CONTENT *****************/
 
 #filterTabContent {
     display: none;
@@ -396,39 +400,63 @@ input[type=checkbox]:hover + .filterContent {
     pointer-events: all; */
 }
 
-.annotation {
+/* .annotation {
     cursor: pointer;
     pointer-events: all;
-}
+} */
 
 .xtick2 > text {
     fill: none !important;
     font-size: 10px;
 }
 
-/* .xtick > text {
+.xtick > text {
     fill: none !important;
     font-size: 10px;
-} */
+}
 
-/**************** DROPDOWN TEMP1 *******************/
-.dropdown {
+/**************** CELL TYPE SWITCH *******************/
+#filterCelltypeSwitch {
     display: flex;
     flex-direction: column;
+    width: 200px;
 }
 
-.dropdown #drop-options {
-    display: none
+#celltypeSwitchBtns {
+    display: flex;
+    flex-direction: row;
+    border-radius: 8px;
+    border: 0 solid #cfd4db;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
 
-.dropdown.active #drop-options {
-    display: block
+.celltypeSwitch {
+    border-style: none;
+    background-color: white;
+    padding: 7px 10px;
+    width: 100%;
+    font-size: 16px;
+    cursor: pointer;
 }
 
-/**************** DROPDOWN TEMP2 *******************/
+#celltypeSwitchAll {
+    width: 100px;
+}
+
+#celltypeSwitchOne > input {
+    border-style: none;
+    width: 100%;
+    font-size: 14px;
+}
+
+#celltypeSwitchOne > input:focus {
+    outline: none;
+}
+
+/**************** MATCHED COLUMNS DROPDOWN *******************/
 .dropdown2 {
     position: relative;
-    width: 50%;
+    /* width: 50%; */
     text-align: center;
 }
 
@@ -488,8 +516,8 @@ input[type=checkbox]:hover + .filterContent {
     background-color: #F2F2F2;
 }
 
-/************** VIEW SWITCHING (TEMP 2) *****************/
-#filterViewSwitch {
+/************** VIEW SWITCHING *****************/
+#filterViewSwitchBtns {
     display: flex;
     flex-direction: row;
 
@@ -499,43 +527,38 @@ input[type=checkbox]:hover + .filterContent {
     background-color: white;
 }
 
-#viewNorm, #viewHier {
+.viewSwitch {
     border-style: none;
     background-color: white;
     padding: 7px 10px;
     width: 100%;
     font-size: 16px;
+    cursor: pointer;
 }
 
-#viewHier {
+#viewHier, #celltypeSwitchOne {
     border-radius: 0 5px 5px 0;
 }
 
-#viewNorm {
+#viewNorm, #celltypeSwitchAll {
     border-radius: 5px 0 0 5px;
 }
 
-#viewNorm:hover, #viewHier:hover {
+.viewSwitch:hover, .celltypeSwitch:hover, .celltypeSwitch:hover > input {
     background-color: #717d91;
     color: white;
 }
 
-#viewNorm.active, #viewHier.active {
+.celltypeSwitch:hover > input::placeholder, .celltypeSwitch.active > input::placeholder {
+    color: rgb(190, 190, 190);
+}
+
+.viewSwitch.active, .celltypeSwitch.active, .celltypeSwitch.active > input {
     background-color: #1e293b;
     color: white;
 }
 
 /**************** CELL TYPE LIST *******************/
-
-#celltypeList {
-    display: none
-}
-
-#celltypeList.active {
-    display: block;
-}
-
-/**************** CELL TYPE LIST 2 *******************/
 
 #celltypeListContainer {
     display: flex;
