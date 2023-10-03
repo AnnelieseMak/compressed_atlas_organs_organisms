@@ -71,9 +71,13 @@ const generatePlot = async () => {
         }
         
         let traceVis = true
-        // TO DO: SUBSTRING MATCHING
-        if (celltypeMatch && cellType != celltypeMatch) {
-            traceVis = false
+        if (celltypeMatch) {
+            const lowerCelltype = cellType.toLowerCase()
+            const lowerMatch = celltypeMatch.toLowerCase()
+            if (!lowerCelltype.includes(lowerMatch)) {
+                traceVis = false
+                addToCelltypeList(cellType)
+            }
         }
 
         console.log(tissueList)
@@ -100,8 +104,11 @@ const generatePlot = async () => {
             name: '',
             xgap: 0.5,
             ygap: 0.5,
-            customdata: [['c1','c1.1'],['c2']],
-            hovertemplate: '<b>Celltype:</b> %{x[0]}<br><b>Species:</b> %{customdata}',
+            // customdata: [['c1','c1.1'],['c2']],
+            // hovertemplate: '<b>Celltype:</b> %{x[0]}<br><b>Species:</b> %{customdata}',
+            // customdata: [[{'species': 'c1', 'other': '2'},{'species': 'c1.1', 'other': '1'}],[{'species': 'c2', 'other': '3'}]],
+            // hovertemplate: '<b>Celltype:</b> %{x[0]}<br><b>Species:</b> %{customdata.species}<br><b>Gene:</b> %{customdata.other}',
+            // hovertemplate: '<b>Celltype:</b> %{x[0]}<br><b>Species:</b> %{x[1]}<br><b>Gene:</b> %{y}<br><b>Expression:</b> %{z}',
             visible: traceVis
         }
 
@@ -381,16 +388,33 @@ const makeClickable = () => {
 }
 
 const hideTrace = (annotationLabel) => {
-    const plotAnnotations = $("#plotDiv2")[0].layout.annotations
-    if (plotAnnotations.length == 1) {
+    const pData = $("#plotDiv2")[0].data
+
+    let traceCount = 0
+    for (const trace of pData) {
+        if (trace.visible) {
+            traceCount++
+        }
+    }
+
+    if (traceCount == 1) {
         return
     }
 
     const axisOrder = axisOrders.current.x
     const tracePos = axisOrder.indexOf(annotationLabel)
 
-    toggleCTList('open')
+    addToCelltypeList(annotationLabel)
 
+    Plotly.restyle('plotDiv2', {visible: false}, tracePos)
+
+    const [annotation, shape] = getAnnotationShapes()
+    Plotly.relayout('plotDiv2', {annotations: annotation, shapes: shape})
+    makeClickable()
+}
+
+const addToCelltypeList = (annotationLabel) => {
+    toggleCTList('open')
     const CTList = document.getElementById('celltypeList2')
     const template = document.getElementById('celltypeName2-template')
     const newItem = template.cloneNode(true)
@@ -399,12 +423,6 @@ const hideTrace = (annotationLabel) => {
     newItem.innerHTML = annotationLabel
     newItem.onclick = function() {showTrace(newItem, annotationLabel)}
     CTList.append(newItem)
-
-    Plotly.restyle('plotDiv2', {visible: false}, tracePos)
-
-    const [annotation, shape] = getAnnotationShapes()
-    Plotly.relayout('plotDiv2', {annotations: annotation, shapes: shape})
-    makeClickable()
 }
 
 const showTrace = (ele, annotationLabel) => {
@@ -736,7 +754,7 @@ $("#viewHier").click(function() {
 // on page load
 $(document).ready(function() {
     // plotTemplate()
-    // generatePlot()
+    generatePlot()
 });
 
 
