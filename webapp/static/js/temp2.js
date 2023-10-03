@@ -71,9 +71,16 @@ const generatePlot = async () => {
         }
         
         let traceVis = true
+        // TO DO: SUBSTRING MATCHING
         if (celltypeMatch && cellType != celltypeMatch) {
             traceVis = false
         }
+
+        console.log(tissueList)
+        // const [species, tissue] = tissueList.split("_")
+        // console.log(species, tissue)
+
+        // return
         
         const trace = {
             x: [
@@ -93,6 +100,8 @@ const generatePlot = async () => {
             name: '',
             xgap: 0.5,
             ygap: 0.5,
+            customdata: [['c1','c1.1'],['c2']],
+            hovertemplate: '<b>Celltype:</b> %{x[0]}<br><b>Species:</b> %{customdata}',
             visible: traceVis
         }
 
@@ -237,7 +246,7 @@ const getSpecTisAnnotation = (labelPos, trace) => {
             // annotation for species axis
             annotations.push({
                 x: speciesPos,
-                y: -0.1,
+                y: -0.15,
                 yref: 'paper',
                 text: speciesType,
                 showarrow: false,
@@ -268,7 +277,7 @@ const getSpecTisAnnotation = (labelPos, trace) => {
         // annotation for tissue axis
         annotations.push({
             x: labelPos,
-            y: -0.0,
+            y: -0.01,
             yref: 'paper',
             text: tissueType,
             showarrow: false,

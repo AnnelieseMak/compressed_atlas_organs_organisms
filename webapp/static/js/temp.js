@@ -803,11 +803,21 @@ $(document).ready(function() {
     // plotTemplate()
     // generatePlot()
     template()
+    // template2()
 });
 
 /*****************************************************************************
  *                             TEST INTERACTIONS
  *****************************************************************************/
+const template2 = () => {
+    Plotly.newPlot('plotDiv', [{
+        x: [1, 2, 3],
+        y: [2, 1, 2],
+        customdata: [['1:23pm', '1:24pm', '1:25pm'],['1','2','3']],
+        hovertemplate: 'Az: %{x}, El: %{y}, %{customdata}'
+      }])
+}
+
 
 const printData = () => {
     const celltypeAxis = document.getElementsByClassName('annotation')
@@ -887,6 +897,8 @@ const template = () => {
         z: [[5,6],[9,5],[1,2],[3,2],[5,2],[1,9]],
         visible: true,
         type: 'heatmap',
+        name: '',
+        hovertemplate: '<b>Celltype:</b> %{x[0]}<br><b>Species:</b> %{x[1]}'
     },
     // {
     //     x: [['celltype1','celltype1','celltype1','celltype1','celltype1'],['mouse_lung','mouse_heart','human_lung','human_heart','human_colon']],
