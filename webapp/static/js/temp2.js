@@ -54,15 +54,17 @@ const generatePlot = async () => {
     console.log(featNames)
     const yLabel = []
     for (let i = 0; i < featNames.length; i++) {
-        let label = ""
+        // let label = ""
+        const label = []
         for (const [keySpecies, valueSpecies] of Object.entries(translations)) {
-            label = label.concat(valueSpecies[i], ', ')
+            // label = label.concat(valueSpecies[i], ', ')
+            label.push(valueSpecies[i])
         }
-        yLabel.push(label)
+        yLabel.push(label.join(", "))
     }
     
     for (const [idx, cellType] of allCellTypes.entries()) {
-        const [CTvals, maxV, tissueList] = getCellType_Tissue(data, cellType, featNames.length)
+        const [CTvals, maxV, tissueList, cellInfo] = getCellType_Tissue(data, cellType, featNames.length)
         // console.log(maxV)
 
         
@@ -80,7 +82,7 @@ const generatePlot = async () => {
             }
         }
 
-        console.log(tissueList)
+        // console.log(tissueList)
         // const [species, tissue] = tissueList.split("_")
         // console.log(species, tissue)
 
@@ -109,6 +111,8 @@ const generatePlot = async () => {
             // customdata: [[{'species': 'c1', 'other': '2'},{'species': 'c1.1', 'other': '1'}],[{'species': 'c2', 'other': '3'}]],
             // hovertemplate: '<b>Celltype:</b> %{x[0]}<br><b>Species:</b> %{customdata.species}<br><b>Gene:</b> %{customdata.other}',
             // hovertemplate: '<b>Celltype:</b> %{x[0]}<br><b>Species:</b> %{x[1]}<br><b>Gene:</b> %{y}<br><b>Expression:</b> %{z}',
+            customdata: cellInfo,
+            hovertemplate: '<b>Celltype:</b> %{x[0]}<br><b>Species:</b> %{customdata.species}<br><b>Tissue:</b> %{customdata.tissue}<br><b>Gene:</b> %{customdata.gene}<br><b>Expression:</b> %{z}',
             visible: traceVis
         }
 
@@ -116,7 +120,6 @@ const generatePlot = async () => {
         
         traceData.push(trace)
         traceOrder.push(cellType)
-        // return
     }
 
     axisOrders.current.x = axisOrders.normal.x = traceOrder
@@ -297,33 +300,6 @@ const getSpecTisAnnotation = (labelPos, trace) => {
     return [labelPos, annotations, shapes]
 }
 
-// annotation labels
-// const getAnnotations = (traceData) => {
-//     traceData = traceData || $("#plotDiv2")[0].data
-
-//     const annotation = []
-//     let xCount = 0;
-//     for (const trace of traceData) {
-//         if (trace.visible) {
-//             const xLabel = trace.x[0][0]
-//             const xColCount = trace.x[1].length
-//             const labelPos = xCount + (xColCount - 1)/2
-//             annotation.push({
-//                 x: labelPos,
-//                 y: -0.50,
-//                 yref: 'paper',
-//                 text: xLabel,
-//                 showarrow: false,
-//                 textangle: '-90',
-//             })
-
-//             xCount += xColCount
-//         }
-//     }
-
-//     return annotation
-// }
-
 // return list of unique celltype names
 const getAllCellTypes = (data) => {
     let allCellTypes = []
@@ -350,6 +326,7 @@ const getCellType_Tissue = (data, cellType, featuresCount) => {
     const CTcols = [...Array(featuresCount)].map(e => Array(1));
     let tissueList = []
     let colNo = 0
+    const cellInfo = [...Array(featuresCount)].map(e => Array(1));
 
     for (const [keySpecies, valueSpecies] of Object.entries(data)) {
         // console.log(keySpecies)
@@ -359,8 +336,15 @@ const getCellType_Tissue = (data, cellType, featuresCount) => {
 
             if (CTidx != -1) {
                 const tissueData = valueTissue.data[0]
+                const tissueFeatures = valueTissue.features[0]
                 for (let i = 0; i < featuresCount; i++) {
                     CTcols[i][colNo] = tissueData[i][CTidx]
+                    const infoDict = {
+                        'species': keySpecies[0].toUpperCase() + keySpecies.slice(1),
+                        'tissue': keyTissue,
+                        'gene': tissueFeatures[i],
+                    }                    
+                    cellInfo[i][colNo] = infoDict
                 }
                 const label = `${keySpecies}_${keyTissue}`
                 tissueList.push(label)
@@ -369,7 +353,10 @@ const getCellType_Tissue = (data, cellType, featuresCount) => {
         }
     }
 
-    return [CTcols, Math.max(...CTcols.flat()), tissueList]
+    // {species, tissue, gene}
+    // console.log(cellInfo)
+
+    return [CTcols, Math.max(...CTcols.flat()), tissueList, cellInfo]
 }
 
 /***************************************************
@@ -769,10 +756,10 @@ const testFunc = async () => {
 
     const reqData = {
         reference: {
-            species: 'mouse',
-            feature_names: ["Actc1","Actn2","Myl2","Myh7","Col1a1","Col2a1","Pdgfrb","Pecam1","Gja5","Vwf","Ptprc","Ms4a1","Gzma","Cd3d","Cd68","Epcam"],
+            species: 'human',
+            feature_names: ["Ins"],
         },
-        translateTo: ['human', 'rat']
+        translateTo: ['mouse']
     }
 
     // const reqData = {
@@ -795,5 +782,5 @@ const testFunc2 = async () => {
     console.log(data)
 }
 
-// $("#testBtn").click(testFunc)
+$("#testBtn").click(testFunc)
 $("#testBtn2").click(testFunc2)

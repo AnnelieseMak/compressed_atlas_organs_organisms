@@ -454,6 +454,10 @@ input[type=checkbox]:hover + .filterContent {
 }
 
 /**************** MATCHED COLUMNS DROPDOWN *******************/
+#filterMatchedCols {
+    width: 100px;
+}
+
 .dropdown2 {
     position: relative;
     /* width: 50%; */

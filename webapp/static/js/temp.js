@@ -802,8 +802,8 @@ $("#viewHier").click(function() {changePlotView('hierarchical')})
 $(document).ready(function() {
     // plotTemplate()
     // generatePlot()
-    template()
-    // template2()
+    // template()
+    template2()
 });
 
 /*****************************************************************************
@@ -811,10 +811,10 @@ $(document).ready(function() {
  *****************************************************************************/
 const template2 = () => {
     Plotly.newPlot('plotDiv', [{
-        x: [1, 2, 3],
-        y: [2, 1, 2],
-        customdata: [['1:23pm', '1:24pm', '1:25pm'],['1','2','3']],
-        hovertemplate: 'Az: %{x}, El: %{y}, %{customdata}'
+        x: [['celltype0','celltype0','celltype0','celltype0'],['mouse_lung', 'human_lung']],
+        y: ['g1, g11', 'g2, g22', 'g3, g33', '', 'g5, g55', 'g6, g66'],
+        z: [[5,6],[9,5],[1,2],[3,2],[null,2],[1,9]],
+        type: 'heatmap'
       }])
 }
 

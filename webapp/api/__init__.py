@@ -904,6 +904,7 @@ class GetHierarchy(Resource):
 
 class GetHomolog(Resource):
     def get(self, args=None):
+        print("\n\t CALLING GET HOMOLOGY\n\n")
         args = request.args
         keyList = list(args.keys())
         keysDict = json.loads(keyList[0])
@@ -923,7 +924,7 @@ class GetHomolog(Resource):
         df = pd.read_csv("./static/atlas_data/HOM_AllOrganism.rpt", delimiter='\t', usecols=['DB Class Key', 'Common Organism Name', 'NCBI Taxon ID', 'Symbol'])
 
         patternMatch = f'^({"|".join(translateTo)})'
-        # print(patternMatch)
+        print(f'\tpattern to match: {patternMatch}')
 
         translatedDict = {referenceSpecies: referenceFeatures}
         for species in translateTo:
@@ -931,9 +932,14 @@ class GetHomolog(Resource):
         # print(translatedDict)
 
         for feature in referenceFeatures:
+            print(f"\tfeature: {feature}")
             refRow = df.loc[(df['Symbol'] == feature)]
             featureKey = refRow["DB Class Key"].values[0]
-           
+
+            print(f"\trefRow: {refRow}")
+            print(f"\tfeatureKey: {featureKey}")
+
+
             translateRows = df.loc[(df['DB Class Key'] == featureKey) & df['Common Organism Name'].str.contains(patternMatch, case=False, na=False)]     
             # print('translateToRows:')
             # print(translateRows)
