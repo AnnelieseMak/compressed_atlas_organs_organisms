@@ -933,10 +933,14 @@ class GetHomolog(Resource):
 
         for feature in referenceFeatures:
             print(f"\tfeature: {feature}")
-            refRow = df.loc[(df['Symbol'] == feature)]
-            featureKey = refRow["DB Class Key"].values[0]
+            featurePattern = f'^{feature}$'
+            print(f'\tfeaturePattern: {featurePattern}')
 
+            refRow = df.loc[(df['Symbol'].str.contains(featurePattern, case=False))]
+            # refRow = df.loc[(df['Symbol'] == feature)]
             print(f"\trefRow: {refRow}")
+
+            featureKey = refRow["DB Class Key"].values[0]
             print(f"\tfeatureKey: {featureKey}")
 
 

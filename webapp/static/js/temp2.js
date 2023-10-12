@@ -52,16 +52,19 @@ const generatePlot = async () => {
 
     console.log(translations)
     console.log(featNames)
-    const yLabel = []
-    for (let i = 0; i < featNames.length; i++) {
-        // let label = ""
-        const label = []
-        for (const [keySpecies, valueSpecies] of Object.entries(translations)) {
-            // label = label.concat(valueSpecies[i], ', ')
-            label.push(valueSpecies[i])
-        }
-        yLabel.push(label.join(", "))
-    }
+    // const yLabel = []
+    // for (let i = 0; i < featNames.length; i++) {
+    //     // let label = ""
+    //     const label = []
+    //     for (const [keySpecies, valueSpecies] of Object.entries(translations)) {
+    //         // label = label.concat(valueSpecies[i], ', ')
+    //         console.log(valueSpecies[i])
+    //         label.push(valueSpecies[i])
+    //     }
+    //     yLabel.push(label.join(", "))
+    // }
+
+    // console.log(yLabel)
     
     for (const [idx, cellType] of allCellTypes.entries()) {
         const [CTvals, maxV, tissueList, cellInfo] = getCellType_Tissue(data, cellType, featNames.length)
@@ -93,8 +96,8 @@ const generatePlot = async () => {
                 Array(tissueList.length).fill(cellType),
                 tissueList
             ],
-            // y: featNames,
-            y: yLabel,
+            y: featNames,
+            // y: yLabel,
             z: CTvals,
             zmin: 0,
             // colorscale: 'Reds',
@@ -130,7 +133,7 @@ const generatePlot = async () => {
         trace.zmax = maxVal
     }
 
-    if (traceData.length > 1) {
+    if (traceData.length > 1 && featNames.length > 1) {
         await getHierarchyOrder(traceData)
     }
 
@@ -603,7 +606,6 @@ const apiCall = (requestData, path) => {
         $.ajax({
             type: 'GET',
             url: path,
-            // data: $.param(requestData),
             data: requestData,
             success: function(result) {
                 // console.log(result)
@@ -633,26 +635,68 @@ const getData = async (tissues, speciesList, feats) => {
         data[species] = {}
     }
 
-    const featList = feats.split(",")
-    const translateTo = speciesList.slice(1)
-    const refSpecies = speciesList[0]
-    translations = await getTranslation(refSpecies, featList, translateTo)
-    console.log(translations)
+    console.log(data)
 
-    for (const species of speciesList) {
-        for (const tissue of tissues) {
-            let feature_names = translations[species].toString()
-            const reqData = {
-                feature_names,
-                species,
-                tissue
-            }
-            // console.log(reqData)
-            const retVal = await apiCall(reqData, '/data/by_celltype')
-            data[species][tissue] = retVal
-            // console.log(data)
+    // get data for first species
+    const refSpecies = speciesList[0]
+    let refSpeciesFeatures
+    for (const tissue of tissues) {
+        const reqData = {
+            feature_names: feats,
+            species: refSpecies,
+            tissue
+        }
+        const retVal = await apiCall(reqData, '/data/by_celltype')
+        console.log(retVal)
+        data[refSpecies][tissue] = retVal
+
+        if (!refSpeciesFeatures) {
+            refSpeciesFeatures = retVal.features[0]
         }
     }
+    console.log(speciesList)
+    
+    // use corrected features list to translate to other species (if any)
+    console.log(refSpeciesFeatures)
+    const translateTo = speciesList.slice(1)
+    translations = await getTranslation(refSpecies, refSpeciesFeatures, translateTo)
+    console.log(translations)
+
+    for (let i = 1; i < speciesList.length; i++) {
+        for (const tissue of tissues) {
+            let feature_names = translations[speciesList[i]].toString()
+            console.log(feature_names)
+            const reqData = {
+                feature_names,
+                species: speciesList[i],
+                tissue
+            }
+            const retVal = await apiCall(reqData, '/data/by_celltype')
+            data[speciesList[i]][tissue] = retVal
+        }
+    }
+
+    // const featList = feats.split(",")
+    // const translateTo = speciesList.slice(1)
+    // const refSpecies = speciesList[0]
+    // translations = await getTranslation(refSpecies, featList, translateTo)
+    // console.log(translations)
+
+    // for (const species of speciesList) {
+    //     for (const tissue of tissues) {
+    //         let feature_names = translations[species].toString()
+    //         const reqData = {
+    //             feature_names,
+    //             species,
+    //             tissue
+    //         }
+    //         // console.log(reqData)
+    //         const retVal = await apiCall(reqData, '/data/by_celltype')
+    //         data[species][tissue] = retVal
+    //         // console.log(data)
+    //     }
+    // }
+
     console.log(data)
     return data
 }
