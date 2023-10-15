@@ -69,7 +69,7 @@ const generatePlot = async () => {
     for (const [idx, cellType] of allCellTypes.entries()) {
         const [CTvals, maxV, tissueList, cellInfo] = getCellType_Tissue(data, cellType, featNames.length)
         // console.log(maxV)
-
+        console.log(cellInfo)
         
         if (matchOpt > tissueList.length) {
             continue
