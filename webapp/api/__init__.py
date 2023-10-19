@@ -67,6 +67,7 @@ class MeasurementByCelltype(Resource):
         new_species = args.get("newSpecies")
         tissue = args.get("tissue")
         featurestring = args.get("feature_names")
+        print(f'featureString: {featurestring}')
 
         # A cap on gene names to avoid overload is reasonable
         featurestring = ','.join(featurestring.replace(' ', '').split(',')[:500])
@@ -901,6 +902,67 @@ class GetHierarchy(Resource):
 
         return {'yOrder': idx, 'xOrder': idxx}
 
+class GetHomolog2(Resource):
+    def get(self, args=None):
+        print("\n\t CALLING GET HOMOLOGY\n\n")
+        args = request.args
+        keyList = list(args.keys())
+        keysDict = json.loads(keyList[0])
+        # print(f'\targs: {args}\nkeylist: {keyList}\nkeyDict: {keysDict}\n')
+
+        speciesList = keysDict['species']
+        featuresList = keysDict['features']
+        print(f'\tspecies: {speciesList}\n\tfeatures: {featuresList}\n')
+
+        translationDict = {key: [] for key in speciesList}
+        featuresDict = {key: [] for key in speciesList}
+        print(f'\ttranslatedDict: {translationDict}')
+
+        # read translation table
+        df = pd.read_csv("./static/atlas_data/HOM_AllOrganism.rpt", delimiter='\t', usecols=['DB Class Key', 'Common Organism Name', 'NCBI Taxon ID', 'Symbol'])
+        speciesPattern = f'^({"|".join(speciesList)})'
+        print('\tspeciesPattern: {speciesPattern}')
+
+        print('\tSEARCHING FOR:\n')
+        for fIdx, feature in enumerate(featuresList):
+            print(f'index: {fIdx}')
+            for species in speciesList:
+                print(f'{feature} in {species}')
+                row = df.loc[(df['Symbol'].str.fullmatch(feature, case=False)) & df['Common Organism Name'].str.match(species)]
+                if row.empty:
+                    continue
+
+                rowKeys = row["DB Class Key"].values
+
+                translatedRows = df.loc[(df['DB Class Key'].isin(rowKeys)) & df['Common Organism Name'].str.match(speciesPattern, case=False, na=True)]
+                print(f'\n\ttranslated row:\n{translatedRows}\n')
+
+                speciesChecklist = speciesList.copy()
+
+                for index, tRow in translatedRows.iterrows():
+                    speciesName = tRow['Common Organism Name'].replace('mouse, laboratory', 'mouse')
+                    if speciesName in speciesChecklist:
+                        speciesChecklist.remove(speciesName)
+                    symbol = tRow['Symbol']
+                    translationDict[speciesName].append(symbol)
+                    if symbol not in featuresDict[speciesName]:
+                        featuresDict[speciesName].append(symbol)
+
+                print(f'\t\fIdx: {fIdx}\tindex: {index}')
+
+                for speciesCheck in speciesChecklist:
+                    translationDict[speciesCheck].append(None)
+
+                break
+
+        if len(speciesList) == 1:
+            translationDict[speciesList[0]] = list(dict.fromkeys(translationDict[speciesList[0]]))
+        
+        print(f'translated dictionary:\n\n{translationDict}\n\n')
+        print(f'features dictionary: \n\n{featuresDict}')
+        # return [translationDict, featuresDict]
+        return {'translation': translationDict,
+                'features': featuresDict}
 
 class GetHomolog(Resource):
     def get(self, args=None):
@@ -917,8 +979,8 @@ class GetHomolog(Resource):
 
         referenceSpecies = referenceData['species']
         referenceFeatures = referenceData['feature_names']
-        # print(f'referenceSpecies: {referenceSpecies}')
-        # print(f'referenceFeatures: {referenceFeatures}')
+        print(f'referenceSpecies: {referenceSpecies}')
+        print(f'referenceFeatures: {referenceFeatures}')
 
         # read translation table
         df = pd.read_csv("./static/atlas_data/HOM_AllOrganism.rpt", delimiter='\t', usecols=['DB Class Key', 'Common Organism Name', 'NCBI Taxon ID', 'Symbol'])
@@ -935,19 +997,14 @@ class GetHomolog(Resource):
             print(f"\tfeature: {feature}")
             featurePattern = f'^{feature}$'
             print(f'\tfeaturePattern: {featurePattern}')
+            
+            refRow = df.loc[(df['Symbol'].str.contains(featurePattern, case=False)) & df['Common Organism Name'].str.contains(referenceSpecies, case=False, na=False)]
+            print(f"\trefRow:\n{refRow}")
 
-            refRow = df.loc[(df['Symbol'].str.contains(featurePattern, case=False))]
-            # refRow = df.loc[(df['Symbol'] == feature)]
-            print(f"\trefRow: {refRow}")
-
-            featureKey = refRow["DB Class Key"].values[0]
-            print(f"\tfeatureKey: {featureKey}")
-
-
-            translateRows = df.loc[(df['DB Class Key'] == featureKey) & df['Common Organism Name'].str.contains(patternMatch, case=False, na=False)]     
-            # print('translateToRows:')
-            # print(translateRows)
-            # print('\n')
+            featureKeys = refRow["DB Class Key"].values
+            print(f'\tvals: {featureKeys}')
+            translateRows = df.loc[(df['DB Class Key'].isin(featureKeys)) & df['Common Organism Name'].str.contains(patternMatch, case=False, na=False)]
+            print(f"transRows:\n{translateRows}")
 
             for index, row in translateRows.iterrows():
                 species = row["Common Organism Name"]

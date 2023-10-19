@@ -35,6 +35,7 @@ from api import (
     CelltypeAbundance,
     GetHierarchy,
     GetHomolog,
+    GetHomolog2,
 )
 from models import (
         get_speciess,
@@ -497,6 +498,7 @@ app_api.add_resource(PlotsForSeachGenes, "/data/by_celltype_2_genes")
 # incomplete/not needed --> extra endpoint for getting celltype of many tissue/species
 app_api.add_resource(GetHierarchy, "/data/getHierarchy")
 app_api.add_resource(GetHomolog, "/data/getHomolog")
+app_api.add_resource(GetHomolog2, "/data/getHomolog2")
 
 # Main loop
 if __name__ == "__main__":
