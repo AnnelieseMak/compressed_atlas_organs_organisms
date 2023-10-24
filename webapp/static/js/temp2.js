@@ -65,10 +65,7 @@ const generatePlot = async () => {
     let maxVal = 0
     let traceOrder = []
     for (const [idx, cellType] of allCellTypes.entries()) {
-        // const [CTvals, maxV, tissueList, cellInfo] = getCellType_Tissue(data, cellType, featNames.length)
         const [CTvals, maxV, tissueList, cellInfo] = getCellType_Tissue(data, cellType)
-        // console.log(maxV)
-        // console.log(cellInfo)
         
         if (matchOpt > tissueList.length) {
             continue
@@ -84,12 +81,6 @@ const generatePlot = async () => {
             }
         }
 
-        // console.log(tissueList)
-        // const [species, tissue] = tissueList.split("_")
-        // console.log(species, tissue)
-
-        // return
-        
         const trace = {
             x: [
                 Array(tissueList.length).fill(cellType),
@@ -119,17 +110,17 @@ const generatePlot = async () => {
         traceOrder.push(cellType)
     }
 
-    // axisOrders.current.x = axisOrders.normal.x = traceOrder
-    // axisOrders.current.y = axisOrders.normal.y = featNames
+    axisOrders.current.x = axisOrders.normal.x = traceOrder
+    axisOrders.current.y = axisOrders.normal.y = yLabel
 
     // sets zmax to overall max for shared scale
     for (const trace of traceData) {
         trace.zmax = maxVal
     }
 
-    // if (traceData.length > 1 && featNames.length > 1) {
-    //     await getHierarchyOrder(traceData)
-    // }
+    if (traceData.length > 1 && yLabel.length > 1) {
+        await getHierarchyOrder(traceData)
+    }
 
     const [annotation, shape] = getAnnotationShapes(traceData)
 
@@ -474,10 +465,10 @@ const changePlotView = (view) => {
         return
     }
 
-    const [yAxis, zVal] = configureYAxis(view)
+    const [yAxis, zVal, cellInfoVals] = configureYAxis(view)
     const xAxis = configureXAxis(view)
 
-    Plotly.restyle('plotDiv2', {y: yAxis, z: zVal}, [...Array(zVal.length).keys()])
+    Plotly.restyle('plotDiv2', {y: yAxis, z: zVal, customdata: cellInfoVals}, [...Array(zVal.length).keys()])
     const plotTraces = document.getElementById('plotDiv2').data
     if (plotTraces.length > 1) {
         Plotly.moveTraces('plotDiv2', xAxis)
@@ -503,8 +494,11 @@ const configureXAxis = (view) => {
 
 const configureYAxis = (view) => {
     const plotTraces = document.getElementById('plotDiv2').data
+
     const zValues = []
+    const cellInfoData = []
     for (const zVal of plotTraces) {
+        cellInfoData.push(zVal.customdata)
         zValues.push(zVal.z)
     }
 
@@ -515,14 +509,17 @@ const configureYAxis = (view) => {
 
     for (const [idx, z] of zValues.entries()) {
         const newZOrder = []
+        const cellInfoOrder = []
         for (const yName of newOrder) {
             newZOrder.push(z[oldOrder.indexOf(yName)])
+            cellInfoOrder.push(cellInfoData[idx][oldOrder.indexOf(yName)])
         }
         zValues[idx] = newZOrder
+        cellInfoData[idx] = cellInfoOrder
     }
     axisOrders.current.y = newOrder
 
-    return [yValues, zValues]
+    return [yValues, zValues, cellInfoData]
 }
 
 /*****************************************************************************
@@ -789,27 +786,14 @@ const getHierarchyOrder = async (traces) => {
     axisOrders.hierarchical.y = hierYName
 }
 
-// const getTranslation = async (refSpecies, refFeat, translateTo) => {
 const getTranslation = async (species, features) => {
-    // if (!translateTo.length) {
-    //     return {[refSpecies]: refFeat}
-    // }
-    
-    // const reqData = {
-    //     reference: {
-    //         species: refSpecies,
-    //         feature_names: refFeat,
-    //     },
-    //     translateTo
-    // }
-
     features = features.split(/,[\s]?/)
     const reqData = {
         species,
         features
     }
 
-    const ret = await apiCall(JSON.stringify(reqData), '/data/getHomolog2')
+    const ret = await apiCall(JSON.stringify(reqData), '/data/getHomolog')
     return ret
 }
 
@@ -862,27 +846,8 @@ $("#filterMenuBtn").click(toggleFilters)
 
 const testFunc = async () => {
     console.log('testFunc')
-
-    const reqData = {
-        reference: {
-            species: 'mouse',
-            feature_names: ["Ins1"],
-            // species: 'human',
-            // feature_names: ["INS"],
-        },
-        translateTo: ['human']
-        // translateTo: ['mouse']
-    }
-
-    // const reqData = {
-    //     reference: {
-    //         species: 'human',
-    //         feature_names: ["ACTC1","ACTN2","MYL2","MYH7","COL1A1","COL2A1","PDGFRB","PECAM1","GJA5","VWF","PTPRC","MS4A1","GZMA","CD3D","CD68","EPCAM"],
-    //     },
-    //     translateTo: ['mouse']
-    // }
-    const ret = await apiCall(JSON.stringify(reqData), '/data/getHomolog')
-    console.log(ret)
+    const plotTraces = document.getElementById('plotDiv2').data
+    console.log(plotTraces)
 }
 
 const testFunc2 = async () => {
@@ -896,7 +861,7 @@ const testFunc2 = async () => {
 
     const tissueList = ['Lung']
 
-    const [translation, features] = await apiCall(JSON.stringify(reqData), '/data/getHomolog2')
+    const [translation, features] = await apiCall(JSON.stringify(reqData), '/data/getHomolog')
 
     const yLabel = []
     for (let i = 0; i < Object.values(translation)[0].length; i++) {
@@ -1054,4 +1019,4 @@ const testGetCelltypeTissue = (data, celltype, translation, dataFeatures) => {
 }
 
 $("#testBtn").click(testFunc)
-$("#testBtn2").click(testFunc2)
+$("#testBtn2").click(testFunc)

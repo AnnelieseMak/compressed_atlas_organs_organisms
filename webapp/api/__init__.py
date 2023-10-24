@@ -4,6 +4,7 @@ from flask_restful import Resource
 
 # Data import
 import numpy as np
+import numpy.ma as ma
 import pandas as pd
 from scipy.cluster.hierarchy import linkage, leaves_list
 from scipy.spatial.distance import pdist
@@ -863,21 +864,24 @@ class CelltypeAbundance(Resource):
 
 class GetHierarchy(Resource):
     def get(self, args=None):
-        # print('\n\t\t\tCELL TYPE MANY')
+        print('\n\t\t\tCELL TYPE MANY')
 
         args = request.args
         # print(f'\nargs: \n{args}\n')
         keyList = list(args.keys())
         keysDict = json.loads(keyList[0])
         dataArray = keysDict["data"]
-        # print(f'dataArray: \n{dataArray}\n')
+        print(f'dataArray: \n{dataArray}\n')
 
         # print(f'length: \n{len(dataArray)}')
 
         # dataArray = (np.log10(np.array(dataArray) + 0.5)).tolist()
 
         for i, x in enumerate(dataArray):
-            # print(f'i: {i}\tx: {x}')
+            print(f'i: {i}\tx: {x}')
+            # print(f'\tma.array: {ma.array(x)}')
+            # print(f'\tnp.array: {np.array(x)}')
+            
             colAvg = np.average(np.array(x), axis=1)
             # print(f'averages: \n{colAvg}')
             # print(f'avg[0]: {colAvg[0]}\n')
@@ -902,7 +906,7 @@ class GetHierarchy(Resource):
 
         return {'yOrder': idx, 'xOrder': idxx}
 
-class GetHomolog2(Resource):
+class GetHomolog(Resource):
     def get(self, args=None):
         print("\n\t CALLING GET HOMOLOGY\n\n")
         args = request.args
@@ -960,62 +964,6 @@ class GetHomolog2(Resource):
         
         print(f'translated dictionary:\n\n{translationDict}\n\n')
         print(f'features dictionary: \n\n{featuresDict}')
-        # return [translationDict, featuresDict]
+
         return {'translation': translationDict,
                 'features': featuresDict}
-
-class GetHomolog(Resource):
-    def get(self, args=None):
-        print("\n\t CALLING GET HOMOLOGY\n\n")
-        args = request.args
-        keyList = list(args.keys())
-        keysDict = json.loads(keyList[0])
-        # print(keysDict)
-
-        referenceData = keysDict['reference']
-        translateTo = keysDict['translateTo']
-        # print(f'reference: {referenceData}')
-        # print(f'translateTo: {translateTo}')
-
-        referenceSpecies = referenceData['species']
-        referenceFeatures = referenceData['feature_names']
-        print(f'referenceSpecies: {referenceSpecies}')
-        print(f'referenceFeatures: {referenceFeatures}')
-
-        # read translation table
-        df = pd.read_csv("./static/atlas_data/HOM_AllOrganism.rpt", delimiter='\t', usecols=['DB Class Key', 'Common Organism Name', 'NCBI Taxon ID', 'Symbol'])
-
-        patternMatch = f'^({"|".join(translateTo)})'
-        print(f'\tpattern to match: {patternMatch}')
-
-        translatedDict = {referenceSpecies: referenceFeatures}
-        for species in translateTo:
-            translatedDict[species] = []
-        # print(translatedDict)
-
-        for feature in referenceFeatures:
-            print(f"\tfeature: {feature}")
-            featurePattern = f'^{feature}$'
-            print(f'\tfeaturePattern: {featurePattern}')
-            
-            refRow = df.loc[(df['Symbol'].str.contains(featurePattern, case=False)) & df['Common Organism Name'].str.contains(referenceSpecies, case=False, na=False)]
-            print(f"\trefRow:\n{refRow}")
-
-            featureKeys = refRow["DB Class Key"].values
-            print(f'\tvals: {featureKeys}')
-            translateRows = df.loc[(df['DB Class Key'].isin(featureKeys)) & df['Common Organism Name'].str.contains(patternMatch, case=False, na=False)]
-            print(f"transRows:\n{translateRows}")
-
-            for index, row in translateRows.iterrows():
-                species = row["Common Organism Name"]
-                symbol = row["Symbol"]
-                # print(f'species: {species}\t\tSymbol: {symbol}')
-                if (species == 'mouse, laboratory'):
-                    species = 'mouse'
-                translatedDict[species].append(symbol)
-
-        print(f'translated dictionary:')
-        print(translatedDict)
-        print(f'\n\n')
-
-        return translatedDict
