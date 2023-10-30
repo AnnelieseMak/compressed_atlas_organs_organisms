@@ -34,7 +34,7 @@ const generatePlot = async () => {
         }
     }
 
-    const data = await getData(tissues, species, searchInput)
+    const [data, featNames] = await getData(tissues, species, searchInput)
     // console.log(`data:\n${JSON.stringify(data)}`)
     // console.log(`data:\n${data}`)
 
@@ -166,7 +166,7 @@ const generatePlot = async () => {
     }
 
     makeClickable()
-    // updateFilters(featNames, matchOpt)
+    updateFilters(featNames, matchOpt)
 }
 
 // layout annotations and shapes
@@ -563,16 +563,38 @@ const toggleCTList = (action) => {
 }
 
 const toggleNumMatchedDrop = (ele) => {
-    console.log('toggle menu')
     ele.classList.toggle('active')
 }
 
 const updateNumMatchedOptions = (ele) => {
-    if (!ele.checked) {
-        removeNumMatchedOption()
+    const species = getCheckedboxNames('.specOpt:checked')
+    const tissues = getCheckedboxNames('.tisOpt:checked')
+
+    const speciesCount = species.length == 0 ? 1 : species.length
+    const tissuesCount = tissues.length == 0 ? 1 : tissues.length
+    const newMatched = speciesCount * tissuesCount
+
+    const optionParent = document.getElementById('dropContent')
+    const curChildCount = optionParent.childElementCount - 1
+
+    const countDiff = Math.abs(curChildCount-newMatched)
+
+    if (curChildCount > newMatched) {
+        for (let i = 0; i < countDiff; i++) {
+            removeNumMatchedOption()
+        }
     } else {
-        addNumMatchedOption()
+        for (let i = 0; i < countDiff; i++) {
+            addNumMatchedOption()
+        }
     }
+    
+    // if (!ele.checked) {
+    //     removeNumMatchedOption()
+    // } else {
+    //     addNumMatchedOption()
+    // }
+
 }
 
 const removeNumMatchedOption = () => {
@@ -602,7 +624,8 @@ const addNumMatchedOption = () => {
 const updateFilters = (featNames, matchOpt) => {
     // search bar
     const searchBar = document.getElementById('searchInput')
-    searchBar.value = featNames.join(", ")
+    // searchBar.value = featNames.join(", ")
+    searchBar.value = featNames
 
     //number of matches
     const dropSelect = document.getElementById('dropBtnText')
@@ -687,7 +710,8 @@ const getData = async (tissues, speciesList, feats) => {
         }
     }
 
-
+    console.log(data)
+    return [data, feats]
     ////////////////////////////////////////////////////////////////////////////////
 
     // // get data for first species
@@ -751,9 +775,6 @@ const getData = async (tissues, speciesList, feats) => {
     //         // console.log(data)
     //     }
     // }
-
-    console.log(data)
-    return data
 }
 
 const getHierarchyOrder = async (traces) => {
@@ -805,6 +826,8 @@ $(".pBtn").click(generatePlot)
 
 // update number matched dropdown options
 $(".tisOpt").click(function() {updateNumMatchedOptions(this)})
+$(".specOpt").click(function() {updateNumMatchedOptions(this)})
+
 
 // all or one celltype
 $("#celltypeSwitchAll").click(function() {
@@ -845,9 +868,10 @@ $("#filterMenuBtn").click(toggleFilters)
  *****************************************************************************/
 
 const testFunc = async () => {
-    console.log('testFunc')
-    const plotTraces = document.getElementById('plotDiv2').data
-    console.log(plotTraces)
+    const optionParent = document.getElementById('dropContent')
+    console.log(optionParent)
+    const childCount = optionParent.childElementCount
+    console.log(childCount)
 }
 
 const testFunc2 = async () => {
