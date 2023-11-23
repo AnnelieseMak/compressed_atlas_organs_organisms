@@ -60,7 +60,6 @@ class MeasurementByCelltype(Resource):
 
     def get(self, args=None):
         '''Get data to plot a table of measurements (e.g. GE) by cell type'''
-        print('measuremnt by cell type args = : ', request.args)
         if args is None:
             args = request.args
         species = args.get("species")
@@ -68,7 +67,6 @@ class MeasurementByCelltype(Resource):
         new_species = args.get("newSpecies")
         tissue = args.get("tissue")
         featurestring = args.get("feature_names")
-        print(f'featureString: {featurestring}')
 
         # A cap on gene names to avoid overload is reasonable
         featurestring = ','.join(featurestring.replace(' ', '').split(',')[:500])
@@ -78,8 +76,7 @@ class MeasurementByCelltype(Resource):
         feature_stringd = validate_correct_feature_mix(
             featurestring, species=species,
         )
-        # print(f'feature_stringd: {feature_stringd}')
-        # print(f'feature_stringd length: {len(feature_stringd)}')
+
         if len(feature_stringd) == 0:
             return None
 
@@ -97,12 +94,9 @@ class MeasurementByCelltype(Resource):
 
         # Store data to comupte hierarchical clustering of cell types
         dfl_for_ct_hierarchy = []
-        # print(f'feature_stringd.items(): {feature_stringd.items()}')
         for feature_type, featurestring in feature_stringd.items():
             # NOTE: this is where it gets tricky with canonical intervals
-            # print(f'feature_type: {feature_type}\t featurestring: {featurestring}')
             feature_names = featurestring.split(',')
-            # print(f'feature_names: {feature_names}')
 
             # If we are switching species, get orthologs
             if new_species is not None:
@@ -111,7 +105,6 @@ class MeasurementByCelltype(Resource):
                 )[new_species]
                 species = new_species
                 missing_genes = 'skip'
-                # print(f'is here')
             else:
                 missing_genes = 'throw'
 
@@ -140,8 +133,6 @@ class MeasurementByCelltype(Resource):
                 print("Could not get counts from h5 file")
                 return None
 
-            # print(f'df: {df}')
-
             # Just in case we skipped some
             feature_names = df.index.tolist()
 
@@ -169,30 +160,20 @@ class MeasurementByCelltype(Resource):
             else:
                 pseudocount = 0.01
             dfl = np.log10(df + pseudocount)
-            # print(f'df1: \n {dfl}')
-            # print(f'df: \n{df}')
-            # print(f'df.values: \n{df.values}')
 
             if len(feature_names) <= 2:
                 idx_features_hierarchical = list(range(len(feature_names)))
             else:
-                # print('features hiearchical\n')
                 pplist = pdist(dfl.values)
                 linkVal = linkage(
                     pplist,
                     optimal_ordering=True)
                 idLeavesList = leaves_list(linkVal)
-                # print(f'dfl.values: \n {dfl.values}')
-                # print(f'length dfl.values: \n {len(dfl.values)}')
-                # print(f'pplist: \n {pplist}\n')
-                # print(f'linkVal:\n {linkVal}\n')
-                # print(f'idLeavesList:\n {idLeavesList}\n')
                 idx_features_hierarchical = leaves_list(linkage(
                     pdist(dfl.values),
                     optimal_ordering=True),
                 )
                 idx_features_hierarchical = [int(x) for x in idx_features_hierarchical]
-                # print('idx_features_hierarchical\t', idx_features_hierarchical, '\n')
 
             result['data'].append(df.values.tolist())
             result['feature_type'].append(feature_type)
@@ -217,15 +198,11 @@ class MeasurementByCelltype(Resource):
         else:
             dfl_for_ct_hierarchy = np.vstack(dfl_for_ct_hierarchy)
 
-        # print(f'dfl_for_ct_hierarchy: {dfl_for_ct_hierarchy}')
-        # print(f'dfl_for_ct_hierarchy.T: {dfl_for_ct_hierarchy.T}')
-
         idx_ct_hierarchical = leaves_list(linkage(
             pdist(dfl_for_ct_hierarchy.T),
             optimal_ordering=True),
         )
         idx_ct_hierarchical = [int(x) for x in idx_ct_hierarchical]
-        # print(f'idx_ct_hierarchical: {idx_ct_hierarchical}')
 
         result['celltypes'] = df.columns.tolist()
         result['celltypes_hierarchical'] = idx_ct_hierarchical
@@ -864,30 +841,18 @@ class CelltypeAbundance(Resource):
 
 class GetHierarchy(Resource):
     def get(self, args=None):
-        print('\n\t\t\tCELL TYPE MANY')
 
         args = request.args
-        # print(f'\nargs: \n{args}\n')
         keyList = list(args.keys())
         keysDict = json.loads(keyList[0])
         dataArray = keysDict["data"]
-        print(f'dataArray: \n{dataArray}\n')
-
-        # print(f'length: \n{len(dataArray)}')
 
         # dataArray = (np.log10(np.array(dataArray) + 0.5)).tolist()
 
-        for i, x in enumerate(dataArray):
-            print(f'i: {i}\tx: {x}')
-            # print(f'\tma.array: {ma.array(x)}')
-            # print(f'\tnp.array: {np.array(x)}')
-            
+        for i, x in enumerate(dataArray):       
             colAvg = np.average(np.array(x), axis=1)
-            # print(f'averages: \n{colAvg}')
-            # print(f'avg[0]: {colAvg[0]}\n')
             dataArray[i] = colAvg + 0.5
         
-        # print(f'dataArray: \n{dataArray}\n')
         transformed = np.array(dataArray).T
         
         # features order
@@ -895,43 +860,33 @@ class GetHierarchy(Resource):
         t2 = linkage(t1, optimal_ordering=True)
         t3 = leaves_list(t2)
         idx = [int(x) for x in t3]
-        # print(f'idx: {idx}')
 
         # CT order
         t11 = pdist(dataArray)
         t22 = linkage(t11, optimal_ordering=True)
         t33 = leaves_list(t22)
         idxx = [int(x) for x in t33]
-        # print(f'idxx: {idxx}')
 
         return {'yOrder': idx, 'xOrder': idxx}
 
 class GetHomolog(Resource):
     def get(self, args=None):
-        print("\n\t CALLING GET HOMOLOGY\n\n")
         args = request.args
         keyList = list(args.keys())
         keysDict = json.loads(keyList[0])
-        # print(f'\targs: {args}\nkeylist: {keyList}\nkeyDict: {keysDict}\n')
 
         speciesList = keysDict['species']
         featuresList = keysDict['features']
-        print(f'\tspecies: {speciesList}\n\tfeatures: {featuresList}\n')
 
         translationDict = {key: [] for key in speciesList}
         featuresDict = {key: [] for key in speciesList}
-        print(f'\ttranslatedDict: {translationDict}')
 
         # read translation table
         df = pd.read_csv("./static/atlas_data/HOM_AllOrganism.rpt", delimiter='\t', usecols=['DB Class Key', 'Common Organism Name', 'NCBI Taxon ID', 'Symbol'])
         speciesPattern = f'^({"|".join(speciesList)})'
-        print('\tspeciesPattern: {speciesPattern}')
 
-        print('\tSEARCHING FOR:\n')
         for fIdx, feature in enumerate(featuresList):
-            print(f'index: {fIdx}')
             for species in speciesList:
-                print(f'{feature} in {species}')
                 row = df.loc[(df['Symbol'].str.fullmatch(feature, case=False)) & df['Common Organism Name'].str.match(species)]
                 if row.empty:
                     continue
@@ -939,7 +894,6 @@ class GetHomolog(Resource):
                 rowKeys = row["DB Class Key"].values
 
                 translatedRows = df.loc[(df['DB Class Key'].isin(rowKeys)) & df['Common Organism Name'].str.match(speciesPattern, case=False, na=True)]
-                print(f'\n\ttranslated row:\n{translatedRows}\n')
 
                 speciesChecklist = speciesList.copy()
 
@@ -952,8 +906,6 @@ class GetHomolog(Resource):
                     if symbol not in featuresDict[speciesName]:
                         featuresDict[speciesName].append(symbol)
 
-                print(f'\t\fIdx: {fIdx}\tindex: {index}')
-
                 for speciesCheck in speciesChecklist:
                     translationDict[speciesCheck].append(None)
 
@@ -962,8 +914,5 @@ class GetHomolog(Resource):
         if len(speciesList) == 1:
             translationDict[speciesList[0]] = list(dict.fromkeys(translationDict[speciesList[0]]))
         
-        print(f'translated dictionary:\n\n{translationDict}\n\n')
-        print(f'features dictionary: \n\n{featuresDict}')
-
         return {'translation': translationDict,
                 'features': featuresDict}

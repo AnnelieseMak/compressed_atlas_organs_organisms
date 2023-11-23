@@ -448,10 +448,10 @@ def tempPage():
     )
 
 @app.route("/geneexpression", methods=["GET"])
-def tempPage2():
+def geneexpression():
     '''Temporary page to play around and test with'''
     return render_template(
-        'temp2.html',
+        'geneexpression.html',
     )
 
 # Static assets (JS/CSS)

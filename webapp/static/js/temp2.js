@@ -26,7 +26,6 @@ const generatePlot = async () => {
     let celltypeMatch
     if (celltypeOptId != "celltypeSwitchAll") {
         const inputVal = $("#celltypeSwitchInput").val()
-        // TO DO: VALID CELLTYPE
         if (inputVal) {
             celltypeMatch = inputVal
         } else {
@@ -35,18 +34,8 @@ const generatePlot = async () => {
     }
 
     const [data, featNames] = await getData(tissues, species, searchInput)
-    // console.log(`data:\n${JSON.stringify(data)}`)
-    // console.log(`data:\n${data}`)
-
-    console.log(translations)
-
-    
-    // const firstSpecies = data[Object.keys(data)[0]]
-    // const firstTissue = firstSpecies[Object.keys(firstSpecies)[0]]
-    // const featNames = firstTissue.features[0]
     
     const allCellTypes = getAllCellTypes(data)
-    console.log(allCellTypes)
     
     const yLabel = []
     for (let i = 0; i < Object.values(translations.translation)[0].length; i++) {
@@ -67,11 +56,12 @@ const generatePlot = async () => {
     for (const [idx, cellType] of allCellTypes.entries()) {
         const [CTvals, maxV, tissueList, cellInfo] = getCellType_Tissue(data, cellType)
         
+        let traceVis = true
         if (matchOpt > tissueList.length) {
-            continue
+            traceVis = false
+            addToCelltypeList(cellType)
         }
         
-        let traceVis = true
         if (celltypeMatch) {
             const lowerCelltype = cellType.toLowerCase()
             const lowerMatch = celltypeMatch.toLowerCase()
@@ -86,11 +76,9 @@ const generatePlot = async () => {
                 Array(tissueList.length).fill(cellType),
                 tissueList
             ],
-            // y: featNames,
             y: yLabel,
             z: CTvals,
             zmin: 0,
-            // colorscale: 'Reds',
             colorscale: [
                 ['0.0', 'rgb(230, 231, 232)'],
                 ['1.0', 'rgb(53, 76, 115)']
@@ -352,50 +340,12 @@ const getCellType_Tissue = (data, celltype) => {
     return [CTcols, Math.max(...CTcols.flat()), tissueList, cellInfo]
 }
 
-// const getCellType_Tissue = (data, cellType, featuresCount) => {
-//     // console.log('\t\t\t\t\t\t\t\tFUNCTION: getCellType_Tissue')
-//     // console.log(data)
-//     const CTcols = [...Array(featuresCount)].map(e => Array(1));
-//     let tissueList = []
-//     let colNo = 0
-//     const cellInfo = [...Array(featuresCount)].map(e => Array(1));
-
-//     for (const [keySpecies, valueSpecies] of Object.entries(data)) {
-//         // console.log(keySpecies)
-//         for (const [keyTissue, valueTissue] of Object.entries(valueSpecies)) {
-//             const tissueCT = valueTissue.celltypes
-//             const CTidx = tissueCT.indexOf(cellType)
-
-//             if (CTidx != -1) {
-//                 const tissueData = valueTissue.data[0]
-//                 const tissueFeatures = valueTissue.features[0]
-//                 for (let i = 0; i < featuresCount; i++) {
-//                     CTcols[i][colNo] = tissueData[i][CTidx]
-//                     const infoDict = {
-//                         'species': keySpecies[0].toUpperCase() + keySpecies.slice(1),
-//                         'tissue': keyTissue,
-//                         'gene': tissueFeatures[i],
-//                     }                    
-//                     cellInfo[i][colNo] = infoDict
-//                 }
-//                 const label = `${keySpecies}_${keyTissue}`
-//                 tissueList.push(label)
-//                 colNo++
-//             }
-//         }
-//     }
-
-//     // {species, tissue, gene}
-//     // console.log(cellInfo)
-
-//     return [CTcols, Math.max(...CTcols.flat()), tissueList, cellInfo]
-// }
-
 /***************************************************
  *                  COLLAPSIBLE
  ***************************************************/
 
 const makeClickable = () => {
+    console.log('make clickable')
     const plotDiv = $("#plotDiv2")[0]
     // const plotData = plotDiv.data
     const plotAnnotations = plotDiv.layout.annotations
@@ -407,6 +357,7 @@ const makeClickable = () => {
 }
 
 const hideTrace = (annotationLabel) => {
+    console.log('hide trace')
     const pData = $("#plotDiv2")[0].data
 
     let traceCount = 0
@@ -588,13 +539,6 @@ const updateNumMatchedOptions = (ele) => {
             addNumMatchedOption()
         }
     }
-    
-    // if (!ele.checked) {
-    //     removeNumMatchedOption()
-    // } else {
-    //     addNumMatchedOption()
-    // }
-
 }
 
 const removeNumMatchedOption = () => {
@@ -607,7 +551,6 @@ const removeNumMatchedOption = () => {
 }
 
 const addNumMatchedOption = () => {
-    // console.log('add child')
     const optionParent = document.getElementById('dropContent')
     const childCount = optionParent.childElementCount
     const optionTemplate = document.getElementById('dropOp-template')
@@ -695,11 +638,14 @@ const getData = async (tissues, speciesList, feats) => {
 
 
     translations = await getTranslation(speciesList, feats)
-    // console.log(translations)
+    console.log(translations)
 
     for (const species of speciesList) {
         for (const tissue of tissues) {
             const feature_names = translations.features[species].toString()
+            if (!feature_names) {
+                continue
+            }
             const reqData = {
                 feature_names,
                 species,
@@ -712,69 +658,6 @@ const getData = async (tissues, speciesList, feats) => {
 
     console.log(data)
     return [data, feats]
-    ////////////////////////////////////////////////////////////////////////////////
-
-    // // get data for first species
-    // const refSpecies = speciesList[0]
-    // let refSpeciesFeatures
-    // for (const tissue of tissues) {
-    //     const reqData = {
-    //         feature_names: feats,
-    //         species: refSpecies,
-    //         tissue
-    //     }
-    //     const retVal = await apiCall(reqData, '/data/by_celltype')
-    //     // console.log(retVal)
-    //     data[refSpecies][tissue] = retVal
-
-    //     if (!refSpeciesFeatures) {
-    //         refSpeciesFeatures = retVal.features[0]
-    //     }
-    // }
-    // // console.log(speciesList)
-    
-    // // use corrected features list to translate to other species (if any)
-    // // console.log(refSpeciesFeatures)
-    // const translateTo = speciesList.slice(1)
-    // translations = await getTranslation(refSpecies, refSpeciesFeatures, translateTo)
-    // // console.log(translations)
-
-    // for (let i = 1; i < speciesList.length; i++) {
-    //     for (const tissue of tissues) {
-    //         let feature_names = translations[speciesList[i]].toString()
-    //         console.log(feature_names)
-    //         const reqData = {
-    //             feature_names,
-    //             species: speciesList[i],
-    //             tissue
-    //         }
-    //         const retVal = await apiCall(reqData, '/data/by_celltype')
-    //         data[speciesList[i]][tissue] = retVal
-    //     }
-    // }
-
-    ////////////////////////////////////////////////////////////////////////////////
-
-    // const featList = feats.split(",")
-    // const translateTo = speciesList.slice(1)
-    // const refSpecies = speciesList[0]
-    // translations = await getTranslation(refSpecies, featList, translateTo)
-    // console.log(translations)
-
-    // for (const species of speciesList) {
-    //     for (const tissue of tissues) {
-    //         let feature_names = translations[species].toString()
-    //         const reqData = {
-    //             feature_names,
-    //             species,
-    //             tissue
-    //         }
-    //         // console.log(reqData)
-    //         const retVal = await apiCall(reqData, '/data/by_celltype')
-    //         data[species][tissue] = retVal
-    //         // console.log(data)
-    //     }
-    // }
 }
 
 const getHierarchyOrder = async (traces) => {
@@ -799,12 +682,16 @@ const getHierarchyOrder = async (traces) => {
     }
     axisOrders.hierarchical.x = hierXName
 
+    // axisOrders.hierarchical.x = axisOrders.normal.x
+
     // set Y axis hierarchical order
     const hierYName = []
     for (const value of hierOrders.yOrder) {
         hierYName.push(axisOrders.normal.y[value])
     }
     axisOrders.hierarchical.y = hierYName
+
+    // axisOrders.hierarchical.y = axisOrders.normal.y
 }
 
 const getTranslation = async (species, features) => {
@@ -815,6 +702,7 @@ const getTranslation = async (species, features) => {
     }
 
     const ret = await apiCall(JSON.stringify(reqData), '/data/getHomolog')
+    console.log(ret)
     return ret
 }
 
